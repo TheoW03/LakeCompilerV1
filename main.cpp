@@ -1,9 +1,8 @@
 
 #include <iostream>
 #include <string>
-#include "tools.h"
 #include <vector>
-
+#include "parser.h"
 // #define String string
 
 using namespace std;
@@ -14,5 +13,6 @@ int main()
     string str2 = " string cat \n";
     vector<Tokens> a = lex(readFile("test"));
     printList(a);
+    Node* eq = parse(a);
     return 0;
 }

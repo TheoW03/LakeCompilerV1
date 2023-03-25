@@ -39,8 +39,7 @@ struct Tokens
 //     return dictionary[id] + "(" + buffer + ")";
 // }
 #endif
-void
-throwException(string message);
+void throwException(string message);
 vector<string> readFile(string file);
 vector<Tokens> lex(vector<string> lines);
 void printList(vector<Tokens> a);
