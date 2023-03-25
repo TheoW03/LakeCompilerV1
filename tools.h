@@ -5,9 +5,13 @@
 #include <string>
 #include <regex>
 #include <map>
+#include <cstdlib>
 
 using namespace std;
 
+
+#ifndef TYPE_H
+#define TYPE_H
 enum type
 {
     ADDITION,
@@ -16,6 +20,8 @@ enum type
     DIVISION,
     NUMBER
 };
+#endif // NODE_H
+
 #ifndef TOKENS_H
 #define TOKENS_H
 struct Tokens
@@ -24,6 +30,8 @@ struct Tokens
     type id;
     map<type,string> dictionary;
 };
+#endif // NODE_H
+
 // class Tokens
 // {
 // public:
@@ -38,7 +46,6 @@ struct Tokens
 
 //     return dictionary[id] + "(" + buffer + ")";
 // }
-#endif
 void throwException(string message);
 vector<string> readFile(string file);
 vector<Tokens> lex(vector<string> lines);

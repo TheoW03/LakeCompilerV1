@@ -12,29 +12,34 @@ struct Node
     struct Node *left;
     struct Node *right;
     int value;
-};
-struct NullStruct : public Node
-{
+    // virtual void toString() {}
 };
 struct NumNode : public Node
 {
     string num;
+    // virtual void toStrinf() {return n;um}
 };
 struct operatorNode : public Node
 {
-    struct Tokens token;
+    struct Tokens *token;
+    virtual void a() {}
 };
 #pragma endregion
 
 // Node parse(vector<Tokens> tokens){
 //     return expression(tokens);
 // }
-
-Tokens *matchAndRemove(vector<Tokens> tokens, type type)
+Tokens *current;
+Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT)
 {
-    if (tokens[0].id == type)
+    if (tokens.size() == 1)
+    {
+        return nullptr;
+    }
+    if (tokens[0].id == typeT)
     {
         Tokens *t = new Tokens(tokens[0]);
+        current = t;
         tokens.erase(tokens.begin());
         return t;
     }
@@ -42,11 +47,10 @@ Tokens *matchAndRemove(vector<Tokens> tokens, type type)
     return nullptr;
 }
 
-Node *factor(vector<Tokens> tokens)
+Node *factor(vector<Tokens> &tokens)
 {
-    NullStruct op;
     Tokens *a = matchAndRemove(tokens, type::NUMBER);
-    if (a == nullptr)
+    if (a != nullptr)
     {
         NumNode *numN;
         numN->num = a->buffer;
@@ -55,24 +59,75 @@ Node *factor(vector<Tokens> tokens)
     return nullptr;
     // do stuff
 }
-Node *term(vector<Tokens> tokens)
+Node *term(vector<Tokens> &tokens)
 {
-    operatorNode *n;
+
     // n.value = 0;
-    return n;
+    Node *n;
+    Node *opNode = factor(tokens);
+    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
+                                                                                                                                     : nullptr; // n.value = 0;
+    if (op != nullptr)
+    {
+        Node *node = nullptr;
+        while (true)
+        {
+            if (node != nullptr)
+            {
+                op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
+                                                                                                                                         : nullptr; // n.value = 0;
+            }
+            if (op == nullptr)
+            {
+                return opNode;
+            }
+            Node *right = factor(tokens);
+            operatorNode *opNode = new operatorNode;
+            opNode->left = opNode;
+            opNode->right = right;
+            opNode->token = op;
+            node = opNode;
+        }
+    }
+    return opNode;
     // do stuff
 }
 
-Node *expression(vector<Tokens> tokens)
+Node *expression(vector<Tokens> &tokens)
 {
-    operatorNode* n;
-    // n.value = 0;
-    return n;
+    Node *n;
+    Node *opNode = term(tokens);
+
+    Tokens *op = (matchAndRemove(tokens, type::ADDITION) != nullptr) ? current : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
+                                                                                                                                     : nullptr; // n.value = 0;
+    if (op != nullptr)
+    {
+        Node *node = nullptr;
+        while (true)
+        {
+            if (node != nullptr)
+            {
+                op = (matchAndRemove(tokens, type::ADDITION) != nullptr) ? current : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
+                                                                                                                                         : nullptr; // n.value = 0;
+            }
+            if (op == nullptr)
+            {
+                return opNode;
+            }
+            Node *right = term(tokens);
+            operatorNode *opNode = new operatorNode;
+            opNode->left = opNode;
+            opNode->right = right;
+            opNode->token = op;
+            node = opNode;
+        }
+    }
+    return opNode;
     // do stuff
 }
-Node *parse(vector<Tokens> tokens)
+Node *parse(vector<Tokens> &tokens)
 {
     // printList(tokens);
-
-    return expression(tokens);
+    Node *a = new Node(*expression(tokens));
+    return a;
 }

@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <fstream>
 #include "parser.h"
+#include "tools.h"
 using namespace std;
 
 int nextRegister = 0;
@@ -32,7 +33,7 @@ string gen_opertors(Node *op, ofstream &out)
     if (typeid(op) == typeid(opNode))
     {
         operatorNode *pd = static_cast<operatorNode *>(op); // downcast
-        type t = pd->token.id;
+        type t = pd->token->id;
         if (t == type::ADDITION)
         {
             // return
@@ -40,6 +41,37 @@ string gen_opertors(Node *op, ofstream &out)
         }
     }
     return "";
+}
+void traverse(Node *out)
+{
+
+    if (out == nullptr)
+    {
+        cout << "null \n";
+        return;
+    }
+    Node *newNode;
+    NumNode *numNode = new NumNode;
+    operatorNode *opNode = new operatorNode;
+    // if (auto numNode = dynamic_cast<NumNode *>(out))
+    // {
+    //     cout << numNode->num << endl;
+    // }
+    // else if (auto opNode = dynamic_cast<operatorNode *>(out))
+    // {
+    //     Tokens *a = opNode->token;
+    //     cout << a->buffer << endl;
+    // }
+    // Node *oldNode = out;
+    // Node *newNode = new Node;
+    // newNode->left = out->left;
+    // newNode->right = out->right;
+    // cout << "left ";
+    // out = new Node;
+    // newNode = new Node(*out);
+    traverse(out->left);
+    // cout << "or";
+    traverse(out->right);
 }
 
 void wf(ofstream &outfile, string word)

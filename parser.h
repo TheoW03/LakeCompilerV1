@@ -4,6 +4,8 @@
 #include "tools.h"
 using namespace std;
 
+#ifndef NODE_H
+#define NODE_H
 
 struct Node
 {
@@ -13,22 +15,25 @@ struct Node
 
 struct NullStruct : public Node
 {
-
 };
+
 struct NumNode : public Node
 {
     string num;
 };
+
 struct operatorNode : public Node
 {
-    struct Tokens token;
+    struct Tokens *token;
 };
 
-Node* parse(vector <Tokens> tokens);
+#endif // NODE_H
 
-Node* term(vector<Tokens> tokens);
-Node* factor(vector<Tokens> tokens);
+Node *parse(vector<Tokens>& tokens);
 
-Node* expression(vector<Tokens> tokens);
+Node *term(vector<Tokens>& tokens);
+Node *factor(vector<Tokens>& tokens);
 
-Tokens* matchAndRemove(vector<Tokens> tokens, type type);
+Node *expression(vector<Tokens>& tokens);
+
+Tokens *matchAndRemove(vector<Tokens>& tokens, type type);
