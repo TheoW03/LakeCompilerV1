@@ -17,10 +17,11 @@ int main()
     vector<Tokens> a = lex(readFile("test"));
     printList(a);
     Node *c = parse(a);
+
     if (c == nullptr)
     {
         cout << "nullptr out \n";
     }
-    traverse(c);
+    traverse(c,0);
     return 0;
 }

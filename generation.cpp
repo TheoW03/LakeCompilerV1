@@ -42,13 +42,19 @@ string gen_opertors(Node *op, ofstream &out)
     }
     return "";
 }
-void traverse(Node *node)
+void traverse(Node *node, int n)
 {
-    if(node != nullptr){
+    if (node == nullptr)
+    {
         return;
     }
-    traverse(node->left);
-    traverse(node->right);
+    // process node...
+    cout << n << endl;
+    n++;
+    traverse(node->left, n);
+    traverse(node->right, n);
+
+    // traverse(node->right);
 }
 
 void wf(ofstream &outfile, string word)
