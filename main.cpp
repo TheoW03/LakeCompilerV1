@@ -8,17 +8,19 @@
 // #define String string
 
 using namespace std;
-
+struct Data
+{
+    int x, y;
+};
 int main()
 {
     vector<Tokens> a = lex(readFile("test"));
-    vector<Tokens> b = a;
-    Node *eq = parse(a);
-    printList(b);
-    if (eq == nullptr)
+    printList(a);
+    Node *c = parse(a);
+    if (c == nullptr)
     {
         cout << "nullptr out \n";
     }
-    traverse(eq);
+    traverse(c);
     return 0;
 }

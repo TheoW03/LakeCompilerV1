@@ -2,16 +2,16 @@ output:main.o tools.o parse.o generation.o
 	g++ tools.o main.o parse.o generation.o -o output
 
 tools.o: tools.cpp parser.h tools.h transpile.h
-	g++ -c tools.cpp
+	g++ -c -g tools.cpp
 
 parse.o: parse.cpp parser.h tools.h transpile.h
-	g++ -c parse.cpp
+	g++ -c -g parse.cpp
 
 generation.o: generation.cpp parser.h tools.h transpile.h
-	g++ -c generation.cpp
+	g++ -c -g generation.cpp
 
 main.o: main.cpp parser.h tools.h transpile.h
-	g++ -c main.cpp
+	g++ -c -g main.cpp
 clean: 
 	rm *.o output
 	clear

@@ -42,36 +42,13 @@ string gen_opertors(Node *op, ofstream &out)
     }
     return "";
 }
-void traverse(Node *out)
+void traverse(Node *node)
 {
-
-    if (out == nullptr)
-    {
-        cout << "null \n";
+    if(node != nullptr){
         return;
     }
-    Node *newNode;
-    NumNode *numNode = new NumNode;
-    operatorNode *opNode = new operatorNode;
-    // if (auto numNode = dynamic_cast<NumNode *>(out))
-    // {
-    //     cout << numNode->num << endl;
-    // }
-    // else if (auto opNode = dynamic_cast<operatorNode *>(out))
-    // {
-    //     Tokens *a = opNode->token;
-    //     cout << a->buffer << endl;
-    // }
-    // Node *oldNode = out;
-    // Node *newNode = new Node;
-    // newNode->left = out->left;
-    // newNode->right = out->right;
-    // cout << "left ";
-    // out = new Node;
-    // newNode = new Node(*out);
-    traverse(out->left);
-    // cout << "or";
-    traverse(out->right);
+    traverse(node->left);
+    traverse(node->right);
 }
 
 void wf(ofstream &outfile, string word)

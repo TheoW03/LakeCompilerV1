@@ -10,6 +10,8 @@
 using namespace std;
 
 
+
+
 #ifndef TYPE_H
 #define TYPE_H
 enum type
