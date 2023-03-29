@@ -22,6 +22,7 @@ int main()
     {
         cout << "nullptr out \n";
     }
-    traverse(c);
+    gen_opertors(c);
+    print_global();
     return 0;
 }

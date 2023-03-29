@@ -24,39 +24,45 @@ Node::~Node()
     // implementation of the destructor goes here
 }
 int nextRegister = 0;
-string registers[] = {"$t0", "$t1", "$t2", "$t3"};
 string allocateReg()
 {
-    return registers[nextRegister++];
+    if(nextRegister > 9){
+        nextRegister = 0;
+    }
+    return "$t"+to_string(nextRegister++);
 }
-string gen_opertors(Node *op, ofstream &out)
+string global_string = "";
+string gen_opertors(Node *op)
 {
-    NullStruct NullStruct1;
-    NumNode numNode;
-    operatorNode opNode;
 
     if (op == nullptr)
     {
         return "";
     }
-    if (typeid(op) == typeid(numNode))
+    if (dynamic_cast<NumNode*>(op) != nullptr)
     {
-        NumNode *pd = static_cast<NumNode *>(op); // downcast
-        return allocateReg();
+        NumNode *pd = dynamic_cast<NumNode*>(op);
+        string reg = allocateReg();
+        global_string += "li "+reg+","+pd->num+"\n";
+        return reg;
     }
-    gen_opertors(op->left, out);
-    gen_opertors(op->right, out);
-    if (typeid(op) == typeid(opNode))
+    if (dynamic_cast<operatorNode*>(op) != nullptr)
     {
-        operatorNode *pd = static_cast<operatorNode *>(op); // downcast
+        operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
         type t = pd->token->id;
+        string resultReg = allocateReg();
         if (t == type::ADDITION)
         {
             // return
-            return "";
+            global_string += "addi "+gen_opertors(op->left)+", "+gen_opertors(op->right)+", "+resultReg+"\n";
+            return resultReg;
         }
     }
+    //treat like register machine
     return "";
+}
+void print_global(){
+    cout << global_string << endl;
 }
 void traverse(Node *node)
 {
