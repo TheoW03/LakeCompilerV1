@@ -21,7 +21,9 @@ struct Node
     struct Node *left;
     struct Node *right;
     status s;
+    virtual ~Node();
 };
+
 
 struct NullStruct : public Node
 {

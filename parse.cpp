@@ -15,6 +15,8 @@ enum status
 };
 struct Node
 {
+    virtual ~Node();
+
     struct Node *left;
     struct Node *right;
     int value;
@@ -24,7 +26,7 @@ struct Node
 struct NumNode : public Node
 {
     status s;
-    string num;
+    string num = "";
 };
 struct operatorNode : public Node
 {
@@ -73,7 +75,7 @@ Node *factor(vector<Tokens> &tokens)
 {
     Tokens *a = new Tokens;
     a = matchAndRemove(tokens, type::NUMBER);
-    if (a == nullptr)
+    if (a != nullptr)
     {
         NumNode *numN = new NumNode;
         string b = a->buffer;

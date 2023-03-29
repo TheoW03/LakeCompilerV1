@@ -3,10 +3,26 @@
 
 #include <sys/stat.h>
 #include <fstream>
+#include <typeinfo>
+
 #include "parser.h"
 #include "tools.h"
 using namespace std;
+template <typename Base, typename T>
 
+inline bool instanceof (T *ptr)
+{
+    cout << "T" << endl;
+
+    cout << typeid(T).name() << endl;
+    cout << "base" << endl;
+    cout << typeid(Base).name() << endl;
+    return (dynamic_cast<const Base*>(ptr) != nullptr);
+}
+Node::~Node()
+{
+    // implementation of the destructor goes here
+}
 int nextRegister = 0;
 string registers[] = {"$t0", "$t1", "$t2", "$t3"};
 string allocateReg()
@@ -48,7 +64,18 @@ void traverse(Node *node)
     {
         return;
     }
-    // process node...
+    if (dynamic_cast<operatorNode*>(node)!=nullptr)
+    {
+        // operatorNode* n = dynamic_cast<operatorNode*>(node);
+        // Tokens* a = n->token;
+        // cout << a->buffer;
+        // cout << "op \n";
+    }
+    if (dynamic_cast<NumNode*>(node) != nullptr)
+    {
+
+        // cout << "num \n";
+    }
     traverse(node->left);
     traverse(node->right);
 
