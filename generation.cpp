@@ -42,17 +42,15 @@ string gen_opertors(Node *op, ofstream &out)
     }
     return "";
 }
-void traverse(Node *node, int n)
+void traverse(Node *node)
 {
     if (node == nullptr)
     {
         return;
     }
     // process node...
-    cout << n << endl;
-    n++;
-    traverse(node->left, n);
-    traverse(node->right, n);
+    traverse(node->left);
+    traverse(node->right);
 
     // traverse(node->right);
 }

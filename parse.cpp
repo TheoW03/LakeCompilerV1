@@ -6,23 +6,41 @@
 using namespace std;
 
 #pragma region Node
-
+enum status
+{
+    N_NULL,
+    NUM,
+    OPERATOR,
+    NODE
+};
 struct Node
 {
     struct Node *left;
     struct Node *right;
     int value;
+    status s = status::NODE;
 };
+
 struct NumNode : public Node
 {
+    status s;
     string num;
 };
 struct operatorNode : public Node
 {
     struct Tokens *token;
+    status s;
 };
 #pragma endregion
 
+bool isNull(Node *n)
+{
+    return n->s == status::N_NULL;
+}
+void setNull(Node *n)
+{
+    n->s = status::N_NULL;
+}
 // Node parse(vector<Tokens> tokens){
 //     return expression(tokens);
 // }
@@ -55,7 +73,7 @@ Node *factor(vector<Tokens> &tokens)
 {
     Tokens *a = new Tokens;
     a = matchAndRemove(tokens, type::NUMBER);
-    if (a)
+    if (a == nullptr)
     {
         NumNode *numN = new NumNode;
         string b = a->buffer;
@@ -65,7 +83,6 @@ Node *factor(vector<Tokens> &tokens)
     }
     else
     {
-        cout << "op null \n";
         return nullptr;
     }
     // do stuff
@@ -76,18 +93,18 @@ Node *term(vector<Tokens> &tokens)
     // n.value = 0;
     Node *n;
     Node *opNode;
-    opNode = new Node(*factor(tokens));
-    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY) != NULL) ? current : (matchAndRemove(tokens, type::DIVISION) != NULL) ? current
-                                                                                                                               : NULL; // n.value = 0;
+    opNode = factor(tokens);
+    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
+                                                                                                                                     : nullptr; // n.value = 0;
     if (op != nullptr)
     {
-        Node *node = NULL;
+        Node *node = nullptr;
         while (true)
         {
-            if (node != NULL)
+            if (node != nullptr)
             {
-                op = (matchAndRemove(tokens, type::MULTIPLY) != NULL) ? current : (matchAndRemove(tokens, type::DIVISION) != NULL) ? current
-                                                                                                                                   : NULL; // n.value = 0;
+                op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
+                                                                                                                                         : nullptr; // n.value = 0;
             }
             if (op == nullptr)
             {
@@ -101,7 +118,7 @@ Node *term(vector<Tokens> &tokens)
             n->right = right;
             n->token = op;
             opNode = n;
-            if (opNode == NULL)
+            if (isNull(opNode))
             {
                 cout << "opNode nulll \n";
             }
@@ -115,9 +132,9 @@ Node *term(vector<Tokens> &tokens)
 Node *expression(vector<Tokens> &tokens)
 {
     Node *n;
-    Node* opNode = new Node(*term(tokens));
-    Tokens *op = (matchAndRemove(tokens, type::ADDITION) != nullptr) ? current : (matchAndRemove(tokens, type::SUBTRACT) != NULL) ? current
-                                                                                                                                  : NULL; // n.value = 0;
+    Node *opNode = term(tokens);
+    Tokens *op = (matchAndRemove(tokens, type::ADDITION) != nullptr) ? current : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
+                                                                                                                                     : NULL; // n.value = 0;
     if (op != nullptr)
     {
         Node *node = nullptr;
@@ -125,12 +142,12 @@ Node *expression(vector<Tokens> &tokens)
         {
             if (node != nullptr)
             {
-                op = (matchAndRemove(tokens, type::ADDITION) != nullptr) ? current : (matchAndRemove(tokens, type::SUBTRACT) != NULL) ? current
-                                                                                                                                      : NULL; // n.value = 0;
+                op = (matchAndRemove(tokens, type::ADDITION) != nullptr) ? current : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
+                                                                                                                                         : NULL; // n.value = 0;
             }
-            if (op == NULL)
+            if (op == nullptr)
             {
-                if (opNode == NULL)
+                if (opNode == nullptr)
                 {
                     cout << "opNode nulll \n";
                 }
@@ -138,17 +155,14 @@ Node *expression(vector<Tokens> &tokens)
             }
             Node *right = term(tokens);
             operatorNode *n = new operatorNode;
-            n->left = new Node;
             n->left = opNode;
-            n->right = new Node;
             n->right = right;
             n->token = op;
             opNode = n;
-
             node = opNode;
         }
     }
-    if (opNode == NULL)
+    if (opNode == nullptr)
     {
         cout << "opNode nulll \n";
     }

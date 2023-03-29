@@ -22,6 +22,6 @@ int main()
     {
         cout << "nullptr out \n";
     }
-    traverse(c,0);
+    traverse(c);
     return 0;
 }
