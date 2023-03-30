@@ -32,6 +32,7 @@ vector<string> readFile(string file)
     vector<string> vec;
     ifstream infile(file); // Open the file for reading
     string line;
+    cout << "input: "<< endl;
     while (getline(infile, line))
     {
         cout << line + "\n";
@@ -80,8 +81,8 @@ vector<Tokens> lex(vector<string> lines)
                 if (state == 1)
                 {
                     // cout << current;
-                    cout << "string: " + str + "\n";
-                    cout << "buffer: " + buffer + "\n";
+                    // cout << "string: " + str + "\n";
+                    // cout << "buffer: " + buffer + "\n";
                     if (regex_search(str, myMatch, numReg))
                     {
                         buffer += str;

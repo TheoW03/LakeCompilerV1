@@ -52,11 +52,11 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT)
         return nullptr;
     }
 
-    cout << "passed: " + tokens[0].dictionary[typeT];
-    cout << "\n";
-    cout << "id: " + tokens[0].dictionary[tokens[0].id];
-    cout << "\n";
-    cout << "buf: " + tokens[0].buffer + " \n";
+    // cout << "passed: " + tokens[0].dictionary[typeT];
+    // cout << "\n";
+    // cout << "id: " + tokens[0].dictionary[tokens[0].id];
+    // cout << "\n";
+    // cout << "buf: " + tokens[0].buffer + " \n";
     if (tokens[0].id == typeT)
     {
 
@@ -65,7 +65,7 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT)
         tokens.erase(tokens.begin());
         return t;
     }
-    cout << "unmatched \n";
+    // cout << "unmatched \n";
     return nullptr;
 }
 
@@ -77,9 +77,9 @@ Node *factor(vector<Tokens> &tokens)
     {
         NumNode *numN = new NumNode;
         string b = a->buffer;
-        cout << "b: " + b << endl;
+        // cout << "b: " + b << endl;
         numN->num =b;
-        cout << "numN: "+numN->num << endl;
+        // cout << "numN: "+numN->num << endl;
         delete a;
         return numN;
     }
@@ -145,7 +145,7 @@ Node *expression(vector<Tokens> &tokens)
             {
                 if (opNode == nullptr)
                 {
-                    cout << "opNode nulll \n";
+                    // cout << "opNode nulll \n";
                 }
                 return opNode;
             }
@@ -160,7 +160,7 @@ Node *expression(vector<Tokens> &tokens)
     }
     if (opNode == nullptr)
     {
-        cout << "opNode nulll \n";
+        // cout << "opNode nulll \n";
     }
     return opNode;
     // do stuff
@@ -171,7 +171,7 @@ Node *parse(vector<Tokens> &tokens)
     Node *a = expression(tokens);
     if (a == nullptr)
     {
-        cout << "null \n";
+        // cout << "null \n";
         return nullptr;
     }
 

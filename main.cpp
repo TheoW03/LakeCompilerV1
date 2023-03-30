@@ -15,14 +15,18 @@ struct Data
 int main()
 {
     vector<Tokens> a = lex(readFile("test"));
-    printList(a);
+    cout << "lexxed" << endl;
+    // printList(a);
     Node *c = parse(a);
+    cout << "parsed" << endl;
 
     if (c == nullptr)
     {
         cout << "nullptr out \n";
     }
+    cout << "output" << endl;
     gen_opertors(c);
+
     // traverse(c);
     print_global();
     return 0;
