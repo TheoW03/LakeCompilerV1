@@ -15,7 +15,7 @@ inline bool instanceof(const T *ptr);
 #endif
 
 void traverse(Node *node);
-void gencode(string filename="");
+void gencode(Node* op ,string filename="");
 string gen_opertors(Node *op);
 string allocateReg();
 void print_global();

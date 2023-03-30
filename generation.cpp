@@ -108,7 +108,7 @@ void wf(ofstream &outfile, string word)
 {
     outfile << word << endl;
 }
-void gencode(string filename = "")
+void gencode(Node *op, string filename = "")
 {
     if (filename == "")
     {
@@ -118,6 +118,8 @@ void gencode(string filename = "")
     // FILE* fp = fopen("output.s", "w");
     string word = ".data \n .text \n main: \n";
     wf(outfile, word);
+    gen_opertors(op);
+    wf(outfile, global_string);
     // write everything in
     string exitStuff = "\t li $v0, 10 \n \t syscall # exited program pop into QtSpim and it should work";
     wf(outfile, exitStuff);

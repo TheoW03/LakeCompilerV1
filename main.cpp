@@ -24,10 +24,6 @@ int main()
     {
         cout << "nullptr out \n";
     }
-    cout << "output" << endl;
-    gen_opertors(c);
-
-    // traverse(c);
-    print_global();
+    gencode(c,"test.s");
     return 0;
 }
