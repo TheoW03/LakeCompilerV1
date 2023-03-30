@@ -68,6 +68,37 @@ string gen_opertors(Node *op)
             freeReg();
             return resultReg;
         }
+        if (t == type::SUBTRACT)
+        {
+            // return
+            string left = gen_opertors(op->left);
+            string right = gen_opertors(op->right);
+            global_string += "sub " + resultReg + "," + left + ", " + right + " \n";
+            freeReg();
+            freeReg();
+            return resultReg;
+        }
+        if (t == type::MULTIPLY)
+        {
+            // return
+            string left = gen_opertors(op->left);
+            string right = gen_opertors(op->right);
+            global_string += "mult " + left + ", " + right + " \n";
+            global_string += "mflo "+resultReg+" \n";
+            freeReg();
+            freeReg();
+            return resultReg;
+        }
+        if (t == type::DIVISION)
+        {
+            // return
+            string left = gen_opertors(op->left);
+            string right = gen_opertors(op->right);
+            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
+            freeReg();
+            freeReg();
+            return resultReg;
+        }
     }
     // treat like register machine
     return "";
