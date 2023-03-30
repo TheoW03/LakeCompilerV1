@@ -84,7 +84,7 @@ string gen_opertors(Node *op)
             string left = gen_opertors(op->left);
             string right = gen_opertors(op->right);
             global_string += "mult " + left + ", " + right + " \n";
-            global_string += "mflo "+resultReg+" \n";
+            global_string += "mflo " + resultReg + " \n";
             freeReg();
             freeReg();
             return resultReg;
@@ -149,8 +149,10 @@ void gencode(Node *op, string filename = "")
     // FILE* fp = fopen("output.s", "w");
     string word = ".data \n .text \n main: \n";
     wf(outfile, word);
-    gen_opertors(op);
+    string reg_result = gen_opertors(op);
     wf(outfile, global_string);
+    string printConsole = "\t li $v0, 1 \n move $a0, " + reg_result + "\n syscall # prints to console\n";
+    wf(outfile, printConsole);
     // write everything in
     string exitStuff = "\t li $v0, 10 \n \t syscall # exited program pop into QtSpim and it should work";
     wf(outfile, exitStuff);
