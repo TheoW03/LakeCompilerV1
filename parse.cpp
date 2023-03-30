@@ -25,13 +25,11 @@ struct Node
 
 struct NumNode : public Node
 {
-    status s;
-    string num = "";
+    string num;
 };
 struct operatorNode : public Node
 {
     struct Tokens *token;
-    status s;
 };
 #pragma endregion
 
@@ -80,7 +78,9 @@ Node *factor(vector<Tokens> &tokens)
         NumNode *numN = new NumNode;
         string b = a->buffer;
         cout << "b: " + b << endl;
-        numN->num = a->buffer;
+        numN->num =b;
+        cout << "numN: "+numN->num << endl;
+        delete a;
         return numN;
     }
     else
@@ -114,16 +114,10 @@ Node *term(vector<Tokens> &tokens)
             }
             Node *right = factor(tokens);
             operatorNode *n = new operatorNode;
-            n->left = new Node;
             n->left = opNode;
-            n->right = new Node;
             n->right = right;
             n->token = op;
             opNode = n;
-            if (isNull(opNode))
-            {
-                cout << "opNode nulll \n";
-            }
             node = opNode;
         }
     }

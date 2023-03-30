@@ -10,28 +10,34 @@
 using namespace std;
 template <typename Base, typename T>
 
-inline bool instanceof (T *ptr)
+inline bool instanceof (T * ptr)
 {
     cout << "T" << endl;
 
     cout << typeid(T).name() << endl;
     cout << "base" << endl;
     cout << typeid(Base).name() << endl;
-    return (dynamic_cast<const Base*>(ptr) != nullptr);
+    return (dynamic_cast<const Base *>(ptr) != nullptr);
 }
 Node::~Node()
 {
     // implementation of the destructor goes here
 }
-int nextRegister = 0;
+int nextRegister = -1;
 string allocateReg()
 {
-    if(nextRegister > 9){
-        nextRegister = 0;
+    if (nextRegister >= 9)
+    {
+        nextRegister = -1;
     }
-    return "$t"+to_string(nextRegister++);
+    nextRegister++;
+    return "$t" + to_string(nextRegister);
 }
 string global_string = "";
+void freeReg()
+{
+    nextRegister--;
+}
 string gen_opertors(Node *op)
 {
 
@@ -39,14 +45,15 @@ string gen_opertors(Node *op)
     {
         return "";
     }
-    if (dynamic_cast<NumNode*>(op) != nullptr)
+    // mem errro :')
+    NumNode *pd;
+    if ((pd = dynamic_cast<NumNode *>(op)) != nullptr)
     {
-        NumNode *pd = dynamic_cast<NumNode*>(op);
         string reg = allocateReg();
-        global_string += "li "+reg+","+pd->num+"\n";
+        global_string += "li " + reg + "," + pd->num + "\n";
         return reg;
     }
-    if (dynamic_cast<operatorNode*>(op) != nullptr)
+    if (dynamic_cast<operatorNode *>(op) != nullptr)
     {
         operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
         type t = pd->token->id;
@@ -54,14 +61,19 @@ string gen_opertors(Node *op)
         if (t == type::ADDITION)
         {
             // return
-            global_string += "addi "+gen_opertors(op->left)+", "+gen_opertors(op->right)+", "+resultReg+"\n";
+            string left = gen_opertors(op->left);
+            string right = gen_opertors(op->right);
+            global_string += "add " + resultReg + "," + left + ", " + right + " \n";
+            freeReg();
+            freeReg();
             return resultReg;
         }
     }
-    //treat like register machine
+    // treat like register machine
     return "";
 }
-void print_global(){
+void print_global()
+{
     cout << global_string << endl;
 }
 void traverse(Node *node)
@@ -70,18 +82,22 @@ void traverse(Node *node)
     {
         return;
     }
-    if (dynamic_cast<operatorNode*>(node)!=nullptr)
-    {
-        // operatorNode* n = dynamic_cast<operatorNode*>(node);
-        // Tokens* a = n->token;
-        // cout << a->buffer;
-        // cout << "op \n";
-    }
-    if (dynamic_cast<NumNode*>(node) != nullptr)
-    {
+    // if (dynamic_cast<operatorNode *>(node) != nullptr)
+    // {
+    // }
 
-        // cout << "num \n";
+    // NumNode *pd = dynamic_cast<NumNode *>(node);
+    NumNode *pd;
+    if ((pd = dynamic_cast<NumNode *>(node)) != nullptr)
+    {
+        NumNode *a = static_cast<NumNode *>(node);
+        cout << a->num << endl;
     }
+    else
+    {
+        cout << "null" << endl;
+    }
+
     traverse(node->left);
     traverse(node->right);
 

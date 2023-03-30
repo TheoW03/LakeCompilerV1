@@ -23,6 +23,7 @@ int main()
         cout << "nullptr out \n";
     }
     gen_opertors(c);
+    // traverse(c);
     print_global();
     return 0;
 }
