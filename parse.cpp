@@ -121,7 +121,7 @@ Node *term(vector<Tokens> &tokens)
     Node *n;
     Node *opNode;
     opNode = factor(tokens);
-    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
+    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current :(matchAndRemove(tokens, type::MOD) != nullptr) ? current
                                                                                                                                      : nullptr; // n.value = 0;
     if (op != nullptr)
     {
@@ -130,8 +130,8 @@ Node *term(vector<Tokens> &tokens)
         {
             if (node != nullptr)
             {
-                op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
-                                                                                                                                         : nullptr; // n.value = 0;
+                op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current:(matchAndRemove(tokens, type::MOD) != nullptr) ? current
+                     : nullptr; // n.value = 0;
             }
             if (op == nullptr)
             {

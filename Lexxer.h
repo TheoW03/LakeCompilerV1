@@ -19,7 +19,10 @@ enum type
     DIVISION,
     NUMBER,
     OP_PARENTHISIS,
-    CL_PARENTHISIS
+    CL_PARENTHISIS,
+    MOD,
+    EQUALS,
+    WORD
 };
 #endif // NODE_H
 

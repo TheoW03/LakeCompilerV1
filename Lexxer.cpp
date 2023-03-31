@@ -6,6 +6,11 @@
 #include <regex>
 #include <map>
 using namespace std;
+
+#define true 0
+#define false 1
+#pragma region
+#define boolean int
 enum class type
 {
     ADDITION,
@@ -14,7 +19,10 @@ enum class type
     DIVISION,
     NUMBER,
     OP_PARENTHISIS,
-    CL_PARENTHISIS
+    CL_PARENTHISIS,
+    MOD,
+    EQUALS,
+    WORD
 };
 struct Tokens
 {
@@ -59,6 +67,10 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::MULTIPLY] = "MULTIPLY";
     dictionary[type::OP_PARENTHISIS] = "OP_PARENTHISIS";
     dictionary[type::CL_PARENTHISIS] = "CL_PARENTHISIS";
+    dictionary[type::CL_PARENTHISIS] = "CL_PARENTHISIS";
+    dictionary[type::MOD] = "MOD";
+    dictionary[type::WORD] = "WORD";
+    dictionary[type::EQUALS] = "EQUALS";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -67,12 +79,16 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["*"] = type::MULTIPLY;
     typeOfOP["("] = type::OP_PARENTHISIS;
     typeOfOP[")"] = type::CL_PARENTHISIS;
+    typeOfOP["%"] = type::MOD;
 
+    int wordstate = 1;
+    string wordBuffer = "";
     int state = 1;
-    regex opRegex("[+*/]"); // Match any word that starts with 'q'
+    regex opRegex("[+*/%]"); // Match any word that starts with 'q'
 
     regex numReg("[0-9]"); // Match any word that starts with 'q'
     std::smatch myMatch;
+    int stateIsNum = 1;
     Tokens token;
     vector<Tokens> a;
     for (int i = 0; i < lines.size(); i++)
@@ -83,137 +99,192 @@ vector<Tokens> lex(vector<string> lines)
         {
             char current = line.at(i2);
             string str(1, current);
-            if (current != ' ')
+            if (current != ' ' || current != '\t' || current != '\0')
             {
-                if (state == 1)
+
+                if (regex_search(str, myMatch, numReg) || regex_search(str, myMatch, opRegex) || str == "-")
                 {
-                    // cout << current;
-                    // cout << "string: " + str + "\n";
-                    // cout << "buffer: " + buffer + "\n";
-                    if (regex_search(str, myMatch, numReg))
+                }
+                else
+                {
+                    // stateIsNum = 0;
+                }
+                if (stateIsNum == 1)
+                {
+#pragma region num
+
+                    if (state == 1)
                     {
-                        buffer += str;
-                    }
-                    else if (regex_search(str, myMatch, opRegex))
-                    {
-                        if (buffer != "")
+                        // cout << current;
+                        // cout << "string: " + str + "\n";
+                        // cout << "buffer: " + buffer + "\n";
+                        if (regex_search(str, myMatch, numReg))
                         {
-
-                            // Tokens token(buffer, type::NUMBER);
-                            // token.dictionary = dictionary;
-                            modifyStruct(token, type::NUMBER, dictionary, buffer);
-                            a.push_back(token);
-                        }
-                        buffer = "";
-                        buffer += str;
-                        modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
-                        a.push_back(token);
-                        buffer = "";
-                        state = 2;
-                    }
-                    else if (str == "-")
-                    {
-
-                        if (buffer == "")
-                        {
-                            cout << "sub \n";
-
                             buffer += str;
                         }
-                        else
+                        else if (regex_search(str, myMatch, opRegex))
                         {
-
                             if (buffer != "")
                             {
-                                modifyStruct(token, type::NUMBER, dictionary, buffer);
-                                a.push_back(token);
-                            }
-                            buffer = "";
-                            buffer += str;
-                            // cout <<  << endl;
 
-                            modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
-                            a.push_back(token);
-                            buffer = "";
-                        }
-                        state = 2;
-                    }
-                    else if (str == ")" || str == "(")
-                    {
-                        if (buffer != "")
-                        {
-                            if (typeOfOP.find(buffer) != typeOfOP.end())
-                            {
-                                // Tokens token(buffer, typeOfOP[buffer]);
-                                // token.dictionary = dictionary;
-                                modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
-                                a.push_back(token);
-                            }
-                            else
-                            {
                                 // Tokens token(buffer, type::NUMBER);
                                 // token.dictionary = dictionary;
                                 modifyStruct(token, type::NUMBER, dictionary, buffer);
                                 a.push_back(token);
                             }
                             buffer = "";
-                        }
-                        buffer += str;
-                        modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
-                        a.push_back(token);
-                        buffer = "";
-
-                        state = 2;
-                    }
-                }
-                else if (state == 2)
-                {
-                    // if (buffer != "")
-                    // {
-                    //     if (typeOfOP.find(buffer) != typeOfOP.end())
-                    //     {
-                    //         // Tokens token(buffer, typeOfOP[buffer]);
-                    //         // token.dictionary = dictionary;
-                    //         modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
-                    //         a.push_back(token);
-                    //     }
-                    //     else
-                    //     {
-                    //         // Tokens token(buffer, type::NUMBER);
-                    //         // token.dictionary = dictionary;
-                    //         modifyStruct(token, type::NUMBER, dictionary, buffer);
-                    //         a.push_back(token);
-                    //     }
-                    //     buffer = "";
-                    // }
-                    if (str == "-")
-                    {
-                        buffer += str;
-                        state = 1;
-                    }
-                    if (str == ")" || str == "(")
-                    {
-                        if (buffer != "")
-                        {
+                            buffer += str;
                             modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
                             a.push_back(token);
                             buffer = "";
+                            state = 2;
                         }
+                        else if (str == "-")
+                        {
 
-                        buffer += str;
+                            if (buffer == "")
+                            {
+                                cout << "sub \n";
 
-                        modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
-                        a.push_back(token);
-                        buffer = "";
+                                buffer += str;
+                            }
+                            else
+                            {
 
-                        state = 1;
+                                if (buffer != "")
+                                {
+                                    modifyStruct(token, type::NUMBER, dictionary, buffer);
+                                    a.push_back(token);
+                                }
+                                buffer = "";
+                                buffer += str;
+                                // cout <<  << endl;
+
+                                modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                                a.push_back(token);
+                                buffer = "";
+                            }
+                            state = 2;
+                        }
+                        else if (str == ")" || str == "(")
+                        {
+                            if (buffer != "")
+                            {
+                                if (typeOfOP.find(buffer) != typeOfOP.end())
+                                {
+                                    // Tokens token(buffer, typeOfOP[buffer]);
+                                    // token.dictionary = dictionary;
+                                    modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                                    a.push_back(token);
+                                }
+                                else
+                                {
+                                    // Tokens token(buffer, type::NUMBER);
+                                    // token.dictionary = dictionary;
+                                    modifyStruct(token, type::NUMBER, dictionary, buffer);
+                                    a.push_back(token);
+                                }
+                                buffer = "";
+                            }
+                            buffer += str;
+                            modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                            a.push_back(token);
+                            buffer = "";
+
+                            state = 2;
+                        }
                     }
-                    if (regex_search(str, myMatch, numReg))
+                    else if (state == 2)
                     {
-                        buffer += str;
-                        cout << buffer << endl;
+                        // if (buffer != "")
+                        // {
+                        //     if (typeOfOP.find(buffer) != typeOfOP.end())
+                        //     {
+                        //         // Tokens token(buffer, typeOfOP[buffer]);
+                        //         // token.dictionary = dictionary;
+                        //         modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                        //         a.push_back(token);
+                        //     }
+                        //     else
+                        //     {
+                        //         // Tokens token(buffer, type::NUMBER);
+                        //         // token.dictionary = dictionary;
+                        //         modifyStruct(token, type::NUMBER, dictionary, buffer);
+                        //         a.push_back(token);
+                        //     }
+                        //     buffer = "";
+                        // }
+                        if (str == "-")
+                        {
+                            buffer += str;
+                            state = 1;
+                        }
+                        if (str == ")" || str == "(")
+                        {
+                            if (buffer != "")
+                            {
+                                modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                                a.push_back(token);
+                                buffer = "";
+                            }
 
-                        state = 1;
+                            buffer += str;
+
+                            modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                            a.push_back(token);
+                            buffer = "";
+
+                            state = 1;
+                        }
+                        if (regex_search(str, myMatch, numReg))
+                        {
+                            buffer += str;
+                            cout << buffer << endl;
+
+                            state = 1;
+                        }
+                    }
+#pragma endregion num
+                }
+                else
+                {
+                    if (buffer != "")
+                    {
+                        if (typeOfOP.find(buffer) != typeOfOP.end())
+                        {
+                            // Tokens token(buffer, typeOfOP[buffer]);
+                            // token.dictionary = dictionary;
+                            modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                            a.push_back(token);
+                        }
+                        else
+                        {
+                            // Tokens token(buffer, type::NUMBER);
+                            // token.dictionary = dictionary;
+                            modifyStruct(token, type::NUMBER, dictionary, buffer);
+                            a.push_back(token);
+                        }
+                        buffer = "";
+                    }
+                    if (wordstate == 1)
+                    {
+
+                        if (str == "=")
+                        {
+                            if (wordBuffer != "")
+                            {
+                                modifyStruct(token, type::WORD, dictionary, wordBuffer);
+                                wordBuffer = "";
+                            }
+                            wordBuffer += str;
+                            modifyStruct(token, type::EQUALS, dictionary, wordBuffer);
+                            wordBuffer = "";
+                            stateIsNum = 1;
+                        }
+                        else
+                        {
+                            wordBuffer += str;
+                        }
                     }
                 }
             }

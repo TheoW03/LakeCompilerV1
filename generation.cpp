@@ -56,7 +56,7 @@ void freeReg()
 {
     nextRegister--;
 }
-string gen_opertors(Node *op,vector<string> &tabs)
+string gen_opertors(Node *op, vector<string> &tabs)
 {
 
     if (op == nullptr)
@@ -68,7 +68,7 @@ string gen_opertors(Node *op,vector<string> &tabs)
     if ((pd = dynamic_cast<NumNode *>(op)) != nullptr)
     {
         string reg = allocateReg();
-        global_string += tabs_str(tabs)+"li " + reg + "," + pd->num + "\n";
+        global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
         return reg;
     }
     if (dynamic_cast<operatorNode *>(op) != nullptr)
@@ -79,9 +79,9 @@ string gen_opertors(Node *op,vector<string> &tabs)
         if (t == type::ADDITION)
         {
             // return
-            string left = gen_opertors(op->left,tabs);
-            string right = gen_opertors(op->right,tabs);
-            global_string += tabs_str(tabs)+"add " + resultReg + "," + left + ", " + right + " \n";
+            string left = gen_opertors(op->left, tabs);
+            string right = gen_opertors(op->right, tabs);
+            global_string += tabs_str(tabs) + "add " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
             return resultReg;
@@ -89,9 +89,9 @@ string gen_opertors(Node *op,vector<string> &tabs)
         if (t == type::SUBTRACT)
         {
             // return
-            string left = gen_opertors(op->left,tabs);
-            string right = gen_opertors(op->right,tabs);
-            global_string += tabs_str(tabs)+"sub " + resultReg + "," + left + ", " + right + " \n";
+            string left = gen_opertors(op->left, tabs);
+            string right = gen_opertors(op->right, tabs);
+            global_string += tabs_str(tabs) + "sub " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
             return resultReg;
@@ -99,10 +99,10 @@ string gen_opertors(Node *op,vector<string> &tabs)
         if (t == type::MULTIPLY)
         {
             // return
-            string left = gen_opertors(op->left,tabs);
-            string right = gen_opertors(op->right,tabs);
-            global_string += tabs_str(tabs)+"mult " + left + ", " + right + " \n";
-            global_string += tabs_str(tabs)+"mflo " + resultReg + " \n";
+            string left = gen_opertors(op->left, tabs);
+            string right = gen_opertors(op->right, tabs);
+            global_string += tabs_str(tabs) + "mult " + left + ", " + right + " \n";
+            global_string += tabs_str(tabs) + "mflo " + resultReg + " \n";
             freeReg();
             freeReg();
             return resultReg;
@@ -110,12 +110,25 @@ string gen_opertors(Node *op,vector<string> &tabs)
         if (t == type::DIVISION)
         {
             // return
-            string left = gen_opertors(op->left,tabs);
-            string right = gen_opertors(op->right,tabs);
-            global_string += tabs_str(tabs)+"div " + resultReg + "," + left + ", " + right + " \n";
+            string left = gen_opertors(op->left, tabs);
+            string right = gen_opertors(op->right, tabs);
+            global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
             return resultReg;
+        }
+        if (t == type::MOD)
+        {
+            string left = gen_opertors(op->left, tabs);
+            string right = gen_opertors(op->right, tabs);
+            global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
+            global_string += tabs_str(tabs) + "mfhi " + resultReg + "\n";
+            freeReg();
+            freeReg();
+            return resultReg;
+            //           div $t4,$v0, $t3
+            // div $t4, $t3, 10
+            // mfhi $t3
         }
     }
     // treat like register machine
@@ -170,12 +183,14 @@ void gencode(Node *op, string filename = "")
     wf(outfile, word);
     vector<string> tab;
     addtabs(tab);
-    string reg_result = gen_opertors(op,tab);
+    string reg_result = gen_opertors(op, tab);
+    cout << reg_result;
+
     wf(outfile, global_string);
-    string printConsole = tabs_str(tab)+"li $v0, 1 \n"+tabs_str(tab)+ "move $a0,  \n"+tabs_str(tab)+"syscall # prints to console\n";
+    string printConsole = tabs_str(tab) + "li $v0, 1 \n" + tabs_str(tab) + "move $a0," + reg_result + "\n" + tabs_str(tab) + "syscall # prints to console\n";
     wf(outfile, printConsole);
     // write everything in
-    string exitStuff = tabs_str(tab)+"li $v0, 10 \n"+tabs_str(tab)+"syscall # exited program pop into QtSpim and it should work";
+    string exitStuff = tabs_str(tab) + "li $v0, 10 \n" + tabs_str(tab) + "syscall # exited program pop into QtSpim and it should work";
     wf(outfile, exitStuff);
     outfile.close();
 }
