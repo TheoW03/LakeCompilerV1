@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "tools.h"
+#include "Lexxer.h"
 using namespace std;
 
 #ifndef STAT_H
@@ -38,7 +38,11 @@ struct operatorNode : public Node
 {
     struct Tokens *token;
 };
-
+struct StatementNode : public Node
+{
+    struct Node *expression;
+    struct Tokens *nameOfVar;
+};
 #endif // NODE_H
 
 Node *parse(vector<Tokens> &tokens);
