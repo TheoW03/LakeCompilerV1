@@ -1,11 +1,12 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "tools.h"
+#include "Lexxer.h"
 
 using namespace std;
 
 #pragma region Node
+
 enum status
 {
     N_NULL,
@@ -31,8 +32,13 @@ struct operatorNode : public Node
 {
     struct Tokens *token;
 };
+struct StatementNode : public Node
+{
+    struct Node *expression;
+    struct Tokens *nameOfVar;
+};
 #pragma endregion
-
+Node *expression(vector<Tokens> &tokens);
 bool isNull(Node *n)
 {
     return n->s == status::N_NULL;
@@ -72,16 +78,34 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT)
 Node *factor(vector<Tokens> &tokens)
 {
     Tokens *a = new Tokens;
-    a = matchAndRemove(tokens, type::NUMBER);
+    a = (matchAndRemove(tokens, type::NUMBER) != nullptr) ? current : (matchAndRemove(tokens, type::OP_PARENTHISIS) != nullptr) ? current
+                                                                                                                                : nullptr;
+    type id;
     if (a != nullptr)
+    {
+        id = a->id;
+    }
+    else
+    {
+        return nullptr;
+    }
+    if (id == type::NUMBER)
     {
         NumNode *numN = new NumNode;
         string b = a->buffer;
         // cout << "b: " + b << endl;
-        numN->num =b;
+        numN->num = b;
         // cout << "numN: "+numN->num << endl;
         delete a;
         return numN;
+    }
+    else if (id == type::OP_PARENTHISIS)
+    {
+        Node *exp = expression(tokens);
+        matchAndRemove(tokens, type::CL_PARENTHISIS);
+        cout << "op \n";
+
+        return exp;
     }
     else
     {
@@ -89,6 +113,7 @@ Node *factor(vector<Tokens> &tokens)
     }
     // do stuff
 }
+
 Node *term(vector<Tokens> &tokens)
 {
 

@@ -9,9 +9,6 @@
 
 using namespace std;
 
-
-
-
 #ifndef TYPE_H
 #define TYPE_H
 enum type
@@ -20,7 +17,9 @@ enum type
     MULTIPLY,
     SUBTRACT,
     DIVISION,
-    NUMBER
+    NUMBER,
+    OP_PARENTHISIS,
+    CL_PARENTHISIS
 };
 #endif // NODE_H
 
@@ -30,7 +29,7 @@ struct Tokens
 {
     string buffer;
     type id;
-    map<type,string> dictionary;
+    map<type, string> dictionary;
 };
 #endif // NODE_H
 

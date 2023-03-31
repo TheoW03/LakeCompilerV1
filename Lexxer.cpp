@@ -12,7 +12,9 @@ enum class type
     MULTIPLY,
     SUBTRACT,
     DIVISION,
-    NUMBER
+    NUMBER,
+    OP_PARENTHISIS,
+    CL_PARENTHISIS
 };
 struct Tokens
 {
@@ -32,7 +34,7 @@ vector<string> readFile(string file)
     vector<string> vec;
     ifstream infile(file); // Open the file for reading
     string line;
-    cout << "input: "<< endl;
+    cout << "input: " << endl;
     while (getline(infile, line))
     {
         cout << line + "\n";
@@ -55,12 +57,17 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::SUBTRACT] = "SUBTRACT";
     dictionary[type::DIVISION] = "DIVISION";
     dictionary[type::MULTIPLY] = "MULTIPLY";
+    dictionary[type::OP_PARENTHISIS] = "OP_PARENTHISIS";
+    dictionary[type::CL_PARENTHISIS] = "CL_PARENTHISIS";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
     typeOfOP["-"] = type::SUBTRACT;
     typeOfOP["/"] = type::DIVISION;
     typeOfOP["*"] = type::MULTIPLY;
+    typeOfOP["("] = type::OP_PARENTHISIS;
+    typeOfOP[")"] = type::CL_PARENTHISIS;
+
     int state = 1;
     regex opRegex("[+*/]"); // Match any word that starts with 'q'
 
@@ -123,10 +130,39 @@ vector<Tokens> lex(vector<string> lines)
                             }
                             buffer = "";
                             buffer += str;
+                            // cout <<  << endl;
+
                             modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
                             a.push_back(token);
                             buffer = "";
                         }
+                        state = 2;
+                    }
+                    else if (str == ")" || str == "(")
+                    {
+                        if (buffer != "")
+                        {
+                            if (typeOfOP.find(buffer) != typeOfOP.end())
+                            {
+                                // Tokens token(buffer, typeOfOP[buffer]);
+                                // token.dictionary = dictionary;
+                                modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                                a.push_back(token);
+                            }
+                            else
+                            {
+                                // Tokens token(buffer, type::NUMBER);
+                                // token.dictionary = dictionary;
+                                modifyStruct(token, type::NUMBER, dictionary, buffer);
+                                a.push_back(token);
+                            }
+                            buffer = "";
+                        }
+                        buffer += str;
+                        modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                        a.push_back(token);
+                        buffer = "";
+
                         state = 2;
                     }
                 }
@@ -155,9 +191,28 @@ vector<Tokens> lex(vector<string> lines)
                         buffer += str;
                         state = 1;
                     }
+                    if (str == ")" || str == "(")
+                    {
+                        if (buffer != "")
+                        {
+                            modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                            a.push_back(token);
+                            buffer = "";
+                        }
+
+                        buffer += str;
+
+                        modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                        a.push_back(token);
+                        buffer = "";
+
+                        state = 1;
+                    }
                     if (regex_search(str, myMatch, numReg))
                     {
                         buffer += str;
+                        cout << buffer << endl;
+
                         state = 1;
                     }
                 }

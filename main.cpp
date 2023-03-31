@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "transpile.h"
+#include "Lexxer.h"
 
 #include "parser.h"
 // #define String string
