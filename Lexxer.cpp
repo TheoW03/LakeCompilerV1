@@ -99,16 +99,16 @@ vector<Tokens> lex(vector<string> lines)
         {
             char current = line.at(i2);
             string str(1, current);
-            if (current != ' ' || current != '\t' || current != '\0')
+            if (current != ' ' && current != '\t' && current != '\0')
             {
-
-                if (regex_search(str, myMatch, numReg) || regex_search(str, myMatch, opRegex) || str == "-")
+                if (regex_search(str, myMatch, numReg) || regex_search(str, myMatch, opRegex) || str == ")"||str == "(" || str == "-" )
                 {
                 }
                 else
                 {
-                    // stateIsNum = 0;
+                    stateIsNum = 0;
                 }
+
                 if (stateIsNum == 1)
                 {
 #pragma region num
@@ -246,7 +246,7 @@ vector<Tokens> lex(vector<string> lines)
                     }
 #pragma endregion num
                 }
-                else
+                else if (stateIsNum == 0)
                 {
                     if (buffer != "")
                     {
@@ -274,10 +274,14 @@ vector<Tokens> lex(vector<string> lines)
                             if (wordBuffer != "")
                             {
                                 modifyStruct(token, type::WORD, dictionary, wordBuffer);
+                                a.push_back(token);
                                 wordBuffer = "";
                             }
                             wordBuffer += str;
                             modifyStruct(token, type::EQUALS, dictionary, wordBuffer);
+                            a.push_back(token);
+
+                            cout << "equals" << endl;
                             wordBuffer = "";
                             stateIsNum = 1;
                         }
@@ -285,6 +289,10 @@ vector<Tokens> lex(vector<string> lines)
                         {
                             wordBuffer += str;
                         }
+                    }
+                    else
+                    {
+                        cout << "word state != 1 \n";
                     }
                 }
             }
@@ -306,6 +314,7 @@ vector<Tokens> lex(vector<string> lines)
                         modifyStruct(token, type::NUMBER, dictionary, buffer);
                         a.push_back(token);
                     }
+                    buffer = "";
                 }
             }
         }
