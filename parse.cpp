@@ -23,7 +23,11 @@ struct Node
     int value;
     status s = status::NODE;
 };
-
+struct varaibleNode : public Node
+{
+    Node *expression;
+    Tokens *varailbe;
+};
 struct NumNode : public Node
 {
     string num;
@@ -121,7 +125,8 @@ Node *term(vector<Tokens> &tokens)
     Node *n;
     Node *opNode;
     opNode = factor(tokens);
-    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current :(matchAndRemove(tokens, type::MOD) != nullptr) ? current
+    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
+                                                                             : (matchAndRemove(tokens, type::MOD) != nullptr)        ? current
                                                                                                                                      : nullptr; // n.value = 0;
     if (op != nullptr)
     {
@@ -130,8 +135,9 @@ Node *term(vector<Tokens> &tokens)
         {
             if (node != nullptr)
             {
-                op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current:(matchAndRemove(tokens, type::MOD) != nullptr) ? current
-                     : nullptr; // n.value = 0;
+                op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
+                                                                                 : (matchAndRemove(tokens, type::MOD) != nullptr)        ? current
+                                                                                                                                         : nullptr; // n.value = 0;
             }
             if (op == nullptr)
             {
@@ -193,12 +199,17 @@ Node *expression(vector<Tokens> &tokens)
 Node *parse(vector<Tokens> &tokens)
 {
     // printList(tokens);
+    Tokens* var = matchAndRemove(tokens, type::WORD);
+    matchAndRemove(tokens, type::EQUALS);
     Node *a = expression(tokens);
+    varaibleNode* c = new varaibleNode;
+    c->expression = a;
+    c->varailbe = var;
     if (a == nullptr)
     {
         // cout << "null \n";
         return nullptr;
     }
 
-    return a;
+    return c;
 }

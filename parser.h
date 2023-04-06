@@ -24,7 +24,6 @@ struct Node
     virtual ~Node();
 };
 
-
 struct NullStruct : public Node
 {
 };
@@ -42,6 +41,11 @@ struct StatementNode : public Node
 {
     struct Node *expression;
     struct Tokens *nameOfVar;
+};
+struct varaibleNode : public Node
+{
+    Node *expression;
+    Tokens *varailbe;
 };
 #endif // NODE_H
 
