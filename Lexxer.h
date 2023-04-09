@@ -22,9 +22,9 @@ enum type
     CL_PARENTHISIS,
     MOD,
     EQUALS,
-    WORD
+    WORD, COMMA, BEGIN,END,FUNCTION
 };
-#endif // NODE_H
+#endif // TYPE
 
 #ifndef TOKENS_H
 #define TOKENS_H

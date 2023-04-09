@@ -27,6 +27,7 @@ function genCode(node) {
             case '/':
                 emit(`DIV ${resultReg}, ${leftReg}, ${rightReg}`);
                 break;
+                
         }
         freeReg(leftReg);
         freeReg(rightReg);

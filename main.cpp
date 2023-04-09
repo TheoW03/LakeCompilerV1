@@ -15,9 +15,9 @@ struct Data
 };
 int main()
 {
-    vector<Tokens> a = lex(readFile("test"));
+    vector<Tokens> a = lex(readFile("test.txt"));
     cout << "lexxed" << endl;
-    // printList(a);
+    printList(a);
     Node *c = parse(a);
     cout << "parsed" << endl;
     
