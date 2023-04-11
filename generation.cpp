@@ -144,11 +144,6 @@ void traverse(Node *node)
     {
         return;
     }
-    // if (dynamic_cast<operatorNode *>(node) != nullptr)
-    // {
-    // }
-
-    // NumNode *pd = dynamic_cast<NumNode *>(node);
     NumNode *pd;
     if ((pd = dynamic_cast<NumNode *>(node)) != nullptr)
     {

@@ -41,6 +41,17 @@ struct StatementNode : public Node
     struct Node *expression;
     struct Tokens *nameOfVar;
 };
+struct varNode : public Node
+{
+    struct Tokens *name;
+    struct Node *value;
+};
+struct FunctionNode : public Node
+{
+    struct Tokens *nameOfFunction;
+    vector<Tokens *> params;
+    vector<Node *> statements;
+};
 #pragma endregion
 Node *expression(vector<Tokens> &tokens);
 bool isNull(Node *n)
@@ -61,12 +72,11 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT)
     {
         return nullptr;
     }
-
-    // cout << "passed: " + tokens[0].dictionary[typeT];
-    // cout << "\n";
-    // cout << "id: " + tokens[0].dictionary[tokens[0].id];
-    // cout << "\n";
-    // cout << "buf: " + tokens[0].buffer + " \n";
+    cout << "passed: " + tokens[0].dictionary[typeT];
+    cout << "\n";
+    cout << "id: " + tokens[0].dictionary[tokens[0].id];
+    cout << "\n";
+    cout << "buf: " + tokens[0].buffer + " \n";
     if (tokens[0].id == typeT)
     {
 
@@ -196,13 +206,47 @@ Node *expression(vector<Tokens> &tokens)
     return opNode;
     // do stuff
 }
+
+// will parse functions
+Node *handleFunctions(vector<Tokens> &tokens)
+{
+    FunctionNode *f = new FunctionNode;
+    matchAndRemove(tokens, type::FUNCTION);
+    Tokens *name = matchAndRemove(tokens, type::WORD);
+    matchAndRemove(tokens, type::OP_PARENTHISIS);
+
+    vector<Tokens *> vars;
+    while (matchAndRemove(tokens, type::CL_PARENTHISIS) == nullptr)
+    {
+        Tokens *var = matchAndRemove(tokens, type::WORD);
+        matchAndRemove(tokens, type::COMMA);
+        vars.push_back(var);
+    }
+    f->nameOfFunction = name;
+    f->params = vars;
+    return f;
+}
+void printParams(vector<Tokens *> a)
+{
+    cout << "params" << endl;
+    for (int i = 0; i < a.size(); i++)
+    {
+        cout << a[i]->dictionary[a[i]->id] + "(" + a[i]->buffer + ") \n";
+    }
+}
+Node *testParse(vector<Tokens> &tokens)
+{
+    FunctionNode *f = static_cast<FunctionNode *>(handleFunctions(tokens));
+    printParams(f->params);
+    return f;
+}
 Node *parse(vector<Tokens> &tokens)
 {
     // printList(tokens);
-    Tokens* var = matchAndRemove(tokens, type::WORD);
+    Tokens *var = matchAndRemove(tokens, type::WORD);
     matchAndRemove(tokens, type::EQUALS);
     Node *a = expression(tokens);
-    varaibleNode* c = new varaibleNode;
+    varaibleNode *c = new varaibleNode;
     c->expression = a;
     c->varailbe = var;
     if (a == nullptr)

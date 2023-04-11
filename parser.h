@@ -47,6 +47,12 @@ struct varaibleNode : public Node
     Node *expression;
     Tokens *varailbe;
 };
+struct FunctionNode:public Node
+{
+    struct Tokens* nameOfFunction;
+    vector<Tokens *> params;
+    vector<Node *> statements;
+};
 #endif // NODE_H
 
 Node *parse(vector<Tokens> &tokens);
@@ -58,3 +64,6 @@ Node *expression(vector<Tokens> &tokens);
 
 Tokens *matchAndRemove(vector<Tokens> &tokens, type type);
 bool isNull(Node *n);
+Node* handleFunctions(vector<Tokens> &tokens);
+void printParams(vector<Tokens*> a);
+Node *testParse(vector<Tokens> &tokens);

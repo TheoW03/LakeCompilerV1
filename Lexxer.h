@@ -22,7 +22,15 @@ enum type
     CL_PARENTHISIS,
     MOD,
     EQUALS,
-    WORD, COMMA, BEGIN,END,FUNCTION
+    WORD,
+    COMMA,
+    BEGIN,
+    END,
+    FUNCTION,
+    IF,
+    LOOP,
+    AND,
+    OR
 };
 #endif // TYPE
 

@@ -26,7 +26,12 @@ enum class type
     COMMA,
     BEGIN,
     END,
-    FUNCTION
+    FUNCTION,
+    VAR,
+    IF,
+    LOOP,
+    AND,
+    OR
 };
 struct Tokens
 {
@@ -63,6 +68,8 @@ void modifyStruct(Tokens &token, type enumType1, map<type, string> dictionary1, 
 }
 vector<Tokens> lex(vector<string> lines)
 {
+
+#pragma region Dict stuff
     map<type, string> dictionary;
     dictionary[type::NUMBER] = "NUMBER";
     dictionary[type::ADDITION] = "ADDITION";
@@ -89,12 +96,14 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP[")"] = type::CL_PARENTHISIS;
     typeOfOP["%"] = type::MOD;
     typeOfOP["function"] = type::FUNCTION;
-    typeOfOP["if"] = type::FUNCTION;
-    typeOfOP["and"] = type::FUNCTION;
-    typeOfOP["or"] = type::FUNCTION;
-    typeOfOP["while"] = type::FUNCTION;
-    typeOfOP["for"] = type::FUNCTION;
-
+    typeOfOP["if"] = type::IF;
+    typeOfOP["and"] = type::AND;
+    typeOfOP["or"] = type::OR;
+    typeOfOP["while"] = type::LOOP;
+    typeOfOP["for"] = type::LOOP;
+    typeOfOP["var"] = type::VAR;
+    typeOfOP["let"] = type::VAR;
+#pragma endregion
     int wordstate = 1;
     string wordBuffer = "";
     int state = 1;
