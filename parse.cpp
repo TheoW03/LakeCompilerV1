@@ -240,20 +240,48 @@ Node *testParse(vector<Tokens> &tokens)
     printParams(f->params);
     return f;
 }
+Node *parseVar(vector<Tokens> &tokens, Tokens *name)
+{
+    matchAndRemove(tokens, type::EQUALS);
+    varaibleNode *n;
+    n->expression = expression(tokens);
+    n->varailbe = name;
+    return n;
+}
 Node *parse(vector<Tokens> &tokens)
 {
     // printList(tokens);
-    Tokens *var = matchAndRemove(tokens, type::WORD);
-    matchAndRemove(tokens, type::EQUALS);
-    Node *a = expression(tokens);
-    varaibleNode *c = new varaibleNode;
-    c->expression = a;
-    c->varailbe = var;
-    if (a == nullptr)
+    FunctionNode *f;
+    vector<Node *> states;
+    if (matchAndRemove(tokens, type::FUNCTION) != nullptr)
     {
-        // cout << "null \n";
-        return nullptr;
+        Node *func = handleFunctions(tokens);
+        while (matchAndRemove(tokens, type::END) != nullptr)
+        {
+            Tokens *a = matchAndRemove(tokens, type::WORD);
+            if (a != nullptr)
+            {
+                Node *var = parseVar(tokens, a);
+                states.push_back(var);
+            }
+        }
+        FunctionNode *pd = dynamic_cast<FunctionNode *>(func);
+        if (pd != nullptr)
+        {
+            pd->statements = states;
+        }
+        return pd;
     }
-
-    return c;
+    return nullptr;
+    // Tokens *var = matchAndRemove(tokens, type::WORD);
+    // matchAndRemove(tokens, type::EQUALS);
+    // Node *a = expression(tokens);
+    // varaibleNode *c = new varaibleNode;
+    // c->expression = a;
+    // c->varailbe = var;
+    // if (a == nullptr)
+    // {
+    //     // cout << "null \n";
+    //     return nullptr;
+    // }
 }

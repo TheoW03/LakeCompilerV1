@@ -20,10 +20,15 @@ inline bool instanceof (T * ptr)
     cout << typeid(Base).name() << endl;
     return (dynamic_cast<const Base *>(ptr) != nullptr);
 }
+
 Node::~Node()
 {
     // implementation of the destructor goes here
 }
+struct VaraibleNode{
+    Node* val;
+    string reg;
+};
 string tabs_str(vector<string> &tabs)
 {
     string t = "";
@@ -55,6 +60,11 @@ string global_string = "";
 void freeReg()
 {
     nextRegister--;
+}
+
+
+float interptObjs(Node* op){
+    return 0.0f;
 }
 string gen_opertors(Node *op, vector<string> &tabs)
 {
@@ -174,19 +184,21 @@ void gencode(Node *op, string filename = "")
     }
     ofstream outfile(filename);
     // FILE* fp = fopen("output.s", "w");
-    string word = ".data \n .text \n main: \n";
+    FunctionNode* pd = dynamic_cast<FunctionNode*>(op);
+    string word = ".data \n .text \n "+pd->nameOfFunction->buffer+"\n";
     wf(outfile, word);
-    vector<string> tab;
-    addtabs(tab);
-    string reg_result = gen_opertors(op, tab);
-    cout << reg_result;
+    
+    // vector<string> tab;
+    // addtabs(tab);
 
-    wf(outfile, global_string);
-    string printConsole = tabs_str(tab) + "li $v0, 1 \n" + tabs_str(tab) + "move $a0," + reg_result + "\n" + tabs_str(tab) + "syscall # prints to console\n";
-    wf(outfile, printConsole);
+    // string reg_result = gen_opertors(op, tab);
+    // cout << reg_result;
+    // wf(outfile, global_string);
+    // string printConsole = tabs_str(tab) + "li $v0, 1 \n" + tabs_str(tab) + "move $a0," + reg_result + "\n" + tabs_str(tab) + "syscall # prints to console\n";
+    // wf(outfile, printConsole);
     // write everything in
-    string exitStuff = tabs_str(tab) + "li $v0, 10 \n" + tabs_str(tab) + "syscall # exited program pop into QtSpim and it should work";
-    wf(outfile, exitStuff);
+    // string exitStuff = tabs_str(tab) + "li $v0, 10 \n" + tabs_str(tab) + "syscall # exited program pop into QtSpim and it should work";
+    // wf(outfile, exitStuff);
     outfile.close();
 }
 

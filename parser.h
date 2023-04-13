@@ -67,3 +67,4 @@ bool isNull(Node *n);
 Node* handleFunctions(vector<Tokens> &tokens);
 void printParams(vector<Tokens*> a);
 Node *testParse(vector<Tokens> &tokens);
+Node *parseVar(vector<Tokens> &tokens, Tokens *name);
