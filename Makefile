@@ -14,7 +14,7 @@ main.o: main.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h MipsTarget/
 x86Target.o: x86TargetFiles/x86Target.cpp  x86TargetFiles/x86Target.h compilerFrontend/parser.h compilerFrontend/Lexxer.h MipsTarget/MipsTarget.h 
 		g++ -c -g x86TargetFiles/x86Target.cpp
 x86test:
-	 nasm -f elf64 test.s && gcc -no-pie test.o && ./a.out
+	 nasm -f elf64 x86TargetFiles/x86TargetASM/test.s && gcc -no-pie  x86TargetFiles/x86TargetASM/test.o && ./a.out
 clean: 
-	rm *.o output
+	rm *.o output a.out
 	clear

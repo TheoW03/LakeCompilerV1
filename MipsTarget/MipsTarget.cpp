@@ -4,9 +4,11 @@
 #include <sys/stat.h>
 #include <fstream>
 #include <typeinfo>
-
+#include <filesystem>
 #include "../compilerFrontend/Lexxer.h"
 #include "../compilerFrontend/parser.h"
+
+namespace fs = std::filesystem;
 
 using namespace std;
 template <typename Base, typename T>
@@ -179,13 +181,18 @@ void wf(ofstream &outfile, string word)
 
 void gen_mips_target(Node *op, string filename = "")
 {
+    string dirname = "MipsTarget/MipsTargetASM/";
+    int status = fs::create_directories(dirname);
+
     if (filename == "")
     {
         filename = "out.s";
     }
-    ofstream outfile(filename);
+    
+     ofstream outfile("MipsTarget/MipsTargetASM/"+filename);
     // FILE* fp = fopen("output.s", "w");
     FunctionNode *pd = dynamic_cast<FunctionNode *>(op);
+    
     string word = ".data \n .text \n main: \n";
     wf(outfile, word);
     vector<string> tab;
