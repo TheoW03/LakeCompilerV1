@@ -2,18 +2,17 @@
  .text 
  main: 
 
-	li $t2,10
-	li $t3,2
-	div $t1,$t2, $t3 
-	mfhi $t1
+	li $t5,1
+	li $t6,1
+	add $t4,$t5, $t6 
+	li $t5,3
+	add $t3,$t4, $t5 
+	li $t4,5
+	add $t2,$t3, $t4 
+	li $t3,6
+	add $t1,$t2, $t3 
+	li $t3,8
 	li $t4,10
-	li $t5,100
-	mult $t4, $t5 
-	mflo $t3 
-	li $t5,7
-	li $t6,2
-	div $t4,$t5, $t6 
-	mfhi $t4
 	mult $t3, $t4 
 	mflo $t2 
 	add $t0,$t1, $t2 

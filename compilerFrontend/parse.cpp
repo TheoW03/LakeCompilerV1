@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Lexxer.h"
+#include "../compilerFrontend/Lexxer.h"
 
 using namespace std;
 
@@ -93,6 +93,7 @@ Node *factor(vector<Tokens> &tokens)
 {
     Tokens *a = new Tokens;
     a = (matchAndRemove(tokens, type::NUMBER) != nullptr) ? current : (matchAndRemove(tokens, type::OP_PARENTHISIS) != nullptr) ? current
+                                                                  : (matchAndRemove(tokens, type::WORD) != nullptr)             ? current
                                                                                                                                 : nullptr;
     type id;
     if (a != nullptr)
@@ -121,6 +122,18 @@ Node *factor(vector<Tokens> &tokens)
 
         return exp;
     }
+    else if (id == type::WORD)
+    {
+        // NumNode *numN = new NumNode;
+        // string b = a->buffer;
+        // // cout << "b: " + b << endl;
+        // numN->num = b;
+        // // cout << "numN: "+numN->num << endl;
+        // delete a;
+        // return numN;
+        return nullptr;
+    }
+
     else
     {
         return nullptr;
@@ -240,17 +253,38 @@ Node *testParse(vector<Tokens> &tokens)
     printParams(f->params);
     return f;
 }
+void RemoveEOLS(vector<Tokens> &list)
+{
+    while (true)
+    {
+        Tokens *e = matchAndRemove(list, type::END_OF_LINE);
+
+        if (e == nullptr)
+        {
+            return;
+        }
+    }
+}
 Node *parseVar(vector<Tokens> &tokens, Tokens *name)
 {
     matchAndRemove(tokens, type::EQUALS);
     varaibleNode *n;
     n->expression = expression(tokens);
+    RemoveEOLS(tokens);
     n->varailbe = name;
     return n;
 }
-Node *parse(vector<Tokens> &tokens)
+
+/**
+ * @brief function stuff
+ *
+ * @param tokens
+ * @return Node*
+ */
+
+Node *functionParse(vector<Tokens> &tokens)
 {
-    // printList(tokens);
+    printList(tokens);
     FunctionNode *f;
     vector<Node *> states;
     if (matchAndRemove(tokens, type::FUNCTION) != nullptr)
@@ -273,15 +307,25 @@ Node *parse(vector<Tokens> &tokens)
         return pd;
     }
     return nullptr;
-    // Tokens *var = matchAndRemove(tokens, type::WORD);
-    // matchAndRemove(tokens, type::EQUALS);
-    // Node *a = expression(tokens);
-    // varaibleNode *c = new varaibleNode;
-    // c->expression = a;
-    // c->varailbe = var;
-    // if (a == nullptr)
-    // {
-    //     // cout << "null \n";
-    //     return nullptr;
-    // }
+}
+
+/**
+ * meant for testing Recursion stuff
+ */
+Node *parse(vector<Tokens> &tokens)
+{
+
+    Tokens *var = matchAndRemove(tokens, type::WORD);
+    matchAndRemove(tokens, type::EQUALS);
+    Node *a = expression(tokens);
+    varaibleNode *c = new varaibleNode;
+    c->expression = a;
+    c->varailbe = var;
+
+    if (a == nullptr)
+    {
+        // cout << "null \n";
+        return nullptr;
+    }
+    return a;
 }

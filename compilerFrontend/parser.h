@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Lexxer.h"
+#include "../compilerFrontend/Lexxer.h"
 using namespace std;
 
 #ifndef STAT_H
@@ -67,4 +67,5 @@ bool isNull(Node *n);
 Node* handleFunctions(vector<Tokens> &tokens);
 void printParams(vector<Tokens*> a);
 Node *testParse(vector<Tokens> &tokens);
+Node* functionParse(vector<Tokens> &tokens);
 Node *parseVar(vector<Tokens> &tokens, Tokens *name);

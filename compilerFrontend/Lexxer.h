@@ -30,7 +30,7 @@ enum type
     IF,
     LOOP,
     AND,
-    OR
+    OR,END_OF_LINE
 };
 #endif // TYPE
 

@@ -5,8 +5,8 @@
 #include <fstream>
 #include <typeinfo>
 
-#include "parser.h"
-#include "Lexxer.h"
+#include "../compilerFrontend/Lexxer.h"
+#include "../compilerFrontend/parser.h"
 
 using namespace std;
 template <typename Base, typename T>
@@ -25,8 +25,9 @@ Node::~Node()
 {
     // implementation of the destructor goes here
 }
-struct VaraibleNode{
-    Node* val;
+struct VaraibleNode
+{
+    Node *val;
     string reg;
 };
 string tabs_str(vector<string> &tabs)
@@ -62,8 +63,8 @@ void freeReg()
     nextRegister--;
 }
 
-
-float interptObjs(Node* op){
+float interptObjs(Node *op)
+{
     return 0.0f;
 }
 string gen_opertors(Node *op, vector<string> &tabs)
@@ -176,7 +177,7 @@ void wf(ofstream &outfile, string word)
     outfile << word << endl;
 }
 
-void gencode(Node *op, string filename = "")
+void gen_mips_target(Node *op, string filename = "")
 {
     if (filename == "")
     {
@@ -184,24 +185,38 @@ void gencode(Node *op, string filename = "")
     }
     ofstream outfile(filename);
     // FILE* fp = fopen("output.s", "w");
-    FunctionNode* pd = dynamic_cast<FunctionNode*>(op);
-    string word = ".data \n .text \n "+pd->nameOfFunction->buffer+"\n";
+    FunctionNode *pd = dynamic_cast<FunctionNode *>(op);
+    string word = ".data \n .text \n main: \n";
     wf(outfile, word);
-    
-    // vector<string> tab;
-    // addtabs(tab);
-
-    // string reg_result = gen_opertors(op, tab);
-    // cout << reg_result;
-    // wf(outfile, global_string);
-    // string printConsole = tabs_str(tab) + "li $v0, 1 \n" + tabs_str(tab) + "move $a0," + reg_result + "\n" + tabs_str(tab) + "syscall # prints to console\n";
-    // wf(outfile, printConsole);
+    vector<string> tab;
+    addtabs(tab);
+    string reg_result = gen_opertors(op, tab);
+    cout << reg_result;
+    wf(outfile, global_string);
+    string printConsole = tabs_str(tab) + "li $v0, 1 \n" + tabs_str(tab) + "move $a0," + reg_result + "\n" + tabs_str(tab) + "syscall # prints to console\n";
+    wf(outfile, printConsole);
     // write everything in
-    // string exitStuff = tabs_str(tab) + "li $v0, 10 \n" + tabs_str(tab) + "syscall # exited program pop into QtSpim and it should work";
-    // wf(outfile, exitStuff);
+    string exitStuff = tabs_str(tab) + "li $v0, 10 \n" + tabs_str(tab) + "syscall # exited program pop into QtSpim and it should work";
+    wf(outfile, exitStuff);
     outfile.close();
 }
+// void gen_x86_target(Node *op, string filename = "")
+// {
+//     if (filename == "")
+//     {
+//         filename = "out.s";
+//     }
+//     ofstream outfile(filename);
+//     string word = "section .data \n section .text \n \t global main \n main: \n";
+//     wf(outfile, word);
+//     string exit = "\tpush rbp \n\t mov rax,0 \n \t pop rbp \n \t ret";
+//     wf(outfile, exit);
 
+//     // mov        rax,0        ; Exit code 0
+//     //  pop        rbp          ; Pop stack
+//     //  ret
+//     outfile.close();
+// }
 // string gen_print()
 // {
 //     return "";

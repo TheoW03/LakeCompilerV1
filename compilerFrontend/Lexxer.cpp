@@ -31,7 +31,8 @@ enum class type
     IF,
     LOOP,
     AND,
-    OR
+    OR,
+    END_OF_LINE
 };
 struct Tokens
 {
@@ -103,6 +104,7 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["for"] = type::LOOP;
     typeOfOP["var"] = type::VAR;
     typeOfOP["let"] = type::VAR;
+    typeOfOP[";"] = type::END_OF_LINE;
 #pragma endregion
     int wordstate = 1;
     string wordBuffer = "";
@@ -311,7 +313,7 @@ vector<Tokens> lex(vector<string> lines)
                     if (wordstate == 1)
                     {
 
-                        if (str == "=" || str == "," || str == "}" || str == "{")
+                        if (str == "=" || str == "," || str == "}" || str == "{" || str == ";")
                         {
                             if (wordBuffer != "")
                             {
@@ -324,6 +326,7 @@ vector<Tokens> lex(vector<string> lines)
                             modifyStruct(token, (wordBuffer == "=") ? type::EQUALS : (wordBuffer == ",") ? type::COMMA
                                                                                  : (wordBuffer == "{")   ? type::BEGIN
                                                                                  : (wordBuffer == "}")   ? type::END
+                                                                                 : (wordBuffer == ";")   ? type::END_OF_LINE
                                                                                                          : type::WORD,
                                          dictionary, wordBuffer);
                             a.push_back(token);

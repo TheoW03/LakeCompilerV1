@@ -2,11 +2,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "transpile.h"
-#include "Lexxer.h"
-
-#include "parser.h"
-// #define String string
+#include "MipsTarget/MipsTarget.h"
+#include "x86TargetFiles/x86Target.h"
+#include "compilerFrontend/Lexxer.h"
+#include "compilerFrontend/parser.h"// #define String string
 
 using namespace std;
 struct Data
@@ -18,13 +17,12 @@ int main()
     vector<Tokens> a = lex(readFile("test.txt"));
     cout << "lexxed" << endl;
     printList(a);
-    Node *c = testParse(a);
+    Node *c = parse(a);
     cout << "parsed" << endl;
-    
-    // if (c == nullptr)
-    // {
-    //     cout << "nullptr out \n";
-    // }
-    // gencode(c,"test.s");
+    if (c == nullptr)
+    {
+        cout << "nullptr out \n";
+    }
+    gen_mips_target(c,"test.s");
     return 0;
 }
