@@ -6,6 +6,8 @@
 
 #include "../compilerFrontend/Lexxer.h"
 #include "../compilerFrontend/parser.h"
+#include "../compilerFrontend/optimizations.h"
+
 using namespace std;
 
 #ifndef INSTANCEOF_H
@@ -29,4 +31,5 @@ string gen_opertors(Node *op);
 string allocateReg();
 void print_global();
 float interptObjs(Node* op);
+
 // void gen_x86_target(Node *op, string filename = "");

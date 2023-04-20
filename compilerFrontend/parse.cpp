@@ -17,7 +17,7 @@ enum status
 struct Node
 {
     virtual ~Node();
-
+    Node() : left(nullptr), right(nullptr){}
     struct Node *left;
     struct Node *right;
     int value;
@@ -110,7 +110,7 @@ Node *factor(vector<Tokens> &tokens)
         string b = a->buffer;
         // cout << "b: " + b << endl;
         numN->num = b;
-        // cout << "numN: "+numN->num << endl;
+        cout << "numN: " + numN->num << endl;
         delete a;
         return numN;
     }
@@ -124,20 +124,22 @@ Node *factor(vector<Tokens> &tokens)
     }
     else if (id == type::WORD)
     {
+        varaibleNode *var = new varaibleNode;
+        var->varailbe = a;
         // NumNode *numN = new NumNode;
         // string b = a->buffer;
         // // cout << "b: " + b << endl;
         // numN->num = b;
         // // cout << "numN: "+numN->num << endl;
-        // delete a;
         // return numN;
-        return nullptr;
+        return var;
     }
 
     else
     {
         return nullptr;
     }
+
     // do stuff
 }
 
@@ -145,8 +147,8 @@ Node *term(vector<Tokens> &tokens)
 {
 
     // n.value = 0;
-    Node *n;
-    Node *opNode;
+    Node *n = new Node;
+    Node *opNode = new Node;
     opNode = factor(tokens);
     Tokens *op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
                                                                              : (matchAndRemove(tokens, type::MOD) != nullptr)        ? current
@@ -164,11 +166,15 @@ Node *term(vector<Tokens> &tokens)
             }
             if (op == nullptr)
             {
+
                 return opNode;
             }
-            Node *right = factor(tokens);
+            Node *right = new Node;
+            right = factor(tokens);
             operatorNode *n = new operatorNode;
+            n->left = new Node;
             n->left = opNode;
+            n->right = new Node;
             n->right = right;
             n->token = op;
             opNode = n;
@@ -181,10 +187,11 @@ Node *term(vector<Tokens> &tokens)
 
 Node *expression(vector<Tokens> &tokens)
 {
-    Node *n;
+    Node *n = new Node;
+    // Node* opNode = new Node;
     Node *opNode = term(tokens);
     Tokens *op = (matchAndRemove(tokens, type::ADDITION) != nullptr) ? current : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
-                                                                                                                                     : NULL; // n.value = 0;
+                                                                                                                                     : nullptr; // n.value = 0;
     if (op != nullptr)
     {
         Node *node = nullptr;
@@ -193,7 +200,7 @@ Node *expression(vector<Tokens> &tokens)
             if (node != nullptr)
             {
                 op = (matchAndRemove(tokens, type::ADDITION) != nullptr) ? current : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
-                                                                                                                                         : NULL; // n.value = 0;
+                                                                                                                                         : nullptr; // n.value = 0;
             }
             if (op == nullptr)
             {
@@ -203,18 +210,22 @@ Node *expression(vector<Tokens> &tokens)
                 }
                 return opNode;
             }
-            Node *right = term(tokens);
+            Node *right = new Node;
+            right = term(tokens);
             operatorNode *n = new operatorNode;
+            n->left = new Node;
             n->left = opNode;
+            n->right = new Node;
             n->right = right;
             n->token = op;
             opNode = n;
             node = opNode;
+            delete op;
         }
     }
     if (opNode == nullptr)
     {
-        // cout << "opNode nulll \n";
+        cout << "opNode nulll \n";
     }
     return opNode;
     // do stuff
@@ -315,17 +326,18 @@ Node *functionParse(vector<Tokens> &tokens)
 Node *parse(vector<Tokens> &tokens)
 {
 
-    Tokens *var = matchAndRemove(tokens, type::WORD);
-    matchAndRemove(tokens, type::EQUALS);
+    // Tokens *var = matchAndRemove(tokens, type::WORD);
+    // matchAndRemove(tokens, type::EQUALS);
     Node *a = expression(tokens);
-    varaibleNode *c = new varaibleNode;
-    c->expression = a;
-    c->varailbe = var;
+    // varaibleNode *c = new varaibleNode;
+    // c->expression = a;
+    // c->varailbe = var;
 
     if (a == nullptr)
     {
         // cout << "null \n";
         return nullptr;
     }
+
     return a;
 }

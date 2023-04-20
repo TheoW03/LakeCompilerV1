@@ -7,7 +7,7 @@
 #include <filesystem>
 #include "../compilerFrontend/Lexxer.h"
 #include "../compilerFrontend/parser.h"
-
+#include "../compilerFrontend/optimizations.h"
 namespace fs = std::filesystem;
 
 using namespace std;
@@ -69,11 +69,13 @@ float interptObjs(Node *op)
 {
     return 0.0f;
 }
+
 string gen_opertors(Node *op, vector<string> &tabs)
 {
 
     if (op == nullptr)
     {
+        cout << "null \n";
         return "";
     }
     // mem errro :')
@@ -87,7 +89,11 @@ string gen_opertors(Node *op, vector<string> &tabs)
     if (dynamic_cast<operatorNode *>(op) != nullptr)
     {
         operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
-        type t = pd->token->id;
+        type t;
+        if (pd->token != nullptr)
+        {
+            t = pd->token->id;
+        }
         string resultReg = allocateReg();
         if (t == type::ADDITION)
         {
@@ -144,6 +150,7 @@ string gen_opertors(Node *op, vector<string> &tabs)
             // mfhi $t3
         }
     }
+    cout << "exits";
     // treat like register machine
     return "";
 }
@@ -155,6 +162,7 @@ void traverse(Node *node)
 {
     if (node == nullptr)
     {
+        cout << "null" << endl;
         return;
     }
     NumNode *pd;
@@ -188,21 +196,35 @@ void gen_mips_target(Node *op, string filename = "")
     {
         filename = "out.s";
     }
-    
-     ofstream outfile("MipsTarget/MipsTargetASM/"+filename);
+
+    ofstream outfile("MipsTarget/MipsTargetASM/" + filename);
     // FILE* fp = fopen("output.s", "w");
-    FunctionNode *pd = dynamic_cast<FunctionNode *>(op);
-    
+    // FunctionNode *pd = dynamic_cast<FunctionNode *>(op);
+
     string word = ".data \n .text \n main: \n";
+
     wf(outfile, word);
     vector<string> tab;
+
     addtabs(tab);
-    string reg_result = gen_opertors(op, tab);
-    cout << reg_result;
-    wf(outfile, global_string);
-    string printConsole = tabs_str(tab) + "li $v0, 1 \n" + tabs_str(tab) + "move $a0," + reg_result + "\n" + tabs_str(tab) + "syscall # prints to console\n";
-    wf(outfile, printConsole);
-    // write everything in
+    // traverse(op);
+    // gen_opertors(op,tab);
+    // traverse(op);
+    if (check_if_pureExpression(op) == 1)
+    {
+        int numSolve = solve(op);
+        string register1 = allocateReg();
+        string store = tabs_str(tab) + "li " + register1 + ", " + to_string(numSolve);
+        wf(outfile, store);
+
+    }
+    // traverse(op);
+    // string reg_result = gen_opertors(op, tab);
+    // cout << reg_result;
+    // wf(outfile, global_string);
+    // string printConsole = tabs_str(tab) + "li $v0, 1 \n" + tabs_str(tab) + "move $a0," + reg_result + "\n" + tabs_str(tab) + "syscall # prints to console\n";
+    // wf(outfile, printConsole);
+    // // write everything in
     string exitStuff = tabs_str(tab) + "li $v0, 10 \n" + tabs_str(tab) + "syscall # exited program pop into QtSpim and it should work";
     wf(outfile, exitStuff);
     outfile.close();
