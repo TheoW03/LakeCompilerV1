@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <map>
 
 #include <sys/stat.h>
 #include <fstream>
@@ -22,7 +23,7 @@ inline bool instanceof (T * ptr)
     cout << typeid(Base).name() << endl;
     return (dynamic_cast<const Base *>(ptr) != nullptr);
 }
-
+int max_size =0;
 Node::~Node()
 {
     // implementation of the destructor goes here
@@ -187,8 +188,14 @@ void wf(ofstream &outfile, string word)
     outfile << word << endl;
 }
 
+void prepare_interptMips(varaibleNode* var, map<string, int> &map){
+    max_size+=4;
+    map[var->varailbe->buffer] = max_size;
+
+}
 void gen_mips_target(Node *op, string filename = "")
 {
+    map<string, Node*> vars;
     string dirname = "MipsTarget/MipsTargetASM/";
     int status = fs::create_directories(dirname);
 
@@ -199,25 +206,44 @@ void gen_mips_target(Node *op, string filename = "")
 
     ofstream outfile("MipsTarget/MipsTargetASM/" + filename);
     // FILE* fp = fopen("output.s", "w");
-    // FunctionNode *pd = dynamic_cast<FunctionNode *>(op);
-
+    FunctionNode *pd = dynamic_cast<FunctionNode *>(op);
+    vector<Node *> state = pd->statements;
+    map<string, int> map;
+    map["."] = 0;
+    for (int i = 0; i < state.size(); i++)
+    {
+        varaibleNode *pd1 = dynamic_cast<varaibleNode *>(state[i]);
+        if(pd1 != nullptr){
+            if(map.find(pd1->varailbe->buffer) == map.end()){
+                cout << "no null";
+                prepare_interptMips(pd1,map);
+            }
+        }else{
+            cout <<"null ptr \n";
+        }
+    }
     string word = ".data \n .text \n main: \n";
 
+    
     wf(outfile, word);
+    
     vector<string> tab;
 
     addtabs(tab);
+    string setupstack = tabs_str(tab)+"addi $sp, $sp,-"+to_string(max_size)+" # Move the stack pointer down by 8 bytes\n";
+    wf(outfile, setupstack);
+    string exitStack = tabs_str(tab)+"addi $sp, $sp,"+to_string(max_size)+" # Move the stack pointer down by 8 bytes\n"+tabs_str(tab)+"jr $ra \n";
+    wf(outfile, exitStack);
     // traverse(op);
     // gen_opertors(op,tab);
     // traverse(op);
-    if (check_if_pureExpression(op) == 1)
-    {
-        int numSolve = solve(op);
-        string register1 = allocateReg();
-        string store = tabs_str(tab) + "li " + register1 + ", " + to_string(numSolve);
-        wf(outfile, store);
-
-    }
+    // if (check_if_pureExpression(op) == 1)
+    // {
+    //     int numSolve = solve(op);
+    //     string register1 = allocateReg();
+    //     string store = tabs_str(tab) + "li " + register1 + ", " + to_string(numSolve);
+    //     wf(outfile, store);
+    // }
     // traverse(op);
     // string reg_result = gen_opertors(op, tab);
     // cout << reg_result;

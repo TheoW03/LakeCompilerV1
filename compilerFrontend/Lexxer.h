@@ -11,7 +11,7 @@ using namespace std;
 
 #ifndef TYPE_H
 #define TYPE_H
-enum type
+enum class type
 {
     ADDITION,
     MULTIPLY,
@@ -27,10 +27,12 @@ enum type
     BEGIN,
     END,
     FUNCTION,
+    VAR,
     IF,
     LOOP,
     AND,
-    OR,END_OF_LINE
+    OR,
+    END_OF_LINE
 };
 #endif // TYPE
 

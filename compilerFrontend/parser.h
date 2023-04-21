@@ -48,6 +48,7 @@ struct varaibleNode : public Node
 {
     Node *expression;
     Tokens *varailbe;
+    int size;
 };
 struct FunctionNode:public Node
 {

@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include "../compilerFrontend/Lexxer.h"
-
+#include <typeinfo>
 using namespace std;
 
 #pragma region Node
@@ -17,7 +17,7 @@ enum status
 struct Node
 {
     virtual ~Node();
-    Node() : left(nullptr), right(nullptr){}
+    Node() : left(nullptr), right(nullptr) {}
     struct Node *left;
     struct Node *right;
     int value;
@@ -27,6 +27,7 @@ struct varaibleNode : public Node
 {
     Node *expression;
     Tokens *varailbe;
+    int size;
 };
 struct NumNode : public Node
 {
@@ -41,11 +42,7 @@ struct StatementNode : public Node
     struct Node *expression;
     struct Tokens *nameOfVar;
 };
-struct varNode : public Node
-{
-    struct Tokens *name;
-    struct Node *value;
-};
+
 struct FunctionNode : public Node
 {
     struct Tokens *nameOfFunction;
@@ -278,11 +275,16 @@ void RemoveEOLS(vector<Tokens> &list)
 }
 Node *parseVar(vector<Tokens> &tokens, Tokens *name)
 {
+    if (name == nullptr)
+    {
+        name = matchAndRemove(tokens, type::WORD);
+    }
     matchAndRemove(tokens, type::EQUALS);
-    varaibleNode *n;
+    varaibleNode *n = new varaibleNode;
     n->expression = expression(tokens);
     RemoveEOLS(tokens);
     n->varailbe = name;
+    n->size = 4;
     return n;
 }
 
@@ -301,14 +303,26 @@ Node *functionParse(vector<Tokens> &tokens)
     if (matchAndRemove(tokens, type::FUNCTION) != nullptr)
     {
         Node *func = handleFunctions(tokens);
-        while (matchAndRemove(tokens, type::END) != nullptr)
+        matchAndRemove(tokens, type::BEGIN);
+        while (matchAndRemove(tokens, type::END) == nullptr)
         {
-            Tokens *a = matchAndRemove(tokens, type::WORD);
+            Tokens *a = (matchAndRemove(tokens, type::WORD) != nullptr) ? current : (matchAndRemove(tokens, type::VAR) != nullptr) ? current
+                                                                                                                                   : nullptr;
+
             if (a != nullptr)
             {
-                Node *var = parseVar(tokens, a);
+                Node *var;
+                if (a->id == type::WORD)
+                {
+                    var = parseVar(tokens, a);
+                }
+                else if (a->id == type::VAR)
+                {
+                    var = parseVar(tokens, nullptr);
+                }
                 states.push_back(var);
             }
+            RemoveEOLS(tokens);
         }
         FunctionNode *pd = dynamic_cast<FunctionNode *>(func);
         if (pd != nullptr)

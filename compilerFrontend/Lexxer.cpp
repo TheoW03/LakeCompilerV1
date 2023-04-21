@@ -87,6 +87,7 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::BEGIN] = "BEGIN";
     dictionary[type::END] = "END";
     dictionary[type::FUNCTION] = "FUNCTION";
+    dictionary[type::VAR] = "VAR";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -103,7 +104,6 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["while"] = type::LOOP;
     typeOfOP["for"] = type::LOOP;
     typeOfOP["var"] = type::VAR;
-    typeOfOP["let"] = type::VAR;
     typeOfOP[";"] = type::END_OF_LINE;
 #pragma endregion
     int wordstate = 1;
