@@ -18,6 +18,8 @@ optimizations.o: compilerFrontend/optimizations.cpp compilerFrontend/parser.h co
 		g++ -c -g compilerFrontend/optimizations.cpp
 x86test:
 	 nasm -f elf64 x86TargetFiles/x86TargetASM/test.s && gcc -no-pie  x86TargetFiles/x86TargetASM/test.o && ./a.out
+line_count:
+	./linecount.sh
 clean: 
 	rm *.o output a.out
 	clear

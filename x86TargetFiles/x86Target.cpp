@@ -30,6 +30,7 @@ void gen_x86_target(Node *op, string filename = "")
 {
     string dirname = "x86TargetFiles/x86TargetASM";
     int status = fs::create_directories(dirname);
+
     if (filename == "")
     {
         filename = "out.s";
