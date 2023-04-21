@@ -23,7 +23,7 @@ inline bool instanceof (T * ptr)
     cout << typeid(Base).name() << endl;
     return (dynamic_cast<const Base *>(ptr) != nullptr);
 }
-int max_size =0;
+int max_size = 0;
 Node::~Node()
 {
     // implementation of the destructor goes here
@@ -71,8 +71,9 @@ float interptObjs(Node *op)
     return 0.0f;
 }
 
-string gen_opertors(Node *op, vector<string> &tabs)
+string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
 {
+    cout << "works \n";
 
     if (op == nullptr)
     {
@@ -81,11 +82,26 @@ string gen_opertors(Node *op, vector<string> &tabs)
     }
     // mem errro :')
     NumNode *pd;
+    varaibleNode *pd1;
     if ((pd = dynamic_cast<NumNode *>(op)) != nullptr)
     {
         string reg = allocateReg();
         global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
         return reg;
+    }
+    if ((pd1 = dynamic_cast<varaibleNode *>(op)) != nullptr)
+    {
+        string reg = allocateReg();
+
+        if (map.find(pd1->varailbe->buffer) == map.end())
+        {
+            return "errpr";
+        }
+        else
+        {
+            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
+            return reg;
+        }
     }
     if (dynamic_cast<operatorNode *>(op) != nullptr)
     {
@@ -99,8 +115,8 @@ string gen_opertors(Node *op, vector<string> &tabs)
         if (t == type::ADDITION)
         {
             // return
-            string left = gen_opertors(op->left, tabs);
-            string right = gen_opertors(op->right, tabs);
+            string left = gen_opertors(op->left, tabs, map);
+            string right = gen_opertors(op->right, tabs, map);
             global_string += tabs_str(tabs) + "add " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
@@ -109,8 +125,8 @@ string gen_opertors(Node *op, vector<string> &tabs)
         if (t == type::SUBTRACT)
         {
             // return
-            string left = gen_opertors(op->left, tabs);
-            string right = gen_opertors(op->right, tabs);
+            string left = gen_opertors(op->left, tabs, map);
+            string right = gen_opertors(op->right, tabs, map);
             global_string += tabs_str(tabs) + "sub " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
@@ -119,8 +135,8 @@ string gen_opertors(Node *op, vector<string> &tabs)
         if (t == type::MULTIPLY)
         {
             // return
-            string left = gen_opertors(op->left, tabs);
-            string right = gen_opertors(op->right, tabs);
+            string left = gen_opertors(op->left, tabs, map);
+            string right = gen_opertors(op->right, tabs, map);
             global_string += tabs_str(tabs) + "mult " + left + ", " + right + " \n";
             global_string += tabs_str(tabs) + "mflo " + resultReg + " \n";
             freeReg();
@@ -130,8 +146,8 @@ string gen_opertors(Node *op, vector<string> &tabs)
         if (t == type::DIVISION)
         {
             // return
-            string left = gen_opertors(op->left, tabs);
-            string right = gen_opertors(op->right, tabs);
+            string left = gen_opertors(op->left, tabs, map);
+            string right = gen_opertors(op->right, tabs, map);
             global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
@@ -139,8 +155,8 @@ string gen_opertors(Node *op, vector<string> &tabs)
         }
         if (t == type::MOD)
         {
-            string left = gen_opertors(op->left, tabs);
-            string right = gen_opertors(op->right, tabs);
+            string left = gen_opertors(op->left, tabs, map);
+            string right = gen_opertors(op->right, tabs, map);
             global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
             global_string += tabs_str(tabs) + "mfhi " + resultReg + "\n";
             freeReg();
@@ -153,7 +169,7 @@ string gen_opertors(Node *op, vector<string> &tabs)
     }
     cout << "exits";
     // treat like register machine
-    return "";
+    return "error";
 }
 void print_global()
 {
@@ -188,14 +204,14 @@ void wf(ofstream &outfile, string word)
     outfile << word << endl;
 }
 
-void prepare_interptMips(varaibleNode* var, map<string, int> &map){
-    max_size+=4;
+void prepare_interptMips(varaibleNode *var, map<string, int> &map)
+{
+    max_size += 4;
     map[var->varailbe->buffer] = max_size;
-
 }
 void gen_mips_target(Node *op, string filename = "")
 {
-    map<string, Node*> vars;
+    map<string, Node *> vars;
     string dirname = "MipsTarget/MipsTargetASM/";
     int status = fs::create_directories(dirname);
 
@@ -213,26 +229,59 @@ void gen_mips_target(Node *op, string filename = "")
     for (int i = 0; i < state.size(); i++)
     {
         varaibleNode *pd1 = dynamic_cast<varaibleNode *>(state[i]);
-        if(pd1 != nullptr){
-            if(map.find(pd1->varailbe->buffer) == map.end()){
-                cout << "no null";
-                prepare_interptMips(pd1,map);
+        if (pd1 != nullptr)
+        {
+            if (map.find(pd1->varailbe->buffer) == map.end())
+            {
+                prepare_interptMips(pd1, map);
             }
-        }else{
-            cout <<"null ptr \n";
+        }
+        else
+        {
+            cout << "null ptr \n";
         }
     }
     string word = ".data \n .text \n main: \n";
 
-    
     wf(outfile, word);
-    
     vector<string> tab;
 
     addtabs(tab);
-    string setupstack = tabs_str(tab)+"addi $sp, $sp,-"+to_string(max_size)+" # Move the stack pointer down by 8 bytes\n";
+    string setupstack = tabs_str(tab) + "addi $sp, $sp,-" + to_string(max_size) + " # Move the stack pointer down by 8 bytes\n";
     wf(outfile, setupstack);
-    string exitStack = tabs_str(tab)+"addi $sp, $sp,"+to_string(max_size)+" # Move the stack pointer down by 8 bytes\n"+tabs_str(tab)+"jr $ra \n";
+    for (int i = 0; i < state.size(); i++)
+    {
+        varaibleNode *pd1 = dynamic_cast<varaibleNode *>(state[i]);
+        if (pd1 != nullptr)
+        {
+            if (check_if_pureExpression(pd1->expression) == 0)
+            {
+                string allocr = allocateReg();
+                string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
+                string add = tabs_str(tab) + "sw " + allocr + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
+                cout << "here \n";
+                freeReg();
+                wf(outfile, a);
+                wf(outfile, add);
+            }
+            else
+            {
+
+                string add = tabs_str(tab) + "sw " + gen_opertors(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
+                cout << "string: " + global_string << endl;
+
+                wf(outfile, global_string);
+                global_string = "";
+                wf(outfile, add);
+            }
+        }
+        else
+        {
+            cout << "null ptr \n";
+        }
+    }
+
+    string exitStack = tabs_str(tab) + "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer down by 8 bytes\n" + tabs_str(tab) + "jr $ra \n";
     wf(outfile, exitStack);
     // traverse(op);
     // gen_opertors(op,tab);

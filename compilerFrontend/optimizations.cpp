@@ -15,16 +15,11 @@ int check_if_pureExpression(Node *op)
 {
     if (op == nullptr)
     {
+        return 1;
+    }
+    if (dynamic_cast<varaibleNode *>(op) != nullptr)
+    {
         return 0;
-    }
-    if (dynamic_cast<NumNode *>(op) != nullptr)
-    {
-        NumNode* pd = dynamic_cast<NumNode *>(op);
-        cout << pd->num << endl;
-    }
-    else
-    {
-        cout << "null" << endl;
     }
 
     check_if_pureExpression(op->left);

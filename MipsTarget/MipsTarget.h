@@ -27,7 +27,7 @@ struct VaraibleNode
 
 void traverse(Node *node);
 void gen_mips_target(Node *op, string filename = "");
-string gen_opertors(Node *op);
+string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map);
 string allocateReg();
 void print_global();
 float interptObjs(Node* op);
