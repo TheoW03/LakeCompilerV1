@@ -25,7 +25,10 @@ struct Node
     Node() : left(nullptr), right(nullptr){}
 
 };
-
+struct syscallNode : public Node{
+    Tokens* sysCallName;
+    vector<Tokens *> params;
+};
 struct NullStruct : public Node
 {
 };

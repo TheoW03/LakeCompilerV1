@@ -42,7 +42,10 @@ struct StatementNode : public Node
     struct Node *expression;
     struct Tokens *nameOfVar;
 };
-
+struct syscallNode : public Node{
+    Tokens* sysCallName;
+    vector<Tokens *> params;
+};
 struct FunctionNode : public Node
 {
     struct Tokens *nameOfFunction;
@@ -312,6 +315,8 @@ Node *functionParse(vector<Tokens> &tokens)
         matchAndRemove(tokens, type::BEGIN, "parsefunctions");
         while (matchAndRemove(tokens, type::END, "parsefunctions") == nullptr)
         {
+            
+            
             Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr) ? current : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr) ? current
                                                                                                                                                                        : nullptr;
 

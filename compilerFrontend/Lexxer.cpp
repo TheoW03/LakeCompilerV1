@@ -32,7 +32,7 @@ enum class type
     LOOP,
     AND,
     OR,
-    END_OF_LINE
+    END_OF_LINE, PRINT, SCAN
 };
 struct Tokens
 {
@@ -89,6 +89,8 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::FUNCTION] = "FUNCTION";
     dictionary[type::VAR] = "VAR";
     dictionary[type::END_OF_LINE] = "END_OF_LINE";
+    dictionary[type::PRINT] = "PRINT";
+    dictionary[type::SCAN] = "SCAN";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -106,7 +108,8 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["for"] = type::LOOP;
     typeOfOP["var"] = type::VAR;
     typeOfOP["let"] = type::VAR;
-    typeOfOP[";"] = type::END_OF_LINE;
+    typeOfOP["print"] = type::PRINT;
+    typeOfOP["scan"] = type::SCAN;
 
 #pragma endregion
     int wordstate = 1;

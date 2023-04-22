@@ -21,8 +21,14 @@ inline bool instanceof (T * ptr)
     cout << typeid(T).name() << endl;
     cout << "base" << endl;
     cout << typeid(Base).name() << endl;
-    return (dynamic_cast<const Base *>(ptr) != nullptr);
+    return (dynamic_cast<Base *>(ptr) != nullptr);
 }
+template <typename Base, typename T>
+T *cast_to(T *ptr)
+{
+    return (dynamic_cast<Base *>(ptr));
+}
+
 int max_size = 0;
 Node::~Node()
 {
@@ -63,9 +69,10 @@ string allocateReg()
 string global_string = "";
 void freeReg()
 {
-    
+
     nextRegister--;
-    if(nextRegister < 0){
+    if (nextRegister < 0)
+    {
         nextRegister = 0;
     }
 }
@@ -261,6 +268,8 @@ void gen_mips_target(Node *op, string filename = "")
     for (int i = 0; i < state.size(); i++)
     {
         varaibleNode *pd1 = dynamic_cast<varaibleNode *>(state[i]);
+        // varaibleNode *pd2 = dynamic_cast< *>(state[i]);
+
         if (pd1 != nullptr)
         {
             if (check_if_pureExpression(pd1->expression) == 0)

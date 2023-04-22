@@ -32,7 +32,9 @@ enum class type
     LOOP,
     AND,
     OR,
-    END_OF_LINE
+    END_OF_LINE,
+    PRINT,
+    SCAN
 };
 #endif // TYPE
 
