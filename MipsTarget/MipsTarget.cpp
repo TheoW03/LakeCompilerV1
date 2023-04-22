@@ -268,7 +268,7 @@ void gen_mips_target(Node *op, string filename = "")
     for (int i = 0; i < state.size(); i++)
     {
         varaibleNode *pd1 = dynamic_cast<varaibleNode *>(state[i]);
-        // varaibleNode *pd2 = dynamic_cast< *>(state[i]);
+        funcCallNode *pd2 = dynamic_cast<funcCallNode *>(state[i]);
 
         if (pd1 != nullptr)
         {
@@ -291,6 +291,30 @@ void gen_mips_target(Node *op, string filename = "")
                 wf(outfile, add);
             }
             freeReg();
+        }
+        else if (pd2 != nullptr)
+        {
+            if (pd2->funcCall->id == type::PRINT)
+            {
+                vector<Tokens *> a = pd2->params;
+                string gen_code = tabs_str(tab) + "li $v0, 1 \n"; // remeber to make type depenedent
+                for (int i = 0; i < a.size(); i++)
+                {
+                    if (map.find(a[i]->buffer) != map.end())
+                    {
+                        // li      $v0,    1               # system call for print integer
+                        // move    $a0,    $t1             # integer value to print
+                        // syscall
+                        string reg = allocateReg();
+
+                        gen_code += tabs_str(tab) + "lw " + reg + "," + to_string(map[a[i]->buffer]) + "($sp) \n";
+                        gen_code += tabs_str(tab) + "move $a0, " + reg + "\n";
+                    }
+                }
+                wf(outfile, gen_code);
+                wf(outfile, tabs_str(tab) + "syscall \n");
+                freeReg();
+            }
         }
         else
         {

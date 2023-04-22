@@ -301,12 +301,12 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
 {
     funcCallNode *f1 = new funcCallNode;
     f1->funcCall = checkIfFunct;
-    matchAndRemove(tokens, type::OP_PARENTHISIS, "functionParse");
+    matchAndRemove(tokens, type::OP_PARENTHISIS, "handlecalls");
     vector<Tokens *> vars;
-    while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlefunctions") == nullptr)
+    while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlecalls") == nullptr)
     {
-        Tokens *var = matchAndRemove(tokens, type::WORD, "handlefunctions");
-        matchAndRemove(tokens, type::COMMA, "handlefunctions");
+        Tokens *var = matchAndRemove(tokens, type::WORD, "handlecalls");
+        matchAndRemove(tokens, type::COMMA, "handlecalls");
         vars.push_back(var);
     }
     f1->params = vars;
@@ -324,6 +324,7 @@ Node *handleSatements(vector<Tokens> &tokens)
     Tokens *checkIfFunct = matchAndRemove(tokens, type::PRINT, "functionParse");
     if (checkIfFunct != nullptr)
     {
+        cout << "hi as \n";
         return handleCalls(tokens, checkIfFunct);
     }
 #pragma endregion
@@ -362,6 +363,7 @@ Node *functionParse(vector<Tokens> &tokens)
         matchAndRemove(tokens, type::BEGIN, "parsefunctions");
         while (matchAndRemove(tokens, type::END, "parsefunctions") == nullptr)
         {
+            RemoveEOLS(tokens);
 
             states.push_back(handleSatements(tokens));
             RemoveEOLS(tokens);

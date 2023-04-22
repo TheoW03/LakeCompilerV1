@@ -32,7 +32,9 @@ enum class type
     LOOP,
     AND,
     OR,
-    END_OF_LINE, PRINT, SCAN
+    END_OF_LINE,
+    PRINT,
+    SCAN
 };
 struct Tokens
 {
@@ -146,7 +148,6 @@ vector<Tokens> lex(vector<string> lines)
                 }
                 if (regex_search(str, myMatch, numReg) || regex_search(str, myMatch, opRegex) || str == ")" || str == "(" || str == "-")
                 {
-                    stateIsNum = 1;
                 }
                 else
                 {
@@ -319,6 +320,10 @@ vector<Tokens> lex(vector<string> lines)
                     }
                     if (wordstate == 1)
                     {
+                        if (regex_search(str, myMatch, opRegex))
+                        {
+                            stateIsNum = 1;
+                        }
 
                         if (str == "=" || str == "," || str == "}" || str == "{" || str == ";")
                         {
