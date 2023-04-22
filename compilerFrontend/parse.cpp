@@ -328,14 +328,18 @@ Node *handleSatements(vector<Tokens> &tokens)
     }
 #pragma endregion
 #pragma region varstates
-
-    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr) ? current : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr) ? current
-                                                                                                                                                               : nullptr;
+    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)  ? current
+                : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr) ? current
+                                                                                   : nullptr;
     if (a != nullptr)
     {
         Node *var;
         if (a->id == type::WORD)
         {
+            if (matchAndRemove(tokens, type::EQUALS, "state") == nullptr)
+            {
+                return handleCalls(tokens, a);
+            }
             var = parseVar(tokens, a);
         }
         else if (a->id == type::VAR)
