@@ -21,5 +21,5 @@ x86test:
 line_count:
 	./linecount.sh
 clean: 
-	rm *.o output a.out
+	rm *.o output
 	clear

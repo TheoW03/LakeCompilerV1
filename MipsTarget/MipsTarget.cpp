@@ -63,7 +63,11 @@ string allocateReg()
 string global_string = "";
 void freeReg()
 {
+    
     nextRegister--;
+    if(nextRegister < 0){
+        nextRegister = 0;
+    }
 }
 
 float interptObjs(Node *op)
@@ -73,7 +77,6 @@ float interptObjs(Node *op)
 
 string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
 {
-    cout << "works \n";
 
     if (op == nullptr)
     {
@@ -82,20 +85,25 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
     }
     // mem errro :')
     NumNode *pd;
-    varaibleNode *pd1;
     if ((pd = dynamic_cast<NumNode *>(op)) != nullptr)
     {
+        cout << "works in num \n";
+
         string reg = allocateReg();
         global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
         return reg;
     }
-    if ((pd1 = dynamic_cast<varaibleNode *>(op)) != nullptr)
+    varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
+    if (pd1 != nullptr)
     {
+        cout << "works in var \n";
         string reg = allocateReg();
 
         if (map.find(pd1->varailbe->buffer) == map.end())
         {
-            return "errpr";
+            cerr << pd1->varailbe->buffer + " doesnt exist as a var" << endl;
+
+            return "";
         }
         else
         {
@@ -105,11 +113,13 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
     }
     if (dynamic_cast<operatorNode *>(op) != nullptr)
     {
+        cout << "is in op node \n";
         operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
         type t;
         if (pd->token != nullptr)
         {
             t = pd->token->id;
+            cout << "token op: " + pd->token->buffer << endl;
         }
         string resultReg = allocateReg();
         if (t == type::ADDITION)
@@ -167,9 +177,8 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
             // mfhi $t3
         }
     }
-    cout << "exits";
+    cout << "";
     // treat like register machine
-    return "error";
 }
 void print_global()
 {
@@ -260,7 +269,6 @@ void gen_mips_target(Node *op, string filename = "")
                 string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
                 string add = tabs_str(tab) + "sw " + allocr + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
                 cout << "here \n";
-                freeReg();
                 wf(outfile, a);
                 wf(outfile, add);
             }
@@ -269,11 +277,11 @@ void gen_mips_target(Node *op, string filename = "")
 
                 string add = tabs_str(tab) + "sw " + gen_opertors(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
                 cout << "string: " + global_string << endl;
-
                 wf(outfile, global_string);
                 global_string = "";
                 wf(outfile, add);
             }
+            freeReg();
         }
         else
         {

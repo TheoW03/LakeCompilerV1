@@ -88,6 +88,7 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::END] = "END";
     dictionary[type::FUNCTION] = "FUNCTION";
     dictionary[type::VAR] = "VAR";
+    dictionary[type::END_OF_LINE] = "END_OF_LINE";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -104,7 +105,9 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["while"] = type::LOOP;
     typeOfOP["for"] = type::LOOP;
     typeOfOP["var"] = type::VAR;
+    typeOfOP["let"] = type::VAR;
     typeOfOP[";"] = type::END_OF_LINE;
+
 #pragma endregion
     int wordstate = 1;
     string wordBuffer = "";
@@ -140,6 +143,7 @@ vector<Tokens> lex(vector<string> lines)
                 }
                 if (regex_search(str, myMatch, numReg) || regex_search(str, myMatch, opRegex) || str == ")" || str == "(" || str == "-")
                 {
+                    stateIsNum = 1;
                 }
                 else
                 {
