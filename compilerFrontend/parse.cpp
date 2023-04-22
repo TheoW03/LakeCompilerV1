@@ -42,8 +42,9 @@ struct StatementNode : public Node
     struct Node *expression;
     struct Tokens *nameOfVar;
 };
-struct syscallNode : public Node{
-    Tokens* sysCallName;
+struct funcCallNode : public Node
+{
+    Tokens *funcCall;
     vector<Tokens *> params;
 };
 struct FunctionNode : public Node
@@ -296,14 +297,56 @@ Node *parseVar(vector<Tokens> &tokens, Tokens *name)
 
     return n;
 }
-
+Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
+{
+    funcCallNode *f1 = new funcCallNode;
+    f1->funcCall = checkIfFunct;
+    matchAndRemove(tokens, type::OP_PARENTHISIS, "functionParse");
+    vector<Tokens *> vars;
+    while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlefunctions") == nullptr)
+    {
+        Tokens *var = matchAndRemove(tokens, type::WORD, "handlefunctions");
+        matchAndRemove(tokens, type::COMMA, "handlefunctions");
+        vars.push_back(var);
+    }
+    f1->params = vars;
+    return f1;
+}
 /**
  * @brief function stuff
  *
  * @param tokens
  * @return Node*
  */
+Node *handleSatements(vector<Tokens> &tokens)
+{
+#pragma region functionstate
+    Tokens *checkIfFunct = matchAndRemove(tokens, type::PRINT, "functionParse");
+    if (checkIfFunct != nullptr)
+    {
+        return handleCalls(tokens, checkIfFunct);
+    }
+#pragma endregion
+#pragma region varstates
 
+    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr) ? current : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr) ? current
+                                                                                                                                                               : nullptr;
+    if (a != nullptr)
+    {
+        Node *var;
+        if (a->id == type::WORD)
+        {
+            var = parseVar(tokens, a);
+        }
+        else if (a->id == type::VAR)
+        {
+            var = parseVar(tokens, nullptr);
+        }
+        return var;
+    }
+#pragma endregion
+    return nullptr;
+}
 Node *functionParse(vector<Tokens> &tokens)
 {
     printList(tokens);
@@ -315,24 +358,8 @@ Node *functionParse(vector<Tokens> &tokens)
         matchAndRemove(tokens, type::BEGIN, "parsefunctions");
         while (matchAndRemove(tokens, type::END, "parsefunctions") == nullptr)
         {
-            
-            
-            Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr) ? current : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr) ? current
-                                                                                                                                                                       : nullptr;
 
-            if (a != nullptr)
-            {
-                Node *var;
-                if (a->id == type::WORD)
-                {
-                    var = parseVar(tokens, a);
-                }
-                else if (a->id == type::VAR)
-                {
-                    var = parseVar(tokens, nullptr);
-                }
-                states.push_back(var);
-            }
+            states.push_back(handleSatements(tokens));
             RemoveEOLS(tokens);
         }
         FunctionNode *pd = dynamic_cast<FunctionNode *>(func);

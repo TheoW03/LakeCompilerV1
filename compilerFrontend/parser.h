@@ -25,12 +25,13 @@ struct Node
     Node() : left(nullptr), right(nullptr){}
 
 };
-struct syscallNode : public Node{
-    Tokens* sysCallName;
+struct funcCallNode : public Node{
+    Tokens* funcCall;
     vector<Tokens *> params;
 };
 struct NullStruct : public Node
 {
+
 };
 
 struct NumNode : public Node
@@ -75,3 +76,5 @@ void printParams(vector<Tokens*> a);
 Node *testParse(vector<Tokens> &tokens);
 Node* functionParse(vector<Tokens> &tokens);
 Node *parseVar(vector<Tokens> &tokens, Tokens *name);
+Node *handleCalls(vector<Tokens> &tokens, Tokens* checkIfFunct);
+Node *handleSatements(vector<Tokens> &tokens);

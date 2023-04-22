@@ -1,14 +1,6 @@
 function main(a,b,c){
         let b = 3;
-        let a = 4;
-        a = a+1;
-        a = a+2;
-        b = b + 10;
-        a = a+1;
-        a = a+2;
-        b = b + 10;
-        a = a+1;
-        a = a+2;
-        b = b + 10;
-        
+        let c = 4;
+        let d = 10;
+        let e = c+b+d;        
 }
