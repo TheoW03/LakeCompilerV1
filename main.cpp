@@ -15,15 +15,15 @@ struct Data
 int main()
 {
     vector<Tokens> a = lex(readFile("test.txt"));
-    // cout << "lexxed" << endl;
+    // // cout << "lexxed" << endl;
     printList(a);
-    Node *c = functionParse(a);
+    Node *c = parse(a);
     cout << "parsed" << endl;
     if (c == nullptr)
     {
         cout << "nullptr out \n";
     }
     gen_mips_target(c,"test.s");
-    cout << "shuld be compiled \n";
+    cout << "should be compiled \n";
     return 0;
 }

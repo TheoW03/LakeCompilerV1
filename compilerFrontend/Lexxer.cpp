@@ -320,12 +320,8 @@ vector<Tokens> lex(vector<string> lines)
                     }
                     if (wordstate == 1)
                     {
-                        if (regex_search(str, myMatch, opRegex))
-                        {
-                            stateIsNum = 1;
-                        }
 
-                        if (str == "=" || str == "," || str == "}" || str == "{" || str == ";")
+                        if (str == "=" || str == "," || str == "}" || str == "{" || str == ";" || regex_search(str, myMatch, opRegex))
                         {
                             if (wordBuffer != "")
                             {
@@ -338,7 +334,8 @@ vector<Tokens> lex(vector<string> lines)
                             modifyStruct(token, (wordBuffer == "=") ? type::EQUALS : (wordBuffer == ",") ? type::COMMA
                                                                                  : (wordBuffer == "{")   ? type::BEGIN
                                                                                  : (wordBuffer == "}")   ? type::END
-                                                                                 : (wordBuffer == ";")   ? type::END_OF_LINE
+                                                                                 : (wordBuffer == ";")   ? type::END_OF_LINE:
+                                                                                 (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer]
                                                                                                          : type::WORD,
                                          dictionary, wordBuffer);
                             a.push_back(token);

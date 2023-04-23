@@ -225,6 +225,38 @@ void prepare_interptMips(varaibleNode *var, map<string, int> &map)
     max_size += 4;
     map[var->varailbe->buffer] = max_size;
 }
+void gen_function(FunctionNode *function, map<string, int> &map)
+{
+    vector<Node *> state = function->statements;
+
+    for (int i = 0; i < state.size(); i++)
+    {
+        varaibleNode *pd1 = dynamic_cast<varaibleNode *>(state[i]);
+        if (pd1 != nullptr)
+        {
+            if (map.find(pd1->varailbe->buffer) == map.end())
+            {
+                prepare_interptMips(pd1, map);
+            }
+        }
+        else
+        {
+            cout << "null ptr \n";
+        }
+    }
+}
+/**
+ * @brief
+ *
+ * @param op
+ * @param filename
+ *
+ * how this wil work
+ *
+ * It will be give a vector of Functions
+ * and then go through each node, and generate ASM using the code
+ * and yeh.
+ */
 void gen_mips_target(Node *op, string filename = "")
 {
     map<string, Node *> vars;
@@ -242,26 +274,15 @@ void gen_mips_target(Node *op, string filename = "")
     vector<Node *> state = pd->statements;
     map<string, int> map;
     map["."] = 0;
-    for (int i = 0; i < state.size(); i++)
-    {
-        varaibleNode *pd1 = dynamic_cast<varaibleNode *>(state[i]);
-        if (pd1 != nullptr)
-        {
-            if (map.find(pd1->varailbe->buffer) == map.end())
-            {
-                prepare_interptMips(pd1, map);
-            }
-        }
-        else
-        {
-            cout << "null ptr \n";
-        }
-    }
-    string word = ".data \n .text \n main: \n";
-
+    string word = ".data \n .text \n";
+    
     wf(outfile, word);
-    vector<string> tab;
+    //where to iterate on list of vectors
+    string function_name = pd->nameOfFunction->buffer + ": \n";
+    wf(outfile, function_name);
+    gen_function(pd, map);
 
+    vector<string> tab;
     addtabs(tab);
     string setupstack = tabs_str(tab) + "addi $sp, $sp,-" + to_string(max_size) + " # Move the stack pointer down by 8 bytes\n";
     wf(outfile, setupstack);
@@ -321,9 +342,9 @@ void gen_mips_target(Node *op, string filename = "")
             cout << "null ptr \n";
         }
     }
-
     string exitStack = tabs_str(tab) + "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer down by 8 bytes\n" + tabs_str(tab) + "jr $ra \n";
     wf(outfile, exitStack);
+    //end here
     // traverse(op);
     // gen_opertors(op,tab);
     // traverse(op);

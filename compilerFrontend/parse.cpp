@@ -383,19 +383,20 @@ Node *functionParse(vector<Tokens> &tokens)
  */
 Node *parse(vector<Tokens> &tokens)
 {
+    return functionParse(tokens);
 
     // Tokens *var = matchAndRemove(tokens, type::WORD);
     // matchAndRemove(tokens, type::EQUALS);
-    Node *a = expression(tokens);
-    // varaibleNode *c = new varaibleNode;
-    // c->expression = a;
-    // c->varailbe = var;
+    // Node *a = expression(tokens);
+    // // varaibleNode *c = new varaibleNode;
+    // // c->expression = a;
+    // // c->varailbe = var;
 
-    if (a == nullptr)
-    {
-        // cout << "null \n";
-        return nullptr;
-    }
+    // if (a == nullptr)
+    // {
+    //     // cout << "null \n";
+    //     return nullptr;
+    // }
 
-    return a;
+    // return a;
 }

@@ -1,6 +1,6 @@
 function main(a,b,c){
         var b = 3;
-        var c1 = 4;
-        c1 = c1 + b + 100;
-        print(c1);
+        var multiple_words = 4;
+        var multiple_words1=multiple_words+b+10;
+        print(multiple_words1);
 }

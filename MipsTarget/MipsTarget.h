@@ -38,4 +38,5 @@ string allocateReg();
 void print_global();
 float interptObjs(Node* op);
 void prepare_interptMips(varaibleNode* var, map<string, int> &map);
+void gen_function(FunctionNode *function, map<string, int> &map);
 // void gen_x86_target(Node *op, string filename = "");
