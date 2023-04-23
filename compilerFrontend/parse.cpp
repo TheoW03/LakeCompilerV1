@@ -378,6 +378,10 @@ Node *functionParse(vector<Tokens> &tokens)
     return nullptr;
 }
 
+Node *testExpressionParse(vector<Tokens> &tokens)
+{
+    return expression(tokens);
+}
 /**
  * meant for testing Recursion stuff
  */

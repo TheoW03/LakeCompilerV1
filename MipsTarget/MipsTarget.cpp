@@ -278,6 +278,7 @@ void gen_mips_target(Node *op, string filename = "")
     
     wf(outfile, word);
     //where to iterate on list of vectors
+    #pragma region iterate vector of functions sarts here 
     string function_name = pd->nameOfFunction->buffer + ": \n";
     wf(outfile, function_name);
     gen_function(pd, map);
@@ -344,7 +345,7 @@ void gen_mips_target(Node *op, string filename = "")
     }
     string exitStack = tabs_str(tab) + "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer down by 8 bytes\n" + tabs_str(tab) + "jr $ra \n";
     wf(outfile, exitStack);
-    //end here
+    #pragma endregion
     // traverse(op);
     // gen_opertors(op,tab);
     // traverse(op);

@@ -79,3 +79,4 @@ Node* functionParse(vector<Tokens> &tokens);
 Node *parseVar(vector<Tokens> &tokens, Tokens *name);
 Node *handleCalls(vector<Tokens> &tokens, Tokens* checkIfFunct);
 Node *handleSatements(vector<Tokens> &tokens);
+Node *testExpressionParse(vector<Tokens> &tokens);

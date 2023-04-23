@@ -11,16 +11,32 @@
 #include <sys/stat.h>
 #include <filesystem>
 
-
 #include "../compilerFrontend/Lexxer.h"
 #include "../compilerFrontend/parser.h"
 
 using namespace std;
 namespace fs = std::filesystem;
 
-
-string gen_opertorsx86(Node *op, vector<string> &tabs){
-
+int currentRegister = -1;
+string allocate_register()
+{
+    currentRegister++;
+    if (currentRegister > 3)
+    {
+        currentRegister = 0;
+    }
+    string registers[] = {"eax", "ebx", "ecx", "edx"};
+    return registers[currentRegister];
+}
+void freeRegister()
+{
+    currentRegister--;
+}
+string gen_opertorsx86(Node *op, vector<string> &tabs)
+{
+    if(op == nullptr){
+        return "";
+    }
 }
 void wfx86(ofstream &outfile, string word)
 {
@@ -28,6 +44,7 @@ void wfx86(ofstream &outfile, string word)
 }
 void gen_x86_target(Node *op, string filename = "")
 {
+
     string dirname = "x86TargetFiles/x86TargetASM";
     int status = fs::create_directories(dirname);
 
@@ -35,8 +52,8 @@ void gen_x86_target(Node *op, string filename = "")
     {
         filename = "out.s";
     }
-    
-    ofstream outfile("x86TargetFiles/x86TargetASM/"+filename);
+
+    ofstream outfile("x86TargetFiles/x86TargetASM/" + filename);
     string word = "section .data \n section .text \n \t global main \n main: \n";
     wfx86(outfile, word);
     string exit = "\tpush rbp \n\t mov rax,0 \n \t pop rbp \n \t ret";

@@ -137,6 +137,7 @@ vector<Tokens> lex(vector<string> lines)
 
             if (current != ' ' && current != '\t' && current != '\0' && current != '\\x20')
             {
+                
                 string str(1, current);
                 cout << "word buffer: " + wordBuffer << endl;
                 cout << "state is num: " + stateIsNum << endl;
