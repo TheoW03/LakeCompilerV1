@@ -17,9 +17,10 @@ x86Target.o: x86TargetFiles/x86Target.cpp  x86TargetFiles/x86Target.h compilerFr
 optimizations.o: compilerFrontend/optimizations.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h compilerFrontend/optimizations.h
 		g++ -c -g compilerFrontend/optimizations.cpp
 x86test:
-	 nasm -f elf64 x86TargetFiles/x86TargetASM/test.s && gcc -no-pie  x86TargetFiles/x86TargetASM/test.o && ./a.out
+	 nasm -f elf64 x86TargetFiles/x86TargetASM/out.s && gcc -no-pie  x86TargetFiles/x86TargetASM/out.o && ./a.out
 line_count:
 	./linecount.sh
 clean: 
 	rm *.o output
 	clear
+	

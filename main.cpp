@@ -17,13 +17,13 @@ int main()
     vector<Tokens> a = lex(readFile("test.txt"));
     // // cout << "lexxed" << endl;
     printList(a);
-    Node *c = parse(a);
+    Node *c = testExpressionParse(a);
     cout << "parsed" << endl;
     if (c == nullptr)
     {
         cout << "nullptr out \n";
     }
-    gen_mips_target(c,"test.s");
+    gen_x86_target(c);
     cout << "should be compiled \n";
     return 0;
 }
