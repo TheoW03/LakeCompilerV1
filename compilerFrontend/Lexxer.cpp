@@ -34,7 +34,8 @@ enum class type
     OR,
     END_OF_LINE,
     PRINT,
-    SCAN
+    SCAN,
+    EXIT
 };
 struct Tokens
 {
@@ -93,7 +94,7 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::END_OF_LINE] = "END_OF_LINE";
     dictionary[type::PRINT] = "PRINT";
     dictionary[type::SCAN] = "SCAN";
-
+    dictionary[type::EXIT] = "EXIT";
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
     typeOfOP["-"] = type::SUBTRACT;
@@ -112,6 +113,7 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["let"] = type::VAR;
     typeOfOP["print"] = type::PRINT;
     typeOfOP["scan"] = type::SCAN;
+    typeOfOP["exit"] = type::EXIT;
 
 #pragma endregion
     int wordstate = 1;
@@ -137,7 +139,7 @@ vector<Tokens> lex(vector<string> lines)
 
             if (current != ' ' && current != '\t' && current != '\0' && current != '\\x20')
             {
-                
+
                 string str(1, current);
                 cout << "word buffer: " + wordBuffer << endl;
                 cout << "state is num: " + stateIsNum << endl;
@@ -332,12 +334,12 @@ vector<Tokens> lex(vector<string> lines)
                                 wordBuffer = "";
                             }
                             wordBuffer += str;
-                            modifyStruct(token, (wordBuffer == "=") ? type::EQUALS : (wordBuffer == ",") ? type::COMMA
-                                                                                 : (wordBuffer == "{")   ? type::BEGIN
-                                                                                 : (wordBuffer == "}")   ? type::END
-                                                                                 : (wordBuffer == ";")   ? type::END_OF_LINE:
-                                                                                 (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer]
-                                                                                                         : type::WORD,
+                            modifyStruct(token, (wordBuffer == "=") ? type::EQUALS : (wordBuffer == ",")                         ? type::COMMA
+                                                                                 : (wordBuffer == "{")                           ? type::BEGIN
+                                                                                 : (wordBuffer == "}")                           ? type::END
+                                                                                 : (wordBuffer == ";")                           ? type::END_OF_LINE
+                                                                                 : (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer]
+                                                                                                                                 : type::WORD,
                                          dictionary, wordBuffer);
                             a.push_back(token);
                             cout << "equals" << endl;

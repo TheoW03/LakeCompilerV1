@@ -321,7 +321,9 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
 Node *handleSatements(vector<Tokens> &tokens)
 {
 #pragma region functionstate
-    Tokens *checkIfFunct = matchAndRemove(tokens, type::PRINT, "functionParse");
+    Tokens *checkIfFunct = (matchAndRemove(tokens, type::PRINT, "functionParse") != nullptr) ? current 
+                            : (matchAndRemove(tokens, type::EXIT, "functionParse") != nullptr) ? current : 
+                            nullptr;
     if (checkIfFunct != nullptr)
     {
         cout << "hi as \n";

@@ -34,7 +34,7 @@ enum class type
     OR,
     END_OF_LINE,
     PRINT,
-    SCAN
+    SCAN, EXIT
 };
 #endif // TYPE
 
