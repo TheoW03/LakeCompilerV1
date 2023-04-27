@@ -105,7 +105,14 @@ string gen_opertorsx86(Node *op, vector<string> &tabs)
             return resultReg;
         }
     }
+    return "";
 }
+/**
+ * @brief writes to file 
+ * 
+ * @param outfile 
+ * @param word 
+ */
 void wfx86(ofstream &outfile, string word)
 {
     outfile << word << endl;

@@ -11,6 +11,15 @@
 
 using namespace std;
 
+/**
+ * @brief does the optimization where it has
+ * 
+ * a = 1 + 1; 
+ * it checks if its "pure" else it sums it for u
+ * 
+ * @param op 
+ * @return int 
+ */
 int check_if_pureExpression(Node *op)
 {
     if (op == nullptr)
@@ -62,5 +71,6 @@ int solve(Node *op)
             return solve(op->right) % solve(op->left);
         }
     }
+    return 0;
     
 }

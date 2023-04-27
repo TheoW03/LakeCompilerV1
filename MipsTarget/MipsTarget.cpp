@@ -184,7 +184,7 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
             // mfhi $t3
         }
     }
-    cout << "";
+    return "";
     // treat like register machine
 }
 void print_global()
@@ -215,6 +215,12 @@ void traverse(Node *node)
     // traverse(node->right);
 }
 
+/**
+ * @brief
+ *
+ * @param outfile
+ * @param word
+ */
 void wf(ofstream &outfile, string word)
 {
     outfile << word << endl;
@@ -275,10 +281,10 @@ void gen_mips_target(Node *op, string filename = "")
     map<string, int> map;
     map["."] = 0;
     string word = ".data \n .text \n";
-    
+
     wf(outfile, word);
-    //where to iterate on list of vectors
-    #pragma region iterate vector of functions sarts here 
+// where to iterate on list of vectors
+#pragma region iterate vector of functions sarts here
     string function_name = pd->nameOfFunction->buffer + ": \n";
     wf(outfile, function_name);
     gen_function(pd, map);
@@ -294,12 +300,12 @@ void gen_mips_target(Node *op, string filename = "")
 
         if (pd1 != nullptr)
         {
+            // expression tree at its finest
             if (check_if_pureExpression(pd1->expression) == 0)
             {
                 string allocr = allocateReg();
                 string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
                 string add = tabs_str(tab) + "sw " + allocr + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
-                cout << "here \n";
                 wf(outfile, a);
                 wf(outfile, add);
             }
@@ -314,30 +320,58 @@ void gen_mips_target(Node *op, string filename = "")
             }
             freeReg();
         }
+#pragma region function calls
         else if (pd2 != nullptr)
         {
             if (pd2->funcCall->id == type::PRINT)
             {
-                vector<Tokens *> a = pd2->params;
+                vector<Node *> para = pd2->params;
                 string gen_code = tabs_str(tab) + "li $v0, 1 \n"; // remeber to make type depenedent
-                for (int i = 0; i < a.size(); i++)
+                for (int i = 0; i < para.size(); i++)
                 {
-                    if (map.find(a[i]->buffer) != map.end())
+                    global_string = "";
+                    if (check_if_pureExpression(para[i]) == 0)
                     {
-                        // li      $v0,    1               # system call for print integer
-                        // move    $a0,    $t1             # integer value to print
-                        // syscall
-                        string reg = allocateReg();
-
-                        gen_code += tabs_str(tab) + "lw " + reg + "," + to_string(map[a[i]->buffer]) + "($sp) \n";
-                        gen_code += tabs_str(tab) + "move $a0, " + reg + "\n";
+                        string allocr = allocateReg();
+                        string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(para[i])) + "\n";
+                        gen_code += tabs_str(tab) + "move $a0, " + allocr + "\n";
                     }
+                    else
+                    {
+                        string reg = gen_opertors(para[i], tab, map);
+                        wf(outfile, global_string);
+
+                        // string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
+                        gen_code += tabs_str(tab) + "move $a0, " + reg + "\n";
+                        global_string = "";
+                        // string add = tabs_str(tab) + "sw " + gen_opertors(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
+                        // cout << "string: " + global_string << endl;
+                        // wf(outfile, global_string);
+                        // global_string = "";
+                        // wf(outfile, add);
+                    }
+
+                    // if (map.find(a[i]->buffer) != map.end())
+                    // {
+                    //     // li      $v0,    1               # system call for print integer
+                    //     // move    $a0,    $t1             # integer value to print
+                    //     // syscall
+                    //     string reg = allocateReg();
+
+                    // gen_code += tabs_str(tab) + "lw " + reg + "," +  + "($sp) \n";
+                    //     gen_code += tabs_str(tab) + "move $a0, " + reg + "\n";
+                    // }
                 }
                 wf(outfile, gen_code);
                 wf(outfile, tabs_str(tab) + "syscall \n");
                 freeReg();
+            }else if(pd2->funcCall->id == type::EXIT){
+
+            }else{ //for custom function calls
+
             }
         }
+#pragma endregion //function calls
         else
         {
             cout << "null ptr \n";
@@ -345,7 +379,7 @@ void gen_mips_target(Node *op, string filename = "")
     }
     string exitStack = tabs_str(tab) + "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer down by 8 bytes\n" + tabs_str(tab) + "jr $ra \n";
     wf(outfile, exitStack);
-    #pragma endregion
+#pragma endregion //iterate function
     // traverse(op);
     // gen_opertors(op,tab);
     // traverse(op);

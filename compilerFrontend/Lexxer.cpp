@@ -7,10 +7,7 @@
 #include <map>
 using namespace std;
 
-#define true 0
-#define false 1
-#pragma region
-#define boolean int
+
 enum class type
 {
     ADDITION,
@@ -35,7 +32,11 @@ enum class type
     END_OF_LINE,
     PRINT,
     SCAN,
-    EXIT
+    EXIT,
+    INT,
+    FLOAT,
+    STRING,
+    CHAR
 };
 struct Tokens
 {
@@ -95,6 +96,11 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::PRINT] = "PRINT";
     dictionary[type::SCAN] = "SCAN";
     dictionary[type::EXIT] = "EXIT";
+    dictionary[type::NUMBER] = "NUMBER";
+    dictionary[type::INT] = "INT";
+    dictionary[type::STRING] = "STRING";
+    dictionary[type::FLOAT] = "FLOAT";
+
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
     typeOfOP["-"] = type::SUBTRACT;
@@ -114,14 +120,17 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["print"] = type::PRINT;
     typeOfOP["scan"] = type::SCAN;
     typeOfOP["exit"] = type::EXIT;
+    typeOfOP["int"] = type::INT;
+    typeOfOP["float"] = type::FLOAT;
+    typeOfOP["string"] = type::STRING;
 
 #pragma endregion
     int wordstate = 1;
     string wordBuffer = "";
     int state = 1;
-    regex opRegex("[+*/%]"); // Match any word that starts with 'q'
+    regex opRegex("[+*/%]"); // operator regex
 
-    regex numReg("[0-9]"); // Match any word that starts with 'q'
+    regex numReg("[0-9]"); // num regex
     std::smatch myMatch;
     int stateIsNum = 1;
     Tokens token;
@@ -137,7 +146,7 @@ vector<Tokens> lex(vector<string> lines)
         {
             char current = line.at(i2);
 
-            if (current != ' ' && current != '\t' && current != '\0' && current != '\\x20')
+            if (current != ' ' && current != '\t' && current != '\0')
             {
 
                 string str(1, current);
@@ -167,6 +176,7 @@ vector<Tokens> lex(vector<string> lines)
                     }
 #pragma region num
 
+// 1-9
                     if (state == 1)
                     {
 
@@ -249,6 +259,7 @@ vector<Tokens> lex(vector<string> lines)
                             state = 2;
                         }
                     }
+  //+,*,/,%
                     else if (state == 2)
                     {
                         // if (buffer != "")
@@ -324,6 +335,7 @@ vector<Tokens> lex(vector<string> lines)
                     if (wordstate == 1)
                     {
 
+//seperator chars
                         if (str == "=" || str == "," || str == "}" || str == "{" || str == ";" || regex_search(str, myMatch, opRegex))
                         {
                             if (wordBuffer != "")

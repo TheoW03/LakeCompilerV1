@@ -7,6 +7,7 @@ using namespace std;
 
 #pragma region Node
 
+//useless
 enum status
 {
     N_NULL,
@@ -14,6 +15,10 @@ enum status
     OPERATOR,
     NODE
 };
+/**
+ * @brief C++ OOP is icky so
+ * 
+ */
 struct Node
 {
     virtual ~Node();
@@ -23,30 +28,52 @@ struct Node
     int value;
     status s = status::NODE;
 };
+/**
+ * @brief a = 0;
+ * 
+ */
 struct varaibleNode : public Node
 {
     Node *expression;
     Tokens *varailbe;
     int size;
 };
+/**
+ * @brief numbers
+ * 
+ */
 struct NumNode : public Node
 {
     string num;
 };
+/**
+ * @brief this gives an expression, left, rigt
+ * 
+ */
 struct operatorNode : public Node
 {
     struct Tokens *token;
 };
+
 struct StatementNode : public Node
 {
     struct Node *expression;
     struct Tokens *nameOfVar;
 };
+/**
+ * @brief calls
+ * print();
+ */
 struct funcCallNode : public Node
 {
     Tokens *funcCall;
-    vector<Tokens *> params;
+    vector<Node *> params;
 };
+/**
+ * @brief 
+ * function main(a,b){}
+ * 
+ */
 struct FunctionNode : public Node
 {
     struct Tokens *nameOfFunction;
@@ -55,6 +82,14 @@ struct FunctionNode : public Node
 };
 #pragma endregion
 Node *expression(vector<Tokens> &tokens);
+#pragma region ignore 
+/**
+ * annoying segfault vibes :p unused so ignore
+ * 
+ * @param n 
+ * @return true 
+ * @return false 
+ */
 bool isNull(Node *n)
 {
     return n->s == status::N_NULL;
@@ -63,10 +98,21 @@ void setNull(Node *n)
 {
     n->s = status::N_NULL;
 }
+#pragma endregion
 // Node parse(vector<Tokens> tokens){
 //     return expression(tokens);
 // }
 Tokens *current = new Tokens;
+
+/**
+ * @brief I could use a stack, but a stack coesnt have peek lol
+ * it returns the 1st token, if the neum is equal return else. 
+ * 
+ * @param tokens 
+ * @param typeT 
+ * @param caller 
+ * @return Tokens* 
+ */
 Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
 {
     if (tokens.empty())
@@ -90,7 +136,14 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
     // cout << "unmatched \n";
     return nullptr;
 }
-
+#pragma region Expression term and factor (for equations)
+/**
+ * @brief does Number, var, anything thats not +-/%
+ * if number or var returns a nod for them else does recursion 
+ * 
+ * @param tokens 
+ * @return Node* 
+ */
 Node *factor(vector<Tokens> &tokens)
 {
     Tokens *a = new Tokens;
@@ -146,6 +199,12 @@ Node *factor(vector<Tokens> &tokens)
     // do stuff
 }
 
+/**
+ * @brief 
+ * does /*% 
+ * @param tokens 
+ * @return Node* 
+ */
 Node *term(vector<Tokens> &tokens)
 {
 
@@ -187,7 +246,12 @@ Node *term(vector<Tokens> &tokens)
     return opNode;
     // do stuff
 }
-
+/**
+ * @brief +,-
+ * 
+ * @param tokens 
+ * @return Node* 
+ */
 Node *expression(vector<Tokens> &tokens)
 {
     Node *n = new Node;
@@ -236,7 +300,8 @@ Node *expression(vector<Tokens> &tokens)
     return opNode;
     // do stuff
 }
-
+#pragma endregion
+#pragma region statements
 // will parse functions
 Node *handleFunctions(vector<Tokens> &tokens)
 {
@@ -256,6 +321,8 @@ Node *handleFunctions(vector<Tokens> &tokens)
     f->params = vars;
     return f;
 }
+
+
 void printParams(vector<Tokens *> a)
 {
     cout << "params" << endl;
@@ -264,12 +331,24 @@ void printParams(vector<Tokens *> a)
         cout << a[i]->dictionary[a[i]->id] + "(" + a[i]->buffer + ") \n";
     }
 }
+
+/**
+ * @brief just me testing, ignore
+ * 
+ * @param tokens 
+ * @return Node* 
+ */
 Node *testParse(vector<Tokens> &tokens)
 {
     FunctionNode *f = static_cast<FunctionNode *>(handleFunctions(tokens));
     printParams(f->params);
     return f;
 }
+/**
+ * @brief helper function for 'l' 
+ * 
+ * @param list 
+ */
 void RemoveEOLS(vector<Tokens> &list)
 {
     while (true)
@@ -297,15 +376,22 @@ Node *parseVar(vector<Tokens> &tokens, Tokens *name)
 
     return n;
 }
+/**
+ * @brief function
+ * 
+ * @param tokens 
+ * @param checkIfFunct 
+ * @return Node* 
+ */
 Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
 {
     funcCallNode *f1 = new funcCallNode;
     f1->funcCall = checkIfFunct;
     matchAndRemove(tokens, type::OP_PARENTHISIS, "handlecalls");
-    vector<Tokens *> vars;
+    vector<Node *> vars;
     while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlecalls") == nullptr)
     {
-        Tokens *var = matchAndRemove(tokens, type::WORD, "handlecalls");
+        Node* var = expression(tokens);
         matchAndRemove(tokens, type::COMMA, "handlecalls");
         vars.push_back(var);
     }
@@ -321,9 +407,9 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
 Node *handleSatements(vector<Tokens> &tokens)
 {
 #pragma region functionstate
-    Tokens *checkIfFunct = (matchAndRemove(tokens, type::PRINT, "functionParse") != nullptr) ? current 
-                            : (matchAndRemove(tokens, type::EXIT, "functionParse") != nullptr) ? current : 
-                            nullptr;
+    Tokens *checkIfFunct = (matchAndRemove(tokens, type::PRINT, "functionParse") != nullptr)  ? current
+                           : (matchAndRemove(tokens, type::EXIT, "functionParse") != nullptr) ? current
+                                                                                              : nullptr;
     if (checkIfFunct != nullptr)
     {
         cout << "hi as \n";
@@ -331,9 +417,11 @@ Node *handleSatements(vector<Tokens> &tokens)
     }
 #pragma endregion
 #pragma region varstates
-    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)  ? current
-                : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr) ? current
-                                                                                   : nullptr;
+    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)    ? current
+                : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr)   ? current
+                : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr) ? current
+                : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)   ? current
+                                                                                     : nullptr;
     if (a != nullptr)
     {
         Node *var;
@@ -345,7 +433,7 @@ Node *handleSatements(vector<Tokens> &tokens)
             }
             var = parseVar(tokens, a);
         }
-        else if (a->id == type::VAR)
+        else if (a->id == type::VAR || a->id == type::INT || a->id == type::FLOAT)
         {
             var = parseVar(tokens, nullptr);
         }
@@ -354,6 +442,13 @@ Node *handleSatements(vector<Tokens> &tokens)
 #pragma endregion
     return nullptr;
 }
+/**
+ * @brief parses functions
+ * 
+ * 
+ * @param tokens 
+ * @return Node* 
+ */
 Node *functionParse(vector<Tokens> &tokens)
 {
     printList(tokens);
@@ -379,13 +474,23 @@ Node *functionParse(vector<Tokens> &tokens)
     }
     return nullptr;
 }
+#pragma endregion
 
+#pragma region entrypoint
+/**
+ * @brief 
+ * 
+ * @param tokens 
+ * @return Node* 
+ * this one handles the expression, can be used for testing "x86" target
+ */
 Node *testExpressionParse(vector<Tokens> &tokens)
 {
     return expression(tokens);
 }
 /**
- * meant for testing Recursion stuff
+ * the entry point for parsing
+ * i will eventually upgrade it to a list
  */
 Node *parse(vector<Tokens> &tokens)
 {
@@ -406,3 +511,4 @@ Node *parse(vector<Tokens> &tokens)
 
     // return a;
 }
+#pragma endregion

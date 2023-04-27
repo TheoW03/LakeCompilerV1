@@ -27,7 +27,7 @@ struct Node
 };
 struct funcCallNode : public Node{
     Tokens* funcCall;
-    vector<Tokens *> params;
+    vector<Node *> params;
 };
 struct NullStruct : public Node
 {
