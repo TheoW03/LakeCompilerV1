@@ -7,7 +7,6 @@
 #include <map>
 using namespace std;
 
-
 enum class type
 {
     ADDITION,
@@ -176,7 +175,7 @@ vector<Tokens> lex(vector<string> lines)
                     }
 #pragma region num
 
-// 1-9
+                    // 1-9
                     if (state == 1)
                     {
 
@@ -259,7 +258,7 @@ vector<Tokens> lex(vector<string> lines)
                             state = 2;
                         }
                     }
-  //+,*,/,%
+                    //+,*,/,%
                     else if (state == 2)
                     {
                         // if (buffer != "")
@@ -310,6 +309,9 @@ vector<Tokens> lex(vector<string> lines)
                             state = 1;
                         }
                     }
+                    else if (state == 3)
+                    {
+                    }
 #pragma endregion num
                 }
                 else if (stateIsNum == 0)
@@ -335,7 +337,7 @@ vector<Tokens> lex(vector<string> lines)
                     if (wordstate == 1)
                     {
 
-//seperator chars
+                        // seperator chars
                         if (str == "=" || str == "," || str == "}" || str == "{" || str == ";" || regex_search(str, myMatch, opRegex))
                         {
                             if (wordBuffer != "")

@@ -32,6 +32,8 @@ is MipsTarget/MipsTargetASM/out.s
 
 x86 its 
 
+(x86 can only handle expressions)
+
 x86TargetFiles/x86TargetASM/out.s
 
 ---
@@ -41,6 +43,7 @@ once files generated,
 for x86 you can run 
 
 ``make x86test``
+
 
 for mips
 
