@@ -133,6 +133,7 @@ vector<Tokens> lex(vector<string> lines)
     std::smatch myMatch;
     int stateIsNum = 1;
     Tokens token;
+    
 
     vector<Tokens> a;
     for (int i = 0; i < lines.size(); i++)

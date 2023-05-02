@@ -30,6 +30,7 @@ T *cast_to(T *ptr)
 }
 
 int max_size = 0;
+
 Node::~Node()
 {
     // implementation of the destructor goes here
@@ -226,6 +227,9 @@ void wf(ofstream &outfile, string word)
     outfile << word << endl;
 }
 
+
+// here includethe size of var.
+//and type load into struct and it will return that
 void prepare_interptMips(varaibleNode *var, map<string, int> &map)
 {
     max_size += 4;
@@ -250,6 +254,11 @@ void gen_function(FunctionNode *function, map<string, int> &map)
             cout << "null ptr \n";
         }
     }
+}
+
+int convert_toFixPoint(float num)
+{
+    return (int)num / 6536;
 }
 /**
  * @brief
@@ -304,7 +313,7 @@ void gen_mips_target(Node *op, string filename = "")
             if (check_if_pureExpression(pd1->expression) == 0)
             {
                 string allocr = allocateReg();
-                string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
+                string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop(pd1->expression)) + "\n";
                 string add = tabs_str(tab) + "sw " + allocr + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
                 wf(outfile, a);
                 wf(outfile, add);
@@ -333,7 +342,7 @@ void gen_mips_target(Node *op, string filename = "")
                     if (check_if_pureExpression(para[i]) == 0)
                     {
                         string allocr = allocateReg();
-                        string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(para[i])) + "\n";
+                        string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop(para[i])) + "\n";
                         gen_code += tabs_str(tab) + "move $a0, " + allocr + "\n";
                     }
                     else
@@ -365,13 +374,17 @@ void gen_mips_target(Node *op, string filename = "")
                 wf(outfile, gen_code);
                 wf(outfile, tabs_str(tab) + "syscall \n");
                 freeReg();
-            }else if(pd2->funcCall->id == type::EXIT){
-
-            }else{ //for custom function calls
-
+            }
+            else if (pd2->funcCall->id == type::EXIT)
+            {
+                string ext = tabs_str(tab)+"li $v0, 10 \n"+tabs_str(tab)+"syscall \n";
+                wf(outfile, ext);
+            }
+            else
+            { // for custom function calls
             }
         }
-#pragma endregion //function calls
+#pragma endregion // function calls
         else
         {
             cout << "null ptr \n";
@@ -379,7 +392,7 @@ void gen_mips_target(Node *op, string filename = "")
     }
     string exitStack = tabs_str(tab) + "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer down by 8 bytes\n" + tabs_str(tab) + "jr $ra \n";
     wf(outfile, exitStack);
-#pragma endregion //iterate function
+#pragma endregion // iterate function
     // traverse(op);
     // gen_opertors(op,tab);
     // traverse(op);

@@ -13,4 +13,4 @@ using namespace std;
 
 int check_if_pureExpression(Node *op);
 
-int solve(Node *op);
+int constant_prop(Node *op);

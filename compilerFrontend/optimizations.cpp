@@ -35,7 +35,7 @@ int check_if_pureExpression(Node *op)
     check_if_pureExpression(op->right);
     return 1;
 }
-int solve(Node *op)
+int constant_prop(Node *op)
 {
     if (op == nullptr)
     {
@@ -52,23 +52,23 @@ int solve(Node *op)
         type t = pd->token->id;
         if (t == type::ADDITION)
         {
-            return solve(op->right) + solve(op->left);
+            return constant_prop(op->right) + constant_prop(op->left);
         }
          if (t == type::SUBTRACT)
         {
-            return solve(op->right) - solve(op->left);
+            return constant_prop(op->right) - constant_prop(op->left);
         }
         if (t == type::MULTIPLY)
         {
-            return solve(op->right) * solve(op->left);
+            return constant_prop(op->right) * constant_prop(op->left);
         }
         if (t == type::DIVISION)
         {
-            return solve(op->right) / solve(op->left);
+            return constant_prop(op->right) / constant_prop(op->left);
         }
         if (t == type::MOD)
         {
-            return solve(op->right) % solve(op->left);
+            return constant_prop(op->right) % constant_prop(op->left);
         }
     }
     return 0;
