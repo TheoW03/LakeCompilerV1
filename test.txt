@@ -1,8 +1,9 @@
 
 function main(a,b,c){
-    let a = 2;
-    let b = 10;
-    int c = a + b * a + 10 + ( a + b);
-    print(c);
-    print(b+a);
+    int a = 1;
+    int b = 10; 
+    int c = 20;
+    int d = 1+12+10+39; 
+    int f = a+b+c;
+    print(f);
 }

@@ -54,6 +54,8 @@
         "xloctime": "cpp",
         "map": "cpp",
         "xtree": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp"
     },
 }

@@ -22,6 +22,7 @@ int main()
     if (c == nullptr)
     {
         cout << "nullptr out \n";
+        return 1;
     }
     gen_mips_target(c);
     cout << "should be compiled \n";

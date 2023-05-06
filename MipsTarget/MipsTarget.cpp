@@ -92,8 +92,8 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
         return "";
     }
     // mem errro :')
-    NumNode *pd;
-    if ((pd = dynamic_cast<NumNode *>(op)) != nullptr)
+    IntegerNode *pd;
+    if ((pd = dynamic_cast<IntegerNode *>(op)) != nullptr)
     {
         cout << "works in num \n";
 
@@ -227,9 +227,8 @@ void wf(ofstream &outfile, string word)
     outfile << word << endl;
 }
 
-
 // here includethe size of var.
-//and type load into struct and it will return that
+// and type load into struct and it will return that
 void prepare_interptMips(varaibleNode *var, map<string, int> &map)
 {
     max_size += 4;
@@ -309,18 +308,32 @@ void gen_mips_target(Node *op, string filename = "")
 
         if (pd1 != nullptr)
         {
+            cout << "pd != null ptr \n";
+            cout << check_if_pureExpression(pd1->expression) << endl;
             // expression tree at its finest
-            if (check_if_pureExpression(pd1->expression) == 0)
+            if (check_if_pureExpression(pd1->expression) == 1)
             {
+                Tokens *type1 = pd1->typeOfVar;
                 string allocr = allocateReg();
-                string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop(pd1->expression)) + "\n";
+
+                if (type1 == nullptr && type1->id == type::FLOAT)
+                {
+                    string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop(pd1->expression)) + "\n";
+                    wf(outfile, a);
+                }
+                else if (type1->id == type::INT)
+                {
+                    string a = tabs_str(tab) + "li " + allocr + "," + to_string((int)constant_prop(pd1->expression)) + "\n";
+                    wf(outfile, a);
+                }
+                cout << pd1->varailbe->buffer << endl;
+                cout << to_string(map[pd1->varailbe->buffer]) << endl;
                 string add = tabs_str(tab) + "sw " + allocr + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
-                wf(outfile, a);
                 wf(outfile, add);
             }
             else
             {
-
+                cout << "else \n";
                 string add = tabs_str(tab) + "sw " + gen_opertors(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
                 cout << "string: " + global_string << endl;
                 wf(outfile, global_string);
@@ -339,7 +352,7 @@ void gen_mips_target(Node *op, string filename = "")
                 for (int i = 0; i < para.size(); i++)
                 {
                     global_string = "";
-                    if (check_if_pureExpression(para[i]) == 0)
+                    if (check_if_pureExpression(para[i]) == 1)
                     {
                         string allocr = allocateReg();
                         string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop(para[i])) + "\n";
@@ -377,7 +390,7 @@ void gen_mips_target(Node *op, string filename = "")
             }
             else if (pd2->funcCall->id == type::EXIT)
             {
-                string ext = tabs_str(tab)+"li $v0, 10 \n"+tabs_str(tab)+"syscall \n";
+                string ext = tabs_str(tab) + "li $v0, 10 \n" + tabs_str(tab) + "syscall \n";
                 wf(outfile, ext);
             }
             else

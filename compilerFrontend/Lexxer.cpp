@@ -129,7 +129,7 @@ vector<Tokens> lex(vector<string> lines)
     int state = 1;
     regex opRegex("[+*/%]"); // operator regex
 
-    regex numReg("[0-9]"); // num regex
+    regex numReg("[0-9.]"); // num regex
     std::smatch myMatch;
     int stateIsNum = 1;
     Tokens token;
@@ -317,6 +317,8 @@ vector<Tokens> lex(vector<string> lines)
                 }
                 else if (stateIsNum == 0)
                 {
+#pragma word
+
                     if (buffer != "")
                     {
                         if (typeOfOP.find(buffer) != typeOfOP.end())
@@ -371,6 +373,7 @@ vector<Tokens> lex(vector<string> lines)
                         cout << "word state != 1 \n";
                     }
                 }
+#pragma endregion
             }
             else
             {

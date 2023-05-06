@@ -3,11 +3,13 @@
 #include <vector>
 #include "../compilerFrontend/Lexxer.h"
 #include <typeinfo>
+#include <sstream>
+
 using namespace std;
 
 #pragma region Node
 
-//useless
+// useless
 enum status
 {
     N_NULL,
@@ -17,7 +19,7 @@ enum status
 };
 /**
  * @brief C++ OOP is icky so
- * 
+ *
  */
 struct Node
 {
@@ -28,27 +30,39 @@ struct Node
     int value;
     status s = status::NODE;
 };
+
 /**
  * @brief a = 0;
- * 
+ *
  */
 struct varaibleNode : public Node
 {
     Node *expression;
     Tokens *varailbe;
+    Tokens *typeOfVar;
+
     int size;
 };
 /**
  * @brief numbers
- * 
+ *
  */
 struct NumNode : public Node
 {
     string num;
 };
+
+struct FloatNode : public Node
+{
+    string num;
+};
+struct IntegerNode : public Node
+{
+    string num;
+};
 /**
  * @brief this gives an expression, left, rigt
- * 
+ *
  */
 struct operatorNode : public Node
 {
@@ -70,9 +84,9 @@ struct funcCallNode : public Node
     vector<Node *> params;
 };
 /**
- * @brief 
+ * @brief
  * function main(a,b){}
- * 
+ *
  */
 struct FunctionNode : public Node
 {
@@ -82,13 +96,13 @@ struct FunctionNode : public Node
 };
 #pragma endregion
 Node *expression(vector<Tokens> &tokens);
-#pragma region ignore 
+#pragma region ignore
 /**
  * annoying segfault vibes :p unused so ignore
- * 
- * @param n 
- * @return true 
- * @return false 
+ *
+ * @param n
+ * @return true
+ * @return false
  */
 bool isNull(Node *n)
 {
@@ -106,12 +120,12 @@ Tokens *current = new Tokens;
 
 /**
  * @brief I could use a stack, but a stack coesnt have peek lol
- * it returns the 1st token, if the neum is equal return else. 
- * 
- * @param tokens 
- * @param typeT 
- * @param caller 
- * @return Tokens* 
+ * it returns the 1st token, if the neum is equal return else.
+ *
+ * @param tokens
+ * @param typeT
+ * @param caller
+ * @return Tokens*
  */
 Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
 {
@@ -139,10 +153,10 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
 #pragma region Expression term and factor (for equations)
 /**
  * @brief does Number, var, anything thats not +-/%
- * if number or var returns a nod for them else does recursion 
- * 
- * @param tokens 
- * @return Node* 
+ * if number or var returns a nod for them else does recursion
+ *
+ * @param tokens
+ * @return Node*
  */
 Node *factor(vector<Tokens> &tokens)
 {
@@ -161,13 +175,36 @@ Node *factor(vector<Tokens> &tokens)
     }
     if (id == type::NUMBER)
     {
-        NumNode *numN = new NumNode;
-        string b = a->buffer;
-        // cout << "b: " + b << endl;
-        numN->num = b;
-        cout << "numN: " + numN->num << endl;
-        delete a;
-        return numN;
+        string myString = a->buffer;
+        if (myString.find(".") == string::npos)
+        {
+            IntegerNode *intNode = new IntegerNode;
+            intNode->num = a->buffer;
+            cout << "is int" << endl;
+            delete a;
+            return intNode;
+        }
+        myString = to_string(stof(myString)); // whoses idea was it to give me a C++ compiler >:3
+        cout << myString << endl;
+        stringstream ss(myString);
+        int myInt;
+
+        if (myString.find(".") != string::npos)
+        {
+            cout << "is float" << endl;
+            FloatNode *floatNode = new FloatNode;
+            floatNode->num = a->buffer;
+            delete a;
+            return floatNode;
+        }
+
+        // NumNode *numN = new NumNode;
+        // string b = a->buffer;
+        // // cout << "b: " + b << endl;
+        // numN->num = b;
+        // cout << "numN: " + numN->num << endl;
+        // delete a;
+        // return numN;
     }
     else if (id == type::OP_PARENTHISIS)
     {
@@ -200,10 +237,10 @@ Node *factor(vector<Tokens> &tokens)
 }
 
 /**
- * @brief 
- * does /*% 
- * @param tokens 
- * @return Node* 
+ * @brief
+ * does /*%
+ * @param tokens
+ * @return Node*
  */
 Node *term(vector<Tokens> &tokens)
 {
@@ -248,9 +285,9 @@ Node *term(vector<Tokens> &tokens)
 }
 /**
  * @brief +,-
- * 
- * @param tokens 
- * @return Node* 
+ *
+ * @param tokens
+ * @return Node*
  */
 Node *expression(vector<Tokens> &tokens)
 {
@@ -322,7 +359,6 @@ Node *handleFunctions(vector<Tokens> &tokens)
     return f;
 }
 
-
 void printParams(vector<Tokens *> a)
 {
     cout << "params" << endl;
@@ -334,9 +370,9 @@ void printParams(vector<Tokens *> a)
 
 /**
  * @brief just me testing, ignore
- * 
- * @param tokens 
- * @return Node* 
+ *
+ * @param tokens
+ * @return Node*
  */
 Node *testParse(vector<Tokens> &tokens)
 {
@@ -345,9 +381,9 @@ Node *testParse(vector<Tokens> &tokens)
     return f;
 }
 /**
- * @brief helper function for 'l' 
- * 
- * @param list 
+ * @brief helper function for 'l'
+ *
+ * @param list
  */
 void RemoveEOLS(vector<Tokens> &list)
 {
@@ -361,7 +397,7 @@ void RemoveEOLS(vector<Tokens> &list)
         }
     }
 }
-Node *parseVar(vector<Tokens> &tokens, Tokens *name)
+Node *parseVar(vector<Tokens> &tokens, Tokens *name, Tokens *type)
 {
     if (name == nullptr)
     {
@@ -372,16 +408,16 @@ Node *parseVar(vector<Tokens> &tokens, Tokens *name)
     n->expression = expression(tokens);
     n->varailbe = name;
     n->size = 4;
+    n->typeOfVar = type;
     RemoveEOLS(tokens);
-
     return n;
 }
 /**
  * @brief function
- * 
- * @param tokens 
- * @param checkIfFunct 
- * @return Node* 
+ *
+ * @param tokens
+ * @param checkIfFunct
+ * @return Node*
  */
 Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
 {
@@ -391,7 +427,7 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
     vector<Node *> vars;
     while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlecalls") == nullptr)
     {
-        Node* var = expression(tokens);
+        Node *var = expression(tokens);
         matchAndRemove(tokens, type::COMMA, "handlecalls");
         vars.push_back(var);
     }
@@ -431,11 +467,11 @@ Node *handleSatements(vector<Tokens> &tokens)
             {
                 return handleCalls(tokens, a);
             }
-            var = parseVar(tokens, a);
+            var = parseVar(tokens, a, nullptr);
         }
         else if (a->id == type::VAR || a->id == type::INT || a->id == type::FLOAT)
         {
-            var = parseVar(tokens, nullptr);
+            var = parseVar(tokens, nullptr, a);
         }
         return var;
     }
@@ -444,10 +480,10 @@ Node *handleSatements(vector<Tokens> &tokens)
 }
 /**
  * @brief parses functions
- * 
- * 
- * @param tokens 
- * @return Node* 
+ *
+ *
+ * @param tokens
+ * @return Node*
  */
 Node *functionParse(vector<Tokens> &tokens)
 {
@@ -478,10 +514,10 @@ Node *functionParse(vector<Tokens> &tokens)
 
 #pragma region entrypoint
 /**
- * @brief 
- * 
- * @param tokens 
- * @return Node* 
+ * @brief
+ *
+ * @param tokens
+ * @return Node*
  * this one handles the expression, can be used for testing "x86" target
  */
 Node *testExpressionParse(vector<Tokens> &tokens)

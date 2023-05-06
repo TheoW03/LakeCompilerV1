@@ -13,12 +13,12 @@ using namespace std;
 
 /**
  * @brief does the optimization where it has
- * 
- * a = 1 + 1; 
+ *
+ * a = 1 + 1;
  * it checks if its "pure" else it sums it for u
- * 
- * @param op 
- * @return int 
+ *
+ * @param op
+ * @return int
  */
 int check_if_pureExpression(Node *op)
 {
@@ -28,24 +28,31 @@ int check_if_pureExpression(Node *op)
     }
     if (dynamic_cast<varaibleNode *>(op) != nullptr)
     {
+
         return 0;
     }
 
     check_if_pureExpression(op->left);
     check_if_pureExpression(op->right);
-    return 1;
 }
-int constant_prop(Node *op)
+float constant_prop(Node *op)
 {
     if (op == nullptr)
     {
         return 1;
     }
-    NumNode *pd = dynamic_cast<NumNode *>(op);
+    IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+    FloatNode *pd2 = dynamic_cast<FloatNode *>(op);
+
     if (pd != nullptr)
     {
-        return stoi(pd->num);
+        return (int)stoi(pd->num);
     }
+    else if (pd2 != nullptr)
+    {
+        return stof(pd2->num);
+    }
+
     if (dynamic_cast<operatorNode *>(op) != nullptr)
     {
         operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
@@ -54,7 +61,7 @@ int constant_prop(Node *op)
         {
             return constant_prop(op->right) + constant_prop(op->left);
         }
-         if (t == type::SUBTRACT)
+        if (t == type::SUBTRACT)
         {
             return constant_prop(op->right) - constant_prop(op->left);
         }
@@ -68,9 +75,8 @@ int constant_prop(Node *op)
         }
         if (t == type::MOD)
         {
-            return constant_prop(op->right) % constant_prop(op->left);
+            return (float)((int)constant_prop(op->right) % (int)constant_prop(op->left));
         }
     }
     return 0;
-    
 }
