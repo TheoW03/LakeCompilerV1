@@ -184,20 +184,14 @@ Node *factor(vector<Tokens> &tokens)
             delete a;
             return intNode;
         }
-        myString = to_string(stof(myString)); // whoses idea was it to give me a C++ compiler >:3
+        int fPoint = (int)stof(myString) * 256;
+        myString = to_string(fPoint); // whoses idea was it to give me a C++ compiler >:3
         cout << myString << endl;
-        stringstream ss(myString);
         int myInt;
-
-        if (myString.find(".") != string::npos)
-        {
-            cout << "is float" << endl;
-            FloatNode *floatNode = new FloatNode;
-            floatNode->num = a->buffer;
-            delete a;
-            return floatNode;
-        }
-
+        FloatNode *floatNode = new FloatNode;
+        floatNode->num = a->buffer;
+        delete a;
+        return floatNode;
         // NumNode *numN = new NumNode;
         // string b = a->buffer;
         // // cout << "b: " + b << endl;

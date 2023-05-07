@@ -2,8 +2,8 @@
 function main(a,b,c){
     int a = 1;
     int b = 10; 
-    int c = 20;
+    int c = 11;
     int d = 1+12+10+39; 
-    int f = a+b+c;
+    int f = a2+b+c21+ak;
     print(f);
 }

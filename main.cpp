@@ -25,6 +25,6 @@ int main()
         return 1;
     }
     gen_mips_target(c);
-    cout << "should be compiled \n";
+    cout << "compiled \n";
     return 0;
 }

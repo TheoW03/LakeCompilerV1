@@ -37,8 +37,14 @@ Node::~Node()
 }
 struct VaraibleNode
 {
-    Node *val;
+    Node *var;
+    // type type;
     string reg;
+};
+struct Varaible
+{
+    Tokens *varType;
+    int stackNum;
 };
 string tabs_str(vector<string> &tabs)
 {
@@ -83,7 +89,13 @@ float interptObjs(Node *op)
     return 0.0f;
 }
 
-string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
+#pragma region this is for the expression tree 
+
+string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
+{
+    return "$t0";
+}
+string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
 {
 
     if (op == nullptr)
@@ -91,7 +103,7 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
         cout << "null \n";
         return "";
     }
-    // mem errro :')
+
     IntegerNode *pd;
     if ((pd = dynamic_cast<IntegerNode *>(op)) != nullptr)
     {
@@ -101,6 +113,13 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
         global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
         return reg;
     }
+    FloatNode *pd2;
+    if ((pd2 = dynamic_cast<FloatNode *>(op)) != nullptr)
+    {
+        cout << "float in Integer expresion";
+        exit(0);
+    }
+
     varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
     if (pd1 != nullptr)
     {
@@ -115,7 +134,7 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
         }
         else
         {
-            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
+            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
             return reg;
         }
     }
@@ -133,8 +152,8 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
         if (t == type::ADDITION)
         {
             // return
-            string left = gen_opertors(op->left, tabs, map);
-            string right = gen_opertors(op->right, tabs, map);
+            string left = gen_integer_op(op->left, tabs, map);
+            string right = gen_integer_op(op->right, tabs, map);
             global_string += tabs_str(tabs) + "add " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
@@ -143,8 +162,8 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
         if (t == type::SUBTRACT)
         {
             // return
-            string left = gen_opertors(op->left, tabs, map);
-            string right = gen_opertors(op->right, tabs, map);
+            string left = gen_integer_op(op->left, tabs, map);
+            string right = gen_integer_op(op->right, tabs, map);
             global_string += tabs_str(tabs) + "sub " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
@@ -153,8 +172,8 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
         if (t == type::MULTIPLY)
         {
             // return
-            string left = gen_opertors(op->left, tabs, map);
-            string right = gen_opertors(op->right, tabs, map);
+            string left = gen_integer_op(op->left, tabs, map);
+            string right = gen_integer_op(op->right, tabs, map);
             global_string += tabs_str(tabs) + "mult " + left + ", " + right + " \n";
             global_string += tabs_str(tabs) + "mflo " + resultReg + " \n";
             freeReg();
@@ -164,8 +183,8 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
         if (t == type::DIVISION)
         {
             // return
-            string left = gen_opertors(op->left, tabs, map);
-            string right = gen_opertors(op->right, tabs, map);
+            string left = gen_integer_op(op->left, tabs, map);
+            string right = gen_integer_op(op->right, tabs, map);
             global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
@@ -173,8 +192,8 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
         }
         if (t == type::MOD)
         {
-            string left = gen_opertors(op->left, tabs, map);
-            string right = gen_opertors(op->right, tabs, map);
+            string left = gen_integer_op(op->left, tabs, map);
+            string right = gen_integer_op(op->right, tabs, map);
             global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
             global_string += tabs_str(tabs) + "mfhi " + resultReg + "\n";
             freeReg();
@@ -188,6 +207,8 @@ string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map)
     return "";
     // treat like register machine
 }
+#pragma endregion
+
 void print_global()
 {
     cout << global_string << endl;
@@ -229,12 +250,15 @@ void wf(ofstream &outfile, string word)
 
 // here includethe size of var.
 // and type load into struct and it will return that
-void prepare_interptMips(varaibleNode *var, map<string, int> &map)
+void prepare_interptMips(varaibleNode *var, map<string, Varaible *> &map)
 {
     max_size += 4;
-    map[var->varailbe->buffer] = max_size;
+    Varaible *a = new Varaible;
+    a->stackNum = max_size;
+    a->varType = var->typeOfVar;
+    map[var->varailbe->buffer] = a;
 }
-void gen_function(FunctionNode *function, map<string, int> &map)
+void gen_function(FunctionNode *function, map<string, Varaible *> &map)
 {
     vector<Node *> state = function->statements;
 
@@ -286,7 +310,7 @@ void gen_mips_target(Node *op, string filename = "")
     // FILE* fp = fopen("output.s", "w");
     FunctionNode *pd = dynamic_cast<FunctionNode *>(op);
     vector<Node *> state = pd->statements;
-    map<string, int> map;
+    map<string, Varaible *> map;
     map["."] = 0;
     string word = ".data \n .text \n";
 
@@ -310,6 +334,14 @@ void gen_mips_target(Node *op, string filename = "")
         {
             cout << "pd != null ptr \n";
             cout << check_if_pureExpression(pd1->expression) << endl;
+
+
+
+
+
+
+
+            
             // expression tree at its finest
             if (check_if_pureExpression(pd1->expression) == 1)
             {
@@ -327,14 +359,14 @@ void gen_mips_target(Node *op, string filename = "")
                     wf(outfile, a);
                 }
                 cout << pd1->varailbe->buffer << endl;
-                cout << to_string(map[pd1->varailbe->buffer]) << endl;
-                string add = tabs_str(tab) + "sw " + allocr + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
+                cout << to_string(map[pd1->varailbe->buffer]->stackNum) << endl;
+                string add = tabs_str(tab) + "sw " + allocr + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
                 wf(outfile, add);
             }
             else
             {
                 cout << "else \n";
-                string add = tabs_str(tab) + "sw " + gen_opertors(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
+                string add = tabs_str(tab) + "sw " + gen_integer_op(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
                 cout << "string: " + global_string << endl;
                 wf(outfile, global_string);
                 global_string = "";
@@ -360,7 +392,7 @@ void gen_mips_target(Node *op, string filename = "")
                     }
                     else
                     {
-                        string reg = gen_opertors(para[i], tab, map);
+                        string reg = gen_integer_op(para[i], tab, map);
                         wf(outfile, global_string);
 
                         // string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
