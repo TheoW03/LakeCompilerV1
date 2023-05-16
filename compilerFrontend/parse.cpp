@@ -184,12 +184,14 @@ Node *factor(vector<Tokens> &tokens)
             delete a;
             return intNode;
         }
-        int fPoint = (int)stof(myString) * 256;
+        int fPoint = (int)(stof(myString) * 256);
+        cout << fPoint << endl;
+        cout <<  "hi \n";
         myString = to_string(fPoint); // whoses idea was it to give me a C++ compiler >:3
         cout << myString << endl;
         int myInt;
         FloatNode *floatNode = new FloatNode;
-        floatNode->num = a->buffer;
+        floatNode->num = to_string(fPoint);
         delete a;
         return floatNode;
         // NumNode *numN = new NumNode;

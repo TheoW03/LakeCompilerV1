@@ -89,7 +89,7 @@ float interptObjs(Node *op)
     return 0.0f;
 }
 
-#pragma region this is for the expression tree 
+#pragma region this is for the expression tree
 
 string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
 {
@@ -116,8 +116,11 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
     FloatNode *pd2;
     if ((pd2 = dynamic_cast<FloatNode *>(op)) != nullptr)
     {
-        cout << "float in Integer expresion";
-        exit(0);
+        string reg = allocateReg();
+        float fixedpoint = (float)stoi(pd->num) / 256;
+        int fp2 = (int)fixedpoint;
+        string num = to_string(fp2);
+        global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
     }
 
     varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
@@ -134,8 +137,22 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         }
         else
         {
-            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
-            return reg;
+            if (map[pd1->varailbe->buffer]->varType->id == type::FLOAT)
+            {
+                string reg = allocateReg();
+                string resultReg = allocateReg();
+
+                global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+                global_string += tabs_str(tabs) + "div " + resultReg + "," + reg + ", " + to_string(256) + " \n";
+                freeReg();
+                return resultReg;
+            }
+            else
+            {
+                string reg = allocateReg();
+                global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+                return reg;
+            }
         }
     }
     if (dynamic_cast<operatorNode *>(op) != nullptr)
@@ -332,34 +349,28 @@ void gen_mips_target(Node *op, string filename = "")
 
         if (pd1 != nullptr)
         {
-            cout << "pd != null ptr \n";
-            cout << check_if_pureExpression(pd1->expression) << endl;
-
-
-
-
-
-
-
-            
             // expression tree at its finest
-            if (check_if_pureExpression(pd1->expression) == 1)
+            cout <<check_if_pureExpression(pd1->expression)<<endl;
+            if (check_if_pureExpression(pd1->expression) == 0)
             {
                 Tokens *type1 = pd1->typeOfVar;
                 string allocr = allocateReg();
-
-                if (type1 == nullptr && type1->id == type::FLOAT)
+                
+                if (type1->id == type::FLOAT)
                 {
-                    string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop(pd1->expression)) + "\n";
+                    float constantF = (constant_prop_float(pd1->expression));
+                    int work1 = (int)(constantF * 256);
+                    string a = tabs_str(tab) + "li " + allocr + "," + to_string(work1) + "\n";
                     wf(outfile, a);
                 }
                 else if (type1->id == type::INT)
                 {
-                    string a = tabs_str(tab) + "li " + allocr + "," + to_string((int)constant_prop(pd1->expression)) + "\n";
+                    string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop_integer(pd1->expression)) + "\n";
                     wf(outfile, a);
                 }
                 cout << pd1->varailbe->buffer << endl;
                 cout << to_string(map[pd1->varailbe->buffer]->stackNum) << endl;
+                cout << "hi \n";
                 string add = tabs_str(tab) + "sw " + allocr + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
                 wf(outfile, add);
             }
@@ -384,15 +395,16 @@ void gen_mips_target(Node *op, string filename = "")
                 for (int i = 0; i < para.size(); i++)
                 {
                     global_string = "";
-                    if (check_if_pureExpression(para[i]) == 1)
+                    if (check_if_pureExpression(para[i]) == 0)
                     {
                         string allocr = allocateReg();
-                        string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop(para[i])) + "\n";
+                        string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop_integer(para[i])) + "\n";
                         gen_code += tabs_str(tab) + "move $a0, " + allocr + "\n";
                     }
                     else
                     {
                         string reg = gen_integer_op(para[i], tab, map);
+                        cout << reg;
                         wf(outfile, global_string);
 
                         // string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
