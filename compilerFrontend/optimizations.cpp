@@ -29,11 +29,14 @@ int check_if_pureExpression(Node *op)
     if (dynamic_cast<varaibleNode *>(op) != nullptr)
     {
 
+        cout << "var \n";
         return 1;
     }
-
-    check_if_pureExpression(op->left);
-    check_if_pureExpression(op->right);
+    int a = check_if_pureExpression(op->left);
+    if (a == 0)
+    {
+        check_if_pureExpression(op->right);
+    }
 }
 // int fPoint = (int)stof(myString) * 256;
 
@@ -54,7 +57,7 @@ float constant_prop_float(Node *op)
     {
         cout << "the float: ";
         cout << stof(pd2->num) / 256.0f << endl;
-        return (float)stof(pd2->num)/256.0f;
+        return (float)stof(pd2->num) / 256.0f;
     }
     if (dynamic_cast<operatorNode *>(op) != nullptr)
     {

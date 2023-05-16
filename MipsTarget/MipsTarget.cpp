@@ -137,6 +137,7 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         }
         else
         {
+            cout << "out: "<< map[pd1->varailbe->buffer] << endl;
             if (map[pd1->varailbe->buffer]->varType->id == type::FLOAT)
             {
                 string reg = allocateReg();
@@ -404,7 +405,6 @@ void gen_mips_target(Node *op, string filename = "")
                     else
                     {
                         string reg = gen_integer_op(para[i], tab, map);
-                        cout << reg;
                         wf(outfile, global_string);
 
                         // string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
