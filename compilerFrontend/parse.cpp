@@ -7,7 +7,7 @@
 
 using namespace std;
 
-#define OFFSET 256
+#define OFFSET 65536 
 #pragma region Node
 
 // useless

@@ -1,6 +1,6 @@
 
 function main(a,b,c){
-    float pi = 3.1415;
+    float pi = 10.23;
     float pi2 = pi+2;
     print(pi2);
 }
