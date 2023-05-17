@@ -93,7 +93,115 @@ float interptObjs(Node *op)
 
 string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
 {
-    return "$t0";
+    IntegerNode *pd;
+    if ((pd = dynamic_cast<IntegerNode *>(op)) != nullptr)
+    {
+        cout << "works in num \n";
+        string reg = allocateReg();
+        int num = stoi(pd->num) * 256;
+        global_string += tabs_str(tabs) + "li " + reg + "," + to_string(num) + "\n";
+        return reg;
+    }
+    FloatNode *pd2;
+    if ((pd2 = dynamic_cast<FloatNode *>(op)) != nullptr)
+    {
+        string reg = allocateReg();
+        global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
+    }
+
+    varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
+    if (pd1 != nullptr)
+    {
+        if (map[pd1->varailbe->buffer]->varType->id == type::INT)
+        {
+            string reg = allocateReg();
+            string reg2 = allocateReg();
+            string resultReg = allocateReg();
+
+            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+            global_string += tabs_str(tabs) + "li " + reg2 + "," + to_string(256) + "\n";
+            global_string += tabs_str(tabs) + "mul " + reg + "," + reg2 + " \n";
+            global_string += tabs_str(tabs) + "mflo " + resultReg + " \n";
+            freeReg();
+            freeReg();
+            return resultReg;
+        }
+        else
+        {
+            string reg = allocateReg();
+            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+            return reg;
+        }
+        string reg = allocateReg();
+        global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+        return reg;
+    }
+    if (dynamic_cast<operatorNode *>(op) != nullptr)
+    {
+        cout << "is in op node \n";
+        operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
+        type t;
+        if (pd->token != nullptr)
+        {
+            t = pd->token->id;
+            cout << "token op: " + pd->token->buffer << endl;
+        }
+        string resultReg = allocateReg();
+        if (t == type::ADDITION)
+        {
+            // return
+            string left = gen_float_op(op->left, tabs, map);
+            string right = gen_float_op(op->right, tabs, map);
+            global_string += tabs_str(tabs) + "add " + resultReg + "," + left + ", " + right + " \n";
+            freeReg();
+            freeReg();
+            return resultReg;
+        }
+        if (t == type::SUBTRACT)
+        {
+            // return
+            string left = gen_float_op(op->left, tabs, map);
+            string right = gen_float_op(op->right, tabs, map);
+            global_string += tabs_str(tabs) + "sub " + resultReg + "," + left + ", " + right + " \n";
+            freeReg();
+            freeReg();
+            return resultReg;
+        }
+        if (t == type::MULTIPLY)
+        {
+            // return
+            string left = gen_float_op(op->left, tabs, map);
+            string right = gen_float_op(op->right, tabs, map);
+            global_string += tabs_str(tabs) + "mult " + left + ", " + right + " \n";
+            global_string += tabs_str(tabs) + "mflo " + resultReg + " \n";
+            freeReg();
+            freeReg();
+            return resultReg;
+        }
+        if (t == type::DIVISION)
+        {
+            // return
+            string left = gen_float_op(op->left, tabs, map);
+            string right = gen_float_op(op->right, tabs, map);
+            global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
+            freeReg();
+            freeReg();
+            return resultReg;
+        }
+        if (t == type::MOD)
+        {
+            string left = gen_float_op(op->left, tabs, map);
+            string right = gen_float_op(op->right, tabs, map);
+            global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
+            global_string += tabs_str(tabs) + "mfhi " + resultReg + "\n";
+            freeReg();
+            freeReg();
+            return resultReg;
+            //           div $t4,$v0, $t3
+            // div $t4, $t3, 10
+            // mfhi $t3
+        }
+    }
 }
 string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
 {
@@ -137,14 +245,13 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         }
         else
         {
-            cout << "out: "<< map[pd1->varailbe->buffer] << endl;
+            cout << "out: " << map[pd1->varailbe->buffer] << endl;
             if (map[pd1->varailbe->buffer]->varType->id == type::FLOAT)
             {
                 string reg = allocateReg();
                 string resultReg = allocateReg();
 
                 global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
-                global_string += tabs_str(tabs) + "div " + resultReg + "," + reg + ", " + to_string(256) + " \n";
                 freeReg();
                 return resultReg;
             }
@@ -351,12 +458,12 @@ void gen_mips_target(Node *op, string filename = "")
         if (pd1 != nullptr)
         {
             // expression tree at its finest
-            cout <<check_if_pureExpression(pd1->expression)<<endl;
+            cout << check_if_pureExpression(pd1->expression) << endl;
             if (check_if_pureExpression(pd1->expression) == 0)
             {
                 Tokens *type1 = pd1->typeOfVar;
                 string allocr = allocateReg();
-                
+
                 if (type1->id == type::FLOAT)
                 {
                     float constantF = (constant_prop_float(pd1->expression));
@@ -377,8 +484,18 @@ void gen_mips_target(Node *op, string filename = "")
             }
             else
             {
+                Tokens *type1 = pd1->typeOfVar;
                 cout << "else \n";
-                string add = tabs_str(tab) + "sw " + gen_integer_op(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+                string add = "";
+                if (type1->id == type::FLOAT)
+                {
+                    string reg = gen_float_op(pd1->expression, tab, map);
+                    add += tabs_str(tab) + "sw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+                }
+                else
+                {
+                    add = tabs_str(tab) + "sw " + gen_integer_op(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+                }
                 cout << "string: " + global_string << endl;
                 wf(outfile, global_string);
                 global_string = "";
@@ -404,9 +521,8 @@ void gen_mips_target(Node *op, string filename = "")
                     }
                     else
                     {
-                        string reg = gen_integer_op(para[i], tab, map);
+                        string reg = gen_float_op(para[i], tab, map);
                         wf(outfile, global_string);
-
                         // string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
                         gen_code += tabs_str(tab) + "move $a0, " + reg + "\n";
                         global_string = "";
@@ -450,45 +566,8 @@ void gen_mips_target(Node *op, string filename = "")
     string exitStack = tabs_str(tab) + "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer down by 8 bytes\n" + tabs_str(tab) + "jr $ra \n";
     wf(outfile, exitStack);
 #pragma endregion // iterate function
-    // traverse(op);
-    // gen_opertors(op,tab);
-    // traverse(op);
-    // if (check_if_pureExpression(op) == 1)
-    // {
-    //     int numSolve = solve(op);
-    //     string register1 = allocateReg();
-    //     string store = tabs_str(tab) + "li " + register1 + ", " + to_string(numSolve);
-    //     wf(outfile, store);
-    // }
-    // traverse(op);
-    // string reg_result = gen_opertors(op, tab);
-    // cout << reg_result;
-    // wf(outfile, global_string);
-    // string printConsole = tabs_str(tab) + "li $v0, 1 \n" + tabs_str(tab) + "move $a0," + reg_result + "\n" + tabs_str(tab) + "syscall # prints to console\n";
-    // wf(outfile, printConsole);
-    // // write everything in
+    // write everything in
     string exitStuff = tabs_str(tab) + "li $v0, 10 \n" + tabs_str(tab) + "syscall # exited program pop into QtSpim and it should work";
     wf(outfile, exitStuff);
     outfile.close();
 }
-// void gen_x86_target(Node *op, string filename = "")
-// {
-//     if (filename == "")
-//     {
-//         filename = "out.s";
-//     }
-//     ofstream outfile(filename);
-//     string word = "section .data \n section .text \n \t global main \n main: \n";
-//     wf(outfile, word);
-//     string exit = "\tpush rbp \n\t mov rax,0 \n \t pop rbp \n \t ret";
-//     wf(outfile, exit);
-
-//     // mov        rax,0        ; Exit code 0
-//     //  pop        rbp          ; Pop stack
-//     //  ret
-//     outfile.close();
-// }
-// string gen_print()
-// {
-//     return "";
-// }

@@ -1,9 +1,6 @@
 
 function main(a,b,c){
-    int a = 1;
-    int b = 10; 
-    int c = 11;
-    float pi = 3.145;
-    int d = 1+2+pi+10; 
-    print(d);
+    float pi = 3.1415;
+    float pi2 = pi+2;
+    print(pi2);
 }
