@@ -4,6 +4,8 @@
 #include "../compilerFrontend/Lexxer.h"
 using namespace std;
 
+#define OFFSET 256
+
 #ifndef STAT_H
 #define STAT_H
 enum status

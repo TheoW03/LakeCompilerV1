@@ -38,7 +38,6 @@ int check_if_pureExpression(Node *op)
         check_if_pureExpression(op->right);
     }
 }
-// int fPoint = (int)stof(myString) * 256;
 
 float constant_prop_float(Node *op)
 {
@@ -56,8 +55,8 @@ float constant_prop_float(Node *op)
     if (pd2 != nullptr)
     {
         cout << "the float: ";
-        cout << stof(pd2->num) / 256.0f << endl;
-        return (float)stof(pd2->num) / 256.0f;
+        cout << stof(pd2->num) / OFFSET << endl;
+        return (float)stof(pd2->num) / OFFSET;
     }
     if (dynamic_cast<operatorNode *>(op) != nullptr)
     {

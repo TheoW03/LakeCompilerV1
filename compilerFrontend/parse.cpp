@@ -7,6 +7,7 @@
 
 using namespace std;
 
+#define OFFSET 256
 #pragma region Node
 
 // useless
@@ -184,7 +185,7 @@ Node *factor(vector<Tokens> &tokens)
             delete a;
             return intNode;
         }
-        int fPoint = (int)(stof(myString) * 256);
+        int fPoint = (int)(stof(myString) * OFFSET);
         cout << fPoint << endl;
         cout <<  "hi \n";
         myString = to_string(fPoint); // whoses idea was it to give me a C++ compiler >:3
