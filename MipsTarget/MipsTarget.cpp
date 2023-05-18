@@ -11,6 +11,7 @@
 #include "../compilerFrontend/optimizations.h"
 namespace fs = std::filesystem;
 
+#define OFFSET_HEXA 0x10000
 using namespace std;
 template <typename Base, typename T>
 
@@ -30,6 +31,7 @@ T *cast_to(T *ptr)
 }
 
 int max_size = 0;
+
 
 Node::~Node()
 {
