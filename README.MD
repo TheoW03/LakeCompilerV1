@@ -17,7 +17,7 @@ coded by TheoW03, in C++
 // +,- -> addition and subtraction
 #define tau 6.28318531 //it can lex this but no support for parsing this yet  but this is a macro
 
-function main(a){ //this is how you call the main method (this is how you do comments)
+function main(string args){ //this is how you call the main method (this is how you do comments)
     float pi = 3.1415; //floats
     int random_constant = 100; //integer
     random_constant = pi + random_constant * ((pi + random_constant) % 2)/10; 

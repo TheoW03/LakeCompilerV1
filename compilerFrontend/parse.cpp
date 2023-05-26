@@ -7,7 +7,7 @@
 
 using namespace std;
 
-#define OFFSET 65536 
+#define OFFSET 65536
 #pragma region Node
 
 // useless
@@ -92,7 +92,7 @@ struct funcCallNode : public Node
 struct FunctionNode : public Node
 {
     struct Tokens *nameOfFunction;
-    vector<Tokens *> params;
+    vector<varaibleNode *> params;
     vector<Node *> statements;
 };
 #pragma endregion
@@ -187,7 +187,7 @@ Node *factor(vector<Tokens> &tokens)
         }
         int fPoint = (int)(stof(myString) * OFFSET);
         cout << fPoint << endl;
-        cout <<  "hi \n";
+        cout << "hi \n";
         myString = to_string(fPoint); // whoses idea was it to give me a C++ compiler >:3
         cout << myString << endl;
         int myInt;
@@ -344,13 +344,29 @@ Node *handleFunctions(vector<Tokens> &tokens)
     Tokens *name = matchAndRemove(tokens, type::WORD, "handlefunctions");
     matchAndRemove(tokens, type::OP_PARENTHISIS, "handlefunctions");
 
-    vector<Tokens *> vars;
+    vector<varaibleNode *> vars;
+
     while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlefunctions") == nullptr)
     {
-        Tokens *var = matchAndRemove(tokens, type::WORD, "handlefunctions");
+        Tokens *typeVar = (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr)      ? current
+                          : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)  ? current
+                          : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
+                          : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
+                                                                                                : nullptr;
+        Tokens *word = matchAndRemove(tokens, type::WORD, "handlefunctions");
+
         matchAndRemove(tokens, type::COMMA, "handlefunctions");
-        vars.push_back(var);
+        varaibleNode *v = new varaibleNode;
+        v->typeOfVar = typeVar;
+        v->varailbe = word;
+        vars.push_back(v);
     }
+    // while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlefunctions") == nullptr)
+    // {
+    //     Tokens *var = matchAndRemove(tokens, type::WORD, "handlefunctions");
+    //     matchAndRemove(tokens, type::COMMA, "handlefunctions");
+    //     vars.push_back(var);
+    // }
     f->nameOfFunction = name;
     f->params = vars;
     return f;
@@ -374,7 +390,7 @@ void printParams(vector<Tokens *> a)
 Node *testParse(vector<Tokens> &tokens)
 {
     FunctionNode *f = static_cast<FunctionNode *>(handleFunctions(tokens));
-    printParams(f->params);
+    // printParams(f->params);
     return f;
 }
 /**
@@ -450,11 +466,12 @@ Node *handleSatements(vector<Tokens> &tokens)
     }
 #pragma endregion
 #pragma region varstates
-    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)    ? current
-                : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr)   ? current
-                : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr) ? current
-                : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)   ? current
-                                                                                     : nullptr;
+    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)     ? current
+                : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr)    ? current
+                : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)  ? current
+                : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
+                : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
+                                                                                      : nullptr;
     if (a != nullptr)
     {
         Node *var;
