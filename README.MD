@@ -30,12 +30,29 @@ function main(a){ //this is how you call the main method (this is how you do com
 
  # run code.
 
-MIPS, doesnt have support in the terminal
+<b>MIPS target</b>
 
-so you have to install the MIPS 32 Assembler.
-
-QTSpim
-
+1. install QTSpim
 https://spimsimulator.sourceforge.net/
+---
 
-the file should be out.s if you didnt specify a file name
+2. the if you didnt specify a file name. its out.s the location is MipsTarget/MipsTargetASM
+---
+
+3. locate file in QTSPim by going to file->Reinitialize and load file
+
+---
+
+4. Before running, I recomend pressing clear registers, and then run
+
+
+<b>x86Target</b>
+
+in linux
+
+run 
+```SH
+make x86test
+```
+
+the x86 target only supports equations as of Right now. but I plan too more stuff soon as I learn more of x86
