@@ -9,6 +9,8 @@
 #include "../compilerFrontend/Lexxer.h"
 #include "../compilerFrontend/parser.h"
 #include "../compilerFrontend/optimizations.h"
+#include "../MipsTarget/builtInFunction.h"
+
 namespace fs = std::filesystem;
 
 #define OFFSET_HEXA 0x10000
@@ -32,17 +34,11 @@ T *cast_to(T *ptr)
 
 int max_size = 0;
 
-
 Node::~Node()
 {
     // implementation of the destructor goes here
 }
-struct VaraibleNode
-{
-    Node *var;
-    // type type;
-    string reg;
-};
+
 struct Varaible
 {
     Tokens *varType;
@@ -255,7 +251,7 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
 
                 global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
                 freeReg();
-                return resultReg;
+                return reg;
             }
             else
             {
@@ -372,7 +368,12 @@ void traverse(Node *node)
  */
 void wf(ofstream &outfile, string word)
 {
+    cout << "word: " << word << endl;
     outfile << word << endl;
+    if (outfile.fail() == 0)
+    {
+        cerr << "Error occurred while writing to the file: " << strerror(errno) << endl;
+    }
 }
 
 // here includethe size of var.
@@ -422,9 +423,14 @@ int convert_toFixPoint(float num)
  * and then go through each node, and generate ASM using the code
  * and yeh.
  */
-void gen_mips_target(Node *op, string filename = "")
+void gen_mips_target(Node *op, string filename)
 {
     map<string, Node *> vars;
+    map<type, builtInFunction *> functions;
+
+    functions[type::PRINT] = new Print();
+    functions[type::EXIT] = new Exit();
+
     string dirname = "MipsTarget/MipsTargetASM/";
     int status = fs::create_directories(dirname);
 
@@ -450,7 +456,7 @@ void gen_mips_target(Node *op, string filename = "")
 
     vector<string> tab;
     addtabs(tab);
-    string setupstack = tabs_str(tab) + "addi $sp, $sp,-" + to_string(max_size) + " # Move the stack pointer down by 8 bytes\n";
+    string setupstack = tabs_str(tab) + "addi $sp, $sp,-" + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
     wf(outfile, setupstack);
     for (int i = 0; i < state.size(); i++)
     {
@@ -508,61 +514,47 @@ void gen_mips_target(Node *op, string filename = "")
 #pragma region function calls
         else if (pd2 != nullptr)
         {
-            if (pd2->funcCall->id == type::PRINT)
+            if (functions.find(pd2->funcCall->id) != functions.end())
             {
                 vector<Node *> para = pd2->params;
-                string gen_code = tabs_str(tab) + "li $v0, 1 \n"; // remeber to make type depenedent
                 for (int i = 0; i < para.size(); i++)
                 {
-                    global_string = "";
+                    builtInFunction *func = functions[pd2->funcCall->id];
+
+                    string reg = "";
+                    string gen_code = "";
                     if (check_if_pureExpression(para[i]) == 0)
                     {
-                        string allocr = allocateReg();
-                        string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop_integer(para[i])) + "\n";
-                        gen_code += tabs_str(tab) + "move $a0, " + allocr + "\n";
+                        reg = allocateReg();
+                        string a = tabs_str(tab) + "li " + reg + "," + to_string(constant_prop_float(para[i])) + "\n";
+                        wf(outfile, a);
+                        func->execute_code_float(gen_code, reg);
+
+                        wf(outfile, gen_code);
+                        // gen_code = "";
                     }
                     else
                     {
-                        string reg = gen_float_op(para[i], tab, map);
+                        reg = gen_float_op(para[i], tab, map);
                         wf(outfile, global_string);
-                        // string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
-                        gen_code += tabs_str(tab) + "move $a0, " + reg + "\n";
                         global_string = "";
+
+                        // string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
+                        func->execute_code_float(gen_code, reg);
+                        wf(outfile, gen_code);
+                        // gen_code = "";
                         // string add = tabs_str(tab) + "sw " + gen_opertors(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
                         // cout << "string: " + global_string << endl;
                         // wf(outfile, global_string);
                         // global_string = "";
                         // wf(outfile, add);
                     }
-
-                    // if (map.find(a[i]->buffer) != map.end())
-                    // {
-                    //     // li      $v0,    1               # system call for print integer
-                    //     // move    $a0,    $t1             # integer value to print
-                    //     // syscall
-                    //     string reg = allocateReg();
-
-                    // gen_code += tabs_str(tab) + "lw " + reg + "," +  + "($sp) \n";
-                    //     gen_code += tabs_str(tab) + "move $a0, " + reg + "\n";
-                    // }
                 }
-                wf(outfile, gen_code);
-                wf(outfile, tabs_str(tab) + "syscall \n");
-                freeReg();
-            }
-            else if (pd2->funcCall->id == type::EXIT)
-            {
-                string ext = tabs_str(tab) + "li $v0, 10 \n" + tabs_str(tab) + "syscall \n";
-                wf(outfile, ext);
             }
             else
-            { // for custom function calls
+            {
             }
-        }
 #pragma endregion // function calls
-        else
-        {
-            cout << "null ptr \n";
         }
     }
     string exitStack = tabs_str(tab) + "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer down by 8 bytes\n" + tabs_str(tab) + "jr $ra \n";
@@ -572,4 +564,8 @@ void gen_mips_target(Node *op, string filename = "")
     string exitStuff = tabs_str(tab) + "li $v0, 10 \n" + tabs_str(tab) + "syscall # exited program pop into QtSpim and it should work";
     wf(outfile, exitStuff);
     outfile.close();
+}
+void a()
+{
+    gen_mips_target(nullptr);
 }

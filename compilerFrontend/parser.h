@@ -4,7 +4,7 @@
 #include "../compilerFrontend/Lexxer.h"
 using namespace std;
 
-#define OFFSET 65536 
+#define OFFSET 256 
 
 #ifndef STAT_H
 #define STAT_H

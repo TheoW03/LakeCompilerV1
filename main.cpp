@@ -5,7 +5,7 @@
 #include "MipsTarget/MipsTarget.h"
 #include "x86TargetFiles/x86Target.h"
 #include "compilerFrontend/Lexxer.h"
-#include "compilerFrontend/parser.h"// #define String string
+#include "compilerFrontend/parser.h" // #define String string
 
 using namespace std;
 struct Data
@@ -14,8 +14,22 @@ struct Data
 };
 int main()
 {
+    // int scaledValue = (12.3 * (double)255);
+    // cout << scaledValue << endl;
+    // int integerPart = scaledValue >> 16;
+
+    // // Extract the fractional part as an integer
+    // int fractionalPart = scaledValue & 0xFFFF;
+
+    // // Calculate the fractional part as an integer value
+    // long integerFraction = (fractionalPart * 10000) / 65536;
+
+    // cout << integerPart;
+    // cout << ".";
+    // cout << integerFraction << endl;
+    // std::cout << integerPart << ".";
     vector<Tokens> a = lex(readFile("test.txt"));
-    // // cout << "lexxed" << endl;
+    cout << "lexxed" << endl;
     printList(a);
     Node *c = functionParse(a);
     cout << "parsed" << endl;

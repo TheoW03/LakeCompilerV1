@@ -19,7 +19,7 @@ inline bool instanceof (const T *ptr);
 #ifndef CAST_TO_H
 #define CAST_TO_H
 template <typename Base, typename T>
-T* cast_to(T* ptr);
+T *cast_to(T *ptr);
 #endif
 
 #ifndef VARAIBLENODE_H
@@ -30,13 +30,21 @@ struct VaraibleNode
     string reg;
 };
 #endif
+// #ifndef VARAIBLE_H
+// #define VARAIBLE_H
+// struct Varaible
+// {
+//     Tokens *varType;
+//     int stackNum;
+// };
+// #endif
 
 void traverse(Node *node);
 void gen_mips_target(Node *op, string filename = "");
 string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map);
 string allocateReg();
 void print_global();
-float interptObjs(Node* op);
-void prepare_interptMips(varaibleNode* var, map<string, int> &map);
+float interptObjs(Node *op);
+void prepare_interptMips(varaibleNode *var, map<string, int> &map);
 void gen_function(FunctionNode *function, map<string, int> &map);
 // void gen_x86_target(Node *op, string filename = "");
