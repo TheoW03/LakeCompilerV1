@@ -28,12 +28,13 @@ function main(a){ //this is how you call the main method (this is how you do com
 
 ```
 
- # run code.
+ # run transpiled code
 
 <b>MIPS target</b>
 
 1. install QTSpim
 https://spimsimulator.sourceforge.net/
+
 ---
 
 2. the if you didnt specify a file name. its out.s the location is MipsTarget/MipsTargetASM
@@ -57,4 +58,4 @@ run
 make x86test
 ```
 
-the x86 target only supports equations as of Right now. but I plan too more stuff soon as I learn more of x86
+WARNING: the x86 target only supports equations as of Right now. but I plan too more stuff soon as I learn more of x86
