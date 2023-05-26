@@ -1,6 +1,5 @@
 function main(a,b,c){
-    float pi = 3.141521.32.32;
+    float pi = 3.141521 + 2.5 + 1.5;
     print(pi); //comment
-    print(pi);
 
 }
