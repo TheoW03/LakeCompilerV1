@@ -39,7 +39,8 @@ enum class type
     INT,
     FLOAT,
     STRING,
-    CHAR
+    CHAR,
+    MACRO
 };
 #endif // TYPE
 

@@ -35,7 +35,8 @@ enum class type
     INT,
     FLOAT,
     STRING,
-    CHAR
+    CHAR,
+    MACRO
 };
 struct Tokens
 {
@@ -99,6 +100,7 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::INT] = "INT";
     dictionary[type::STRING] = "STRING";
     dictionary[type::FLOAT] = "FLOAT";
+    dictionary[type::MACRO] = "MACRO";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -122,6 +124,7 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["int"] = type::INT;
     typeOfOP["float"] = type::FLOAT;
     typeOfOP["string"] = type::STRING;
+    typeOfOP["#define"] = type::MACRO;
 
 #pragma endregion
     int wordstate = 1;
@@ -133,19 +136,27 @@ vector<Tokens> lex(vector<string> lines)
     std::smatch myMatch;
     int stateIsNum = 1;
     Tokens token;
-    
 
     vector<Tokens> a;
+
     for (int i = 0; i < lines.size(); i++)
     {
         string line = lines[i];
         string buffer = "";
+        int isComment = 0;
         string wordBuffer = "";
-
         for (int i2 = 0; i2 < line.length(); i2++)
         {
             char current = line.at(i2);
-
+            if (current == '/' && line.at(i2 + 1) == '/')
+            {
+                isComment = 1;
+                continue;
+            }
+            if (isComment == 1)
+            {
+                continue;
+            }
             if (current != ' ' && current != '\t' && current != '\0')
             {
 
@@ -317,7 +328,7 @@ vector<Tokens> lex(vector<string> lines)
                 }
                 else if (stateIsNum == 0)
                 {
-#pragma word
+#pragma region word
 
                     if (buffer != "")
                     {
@@ -401,6 +412,7 @@ vector<Tokens> lex(vector<string> lines)
                     a.push_back(token);
                     wordBuffer = "";
                 }
+                stateIsNum = 1;
             }
         }
         if (buffer != "")

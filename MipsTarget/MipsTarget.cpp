@@ -368,12 +368,7 @@ void traverse(Node *node)
  */
 void wf(ofstream &outfile, string word)
 {
-    cout << "word: " << word << endl;
     outfile << word << endl;
-    if (outfile.fail() == 0)
-    {
-        cerr << "Error occurred while writing to the file: " << strerror(errno) << endl;
-    }
 }
 
 // here includethe size of var.

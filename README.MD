@@ -1,51 +1,31 @@
-# compiler
+# TransMIPS32
 
-how it works
+a MIPS 32 target Transpiler. from a pythonic, JS, C like syntax
 
-# usage 
+it also kind of supports x86 if i can figure that out 
 
-for a MIPS target to compile
+coded by TheoW03, in C++ 
 
-and use the return value from 
-``parse(Vector<Tokens> tokens)``
-
-to gen ASM
-
-``void gen_mips_target(Node *op, string filename = "")``
-
-----
-
-for x86 
+# lang definition
 
 
-use the return value from the  
+```C++
 
-``testExpressionParse(Vector<Tokens> tokens) ``
+//% -> mod
+//* -> multiply
+// / -> divison
+// +,- -> addition and subtraction
+#define tau 6.28318531 //it can lex this but no support for parsing this yet  but this is a macro
 
-and then to generate run
+function main(a){ //this is how you call the main method (this is how you do comments)
+    float pi = 3.1415; //floats
+    int random_constant = 100; //integer
+    random_constant = pi + random_constant * ((pi + random_constant) % 2)/10; 
+    print(random_constant); //print to console. support for strings are not added yet 
+    exit(1); //exit
+    
+}
 
-``void gen_x86_target(Node *op, string filename = "")``
+```
 
-(if no file is give for MIPS the dir)
-
-is MipsTarget/MipsTargetASM/out.s
-
-x86 its 
-
-(x86 can only handle expressions)
-
-x86TargetFiles/x86TargetASM/out.s
-
----
-
-once files generated, 
-
-for x86 you can run 
-
-``make x86test``
-
-
-for mips
-
-just pop the generated file into qtSpim
-
+ 

@@ -54,8 +54,6 @@ float constant_prop_float(Node *op)
     }
     if (pd2 != nullptr)
     {
-        cout << "the float: ";
-        cout << stof(pd2->num) / OFFSET << endl;
         return (float)stof(pd2->num) / OFFSET;
     }
     if (dynamic_cast<operatorNode *>(op) != nullptr)
