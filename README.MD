@@ -1,4 +1,4 @@
-# TransMIPS32
+# MIPSTrans32
 
 a MIPS 32 target Transpiler. from a pythonic, JS, C like syntax
 
@@ -28,4 +28,14 @@ function main(a){ //this is how you call the main method (this is how you do com
 
 ```
 
- 
+ # run code.
+
+MIPS, doesnt have support in the terminal
+
+so you have to install the MIPS 32 Assembler.
+
+QTSpim
+
+https://spimsimulator.sourceforge.net/
+
+the file should be out.s if you didnt specify a file name
