@@ -49,13 +49,6 @@ https://spimsimulator.sourceforge.net/
 ----
 <br>
 
-<b>x86Target</b>
+<b> ARM Target</b>
 
-in linux
-
-run 
-```SH
-make x86test
-```
-
-WARNING: the x86 target only supports equations as of Right now. but I plan too more stuff soon as I learn more of x86
+coming soon.

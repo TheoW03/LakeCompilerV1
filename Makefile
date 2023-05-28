@@ -17,8 +17,6 @@ optimizations.o: compilerFrontend/optimizations.cpp compilerFrontend/parser.h co
 		g++ -c -g compilerFrontend/optimizations.cpp
 builtInFunctions.o: MipsTarget/builtInFunctions.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h MipsTarget/builtInFunction.h compilerFrontend/optimizations.h
 		g++ -c -g MipsTarget/builtInFunctions.cpp
-x86test:
-	 nasm -f elf64 ARMTarget/x86TargetASM/out.s && gcc -no-pie  ARMTarget/x86TargetASM/out.o && ./a.out
 line_count:
 	./linecount.sh
 clean: 
