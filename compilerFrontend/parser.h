@@ -4,7 +4,7 @@
 #include "../compilerFrontend/Lexxer.h"
 using namespace std;
 
-#define OFFSET 65536 
+#define OFFSET 65536
 
 #ifndef STAT_H
 #define STAT_H
@@ -69,7 +69,7 @@ struct varaibleNode : public Node
 struct FunctionNode : public Node
 {
     struct Tokens *nameOfFunction;
-    vector<Tokens *> params;
+    vector<varaibleNode *> params;
     vector<Node *> statements;
 };
 #endif // NODE_H

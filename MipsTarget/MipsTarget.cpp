@@ -118,7 +118,7 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
 
             global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
             global_string += tabs_str(tabs) + "li " + reg2 + "," + to_string(OFFSET) + "\n";
-            global_string += tabs_str(tabs) + "mul " + reg + "," + reg2 + " \n";
+            global_string += tabs_str(tabs) + "mult " + reg + "," + reg2 + " \n";
             global_string += tabs_str(tabs) + "mflo " + resultReg + " \n";
             freeReg();
             freeReg();
@@ -464,17 +464,20 @@ void gen_mips_target(Node *op, string filename)
             cout << check_if_pureExpression(pd1->expression) << endl;
             if (check_if_pureExpression(pd1->expression) == 0)
             {
-                Tokens *type1 = pd1->typeOfVar;
+                Varaible *type1 = map[pd1->varailbe->buffer];
+                if (type1 == nullptr)
+                {
+                    return;
+                }
                 string allocr = allocateReg();
-
-                if (type1->id == type::FLOAT)
+                if (type1->varType->id == type::FLOAT)
                 {
                     float constantF = (constant_prop_float(pd1->expression));
                     int work1 = (int)(constantF * OFFSET);
                     string a = tabs_str(tab) + "li " + allocr + "," + to_string(work1) + "\n";
                     wf(outfile, a);
                 }
-                else if (type1->id == type::INT)
+                else if (type1->varType->id == type::INT)
                 {
                     string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop_integer(pd1->expression)) + "\n";
                     wf(outfile, a);
@@ -487,10 +490,14 @@ void gen_mips_target(Node *op, string filename)
             }
             else
             {
-                Tokens *type1 = pd1->typeOfVar;
+                Varaible *type1 = map[pd1->varailbe->buffer];
+                if (type1 == nullptr)
+                {
+                    return;
+                }
                 cout << "else \n";
                 string add = "";
-                if (type1->id == type::FLOAT)
+                if (type1->varType->id == type::FLOAT)
                 {
                     string reg = gen_float_op(pd1->expression, tab, map);
                     add += tabs_str(tab) + "sw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";

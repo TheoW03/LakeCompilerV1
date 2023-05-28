@@ -1,5 +1,7 @@
 function main(string args){
-    float pi = 3.141521 + 2.5 + 1.5;
-    print(pi); //comment
+    int a = 100;
+    int b = a+10;
+    b = b + 1;
+    print(b);
 
 }
