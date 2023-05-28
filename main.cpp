@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "MipsTarget/MipsTarget.h"
-#include "x86TargetFiles/x86Target.h"
+#include "ARMTarget/ARMTarget.h"
 #include "compilerFrontend/Lexxer.h"
 #include "compilerFrontend/parser.h" // #define String string
 
