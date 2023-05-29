@@ -15,19 +15,15 @@ namespace fs = std::filesystem;
 
 #define OFFSET_HEXA 0x10000
 using namespace std;
-template <typename Base, typename T>
 
-inline bool instanceof (T * ptr)
+template <typename Base, typename T>
+bool instanceof (T * ptr)
 {
-    cout << "T" << endl;
-
-    cout << typeid(T).name() << endl;
-    cout << "base" << endl;
-    cout << typeid(Base).name() << endl;
-    return (dynamic_cast<Base *>(ptr) != nullptr);
+    return dynamic_cast<Base>(ptr);
 }
+
 template <typename Base, typename T>
-T *cast_to(T *ptr)
+Base *cast_to(T *ptr)
 {
     return (dynamic_cast<Base *>(ptr));
 }

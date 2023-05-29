@@ -8,6 +8,14 @@
 #include "compilerFrontend/parser.h" // #define String string
 
 using namespace std;
+
+template <typename Base, typename T>
+bool instanceof (T * ptr)
+{
+    return dynamic_cast<Base>(ptr);
+}
+
+
 struct Data
 {
     int x, y;
