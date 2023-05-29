@@ -36,7 +36,8 @@ enum class type
     FLOAT,
     STRING,
     CHAR,
-    MACRO
+    MACRO,
+    RETURN
 };
 struct Tokens
 {
@@ -101,6 +102,7 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::STRING] = "STRING";
     dictionary[type::FLOAT] = "FLOAT";
     dictionary[type::MACRO] = "MACRO";
+    dictionary[type::RETURN] = "RETURN";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -125,6 +127,7 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["float"] = type::FLOAT;
     typeOfOP["string"] = type::STRING;
     typeOfOP["#define"] = type::MACRO;
+    typeOfOP["return"] = type::RETURN;
 
 #pragma endregion
     int wordstate = 1;

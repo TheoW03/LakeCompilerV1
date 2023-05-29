@@ -104,24 +104,30 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
     if ((pd2 = dynamic_cast<FloatNode *>(op)) != nullptr)
     {
         string reg = allocateReg();
-        global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
+        global_string += tabs_str(tabs) + "li " + reg + "," + pd2->num + "\n";
+        return reg;
     }
 
     varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
     if (pd1 != nullptr)
     {
-        if (map[pd1->varailbe->buffer]->varType->id == type::INT)
+        // type a = map[pd1->varailbe->buffer]->varType->id;
+        if (map[pd1->varailbe->buffer]->varType->id == type::INT) // go back later :')
         {
+
             string reg = allocateReg();
             string reg2 = allocateReg();
             string resultReg = allocateReg();
 
             global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+
             global_string += tabs_str(tabs) + "li " + reg2 + "," + to_string(OFFSET) + "\n";
+
             global_string += tabs_str(tabs) + "mult " + reg + "," + reg2 + " \n";
             global_string += tabs_str(tabs) + "mflo " + resultReg + " \n";
             freeReg();
             freeReg();
+
             return resultReg;
         }
         else
@@ -149,6 +155,7 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         {
             // return
             string left = gen_float_op(op->left, tabs, map);
+
             string right = gen_float_op(op->right, tabs, map);
             global_string += tabs_str(tabs) + "add " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
@@ -159,7 +166,10 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         {
             // return
             string left = gen_float_op(op->left, tabs, map);
+            cout << "sub";
+
             string right = gen_float_op(op->right, tabs, map);
+
             global_string += tabs_str(tabs) + "sub " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
