@@ -1,6 +1,9 @@
 function main(string args){
     int a = 100;
     float b = 10;
-    b = a-10.5;
+    b =a-9.5;
+    print(b);
+    b = 9.50-a;
+    print(b);
 
 }

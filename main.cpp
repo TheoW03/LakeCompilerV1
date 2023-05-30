@@ -6,7 +6,7 @@
 #include "ARMTarget/ARMTarget.h"
 #include "compilerFrontend/Lexxer.h"
 #include "compilerFrontend/parser.h" // #define String string
-
+#include <cmath>
 using namespace std;
 
 template <typename Base, typename T>
@@ -22,20 +22,24 @@ struct Data
 };
 int main()
 {
-    // int scaledValue = (12.3 * (double)255);
-    // cout << scaledValue << endl;
-    // int integerPart = scaledValue >> 16;
+    int scaledValue = (12.3 * (double)OFFSET);
+    cout << scaledValue << endl;
+    int integerPart = scaledValue / OFFSET;
 
-    // // Extract the fractional part as an integer
-    // int fractionalPart = scaledValue & 0xFFFF;
+    // Extract the fractional part as an integer
+    scaledValue = abs(scaledValue);
+    cout << scaledValue << endl;
+    // scaledValue *= -1; //abs
+    int fractionalPart = scaledValue & 0xFFFF;
 
-    // // Calculate the fractional part as an integer value
-    // long integerFraction = (fractionalPart * 10000) / 65536;
+    // Calculate the fractional part as an integer value
+    long integerFraction = (fractionalPart * 10000) / 0xFFFF;
 
-    // cout << integerPart;
-    // cout << ".";
-    // cout << integerFraction << endl;
-    // std::cout << integerPart << ".";
+    cout << integerPart;
+    cout << ".";
+    cout << integerFraction << endl;
+    // exit(0);
+    std::cout << integerPart << ".";
     vector<Tokens> a = lex(readFile("test.txt"));
     cout << "lexxed" << endl;
     printList(a);
