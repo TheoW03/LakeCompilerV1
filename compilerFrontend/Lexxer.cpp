@@ -355,7 +355,7 @@ vector<Tokens> lex(vector<string> lines)
                     {
 
                         // seperator chars
-                        if (str == "=" || str == "," || str == "}" || str == "{" || str == ";" || regex_search(str, myMatch, opRegex))
+                        if (str == "=" || str == "," || str == "}" || str == "{" || str == ";" || regex_search(str, myMatch, opRegex) || str == "-")
                         {
                             if (wordBuffer != "")
                             {
