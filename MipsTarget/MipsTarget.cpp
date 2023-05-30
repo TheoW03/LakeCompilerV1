@@ -565,7 +565,7 @@ void gen_mips_target(Node *op, string filename)
 #pragma endregion // function calls
         }
     }
-    string exitStack = tabs_str(tab) + "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer down by 8 bytes\n" + tabs_str(tab) + "jr $ra \n";
+    string exitStack = tabs_str(tab) + "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n" + tabs_str(tab) + "jr $ra \n";
     wf(outfile, exitStack);
 #pragma endregion // iterate function
     // write everything in
