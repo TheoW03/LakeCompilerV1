@@ -13,7 +13,7 @@ main.o: main.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h MipsTarget/
 	g++ -c -g main.cpp
 ARMTarget.o: ARMTarget/ARMTarget.cpp  ARMTarget/ARMTarget.h compilerFrontend/parser.h compilerFrontend/Lexxer.h compilerFrontend/optimizations.h  
 		g++ -c -g ARMTarget/ARMTarget.cpp
-optimizations.o: compilerFrontend/optimizations.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h compilerFrontend/optimizations.h
+optimizations.o: compilerFrontend/optimizations.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h compilerFrontend/optimizations.h MipsTarget/MipsTarget.h
 		g++ -c -g compilerFrontend/optimizations.cpp
 builtInFunctions.o: MipsTarget/builtInFunctions.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h MipsTarget/builtInFunction.h compilerFrontend/optimizations.h
 		g++ -c -g MipsTarget/builtInFunctions.cpp

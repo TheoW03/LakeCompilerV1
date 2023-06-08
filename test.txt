@@ -4,6 +4,6 @@ function main(string args){
     b =a-9.5;
     print(b);
     b = 9.50-a;
-    print(b);
+    print(a);
 
 }

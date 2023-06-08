@@ -14,7 +14,6 @@
 namespace fs = std::filesystem;
 
 #define OFFSET_HEXA 0x10000
-using namespace std;
 
 template <typename Base, typename T>
 bool instanceof (T * ptr)
@@ -34,6 +33,7 @@ Node::~Node()
 {
     // implementation of the destructor goes here
 }
+using namespace std;
 
 struct Varaible
 {
@@ -87,35 +87,36 @@ float interptObjs(Node *op)
 
 string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
 {
-    IntegerNode *pd;
-    if ((pd = dynamic_cast<IntegerNode *>(op)) != nullptr)
+    if (instanceof <IntegerNode *>(op))
     {
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
         cout << "works in num \n";
         string reg = allocateReg();
         int num = stoi(pd->num) * OFFSET;
         global_string += tabs_str(tabs) + "li " + reg + "," + to_string(num) + "\n";
         return reg;
     }
-    FloatNode *pd2;
-    if ((pd2 = dynamic_cast<FloatNode *>(op)) != nullptr)
+    if (instanceof <FloatNode *>(op))
     {
+        FloatNode *pd = dynamic_cast<FloatNode *>(op);
         string reg = allocateReg();
-        global_string += tabs_str(tabs) + "li " + reg + "," + pd2->num + "\n";
+        global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
         return reg;
     }
 
-    varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
-    if (pd1 != nullptr)
+    // varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
+    if (instanceof <varaibleNode *>(op))
     {
+        varaibleNode *pd = dynamic_cast<varaibleNode *>(op);
         // type a = map[pd1->varailbe->buffer]->varType->id;
-        if (map[pd1->varailbe->buffer]->varType->id == type::INT) // go back later :')
+        if (map[pd->varailbe->buffer]->varType->id == type::INT) // go back later :')
         {
 
             string reg = allocateReg();
             string reg2 = allocateReg();
             string resultReg = allocateReg();
 
-            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
 
             global_string += tabs_str(tabs) + "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
@@ -129,14 +130,14 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         else
         {
             string reg = allocateReg();
-            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
             return reg;
         }
         string reg = allocateReg();
-        global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+        global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
         return reg;
     }
-    if (dynamic_cast<operatorNode *>(op) != nullptr)
+    if (instanceof <operatorNode *>(op))
     {
         cout << "is in op node \n";
         operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
@@ -194,6 +195,7 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         }
         if (t == type::MOD)
         {
+
             string left = gen_float_op(op->left, tabs, map);
             string right = gen_float_op(op->right, tabs, map);
             global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
@@ -216,18 +218,18 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         return "";
     }
 
-    IntegerNode *pd;
-    if ((pd = dynamic_cast<IntegerNode *>(op)) != nullptr)
+    if (instanceof <IntegerNode *>(op))
     {
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
         cout << "works in num \n";
 
         string reg = allocateReg();
         global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
         return reg;
     }
-    FloatNode *pd2;
-    if ((pd2 = dynamic_cast<FloatNode *>(op)) != nullptr)
+    if (instanceof <FloatNode *>(op))
     {
+        FloatNode *pd = dynamic_cast<FloatNode *>(op);
         string reg = allocateReg();
         float fixedpoint = (float)stoi(pd->num) / OFFSET;
         int fp2 = (int)fixedpoint;
@@ -235,39 +237,40 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
     }
 
-    varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
-    if (pd1 != nullptr)
+    if (instanceof <varaibleNode *>(op))
     {
+        varaibleNode *pd = dynamic_cast<varaibleNode *>(op);
+
         cout << "works in var \n";
         string reg = allocateReg();
 
-        if (map.find(pd1->varailbe->buffer) == map.end())
+        if (map.find(pd->varailbe->buffer) == map.end())
         {
-            cerr << pd1->varailbe->buffer + " doesnt exist as a var" << endl;
+            cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
 
             return "";
         }
         else
         {
-            cout << "out: " << map[pd1->varailbe->buffer] << endl;
-            if (map[pd1->varailbe->buffer]->varType->id == type::FLOAT)
+            cout << "out: " << map[pd->varailbe->buffer] << endl;
+            if (map[pd->varailbe->buffer]->varType->id == type::FLOAT)
             {
                 string reg = allocateReg();
                 string resultReg = allocateReg();
 
-                global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+                global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
                 freeReg();
                 return reg;
             }
             else
             {
                 string reg = allocateReg();
-                global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+                global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
                 return reg;
             }
         }
     }
-    if (dynamic_cast<operatorNode *>(op) != nullptr)
+    if (instanceof <operatorNode *>(op))
     {
         cout << "is in op node \n";
         operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
@@ -393,12 +396,13 @@ void gen_function(FunctionNode *function, map<string, Varaible *> &map)
 
     for (int i = 0; i < state.size(); i++)
     {
-        varaibleNode *pd1 = dynamic_cast<varaibleNode *>(state[i]);
-        if (pd1 != nullptr)
+        if (instanceof <varaibleNode *>(state[i]))
         {
-            if (map.find(pd1->varailbe->buffer) == map.end())
+            varaibleNode *pd = dynamic_cast<varaibleNode *>(state[i]);
+
+            if (map.find(pd->varailbe->buffer) == map.end())
             {
-                prepare_interptMips(pd1, map);
+                prepare_interptMips(pd, map);
             }
         }
         else
@@ -461,16 +465,16 @@ void gen_mips_target(Node *op, string filename)
     wf(outfile, setupstack);
     for (int i = 0; i < state.size(); i++)
     {
-        varaibleNode *pd1 = dynamic_cast<varaibleNode *>(state[i]);
-        funcCallNode *pd2 = dynamic_cast<funcCallNode *>(state[i]);
+        // funcCallNode *pd2 = dynamic_cast<funcCallNode *>(state[i]);
 
-        if (pd1 != nullptr)
+        if (instanceof<varaibleNode*>(state[i]))
         {
+            varaibleNode *pd = dynamic_cast<varaibleNode *>(state[i]);
             // expression tree at its finest
-            cout << check_if_pureExpression(pd1->expression) << endl;
-            if (check_if_pureExpression(pd1->expression) == 0)
+            cout << check_if_pureExpression(pd->expression) << endl;
+            if (check_if_pureExpression(pd->expression) == 0)
             {
-                Varaible *type1 = map[pd1->varailbe->buffer];
+                Varaible *type1 = map[pd->varailbe->buffer];
                 if (type1 == nullptr)
                 {
                     return;
@@ -478,25 +482,25 @@ void gen_mips_target(Node *op, string filename)
                 string allocr = allocateReg();
                 if (type1->varType->id == type::FLOAT)
                 {
-                    float constantF = (constant_prop_float(pd1->expression));
+                    float constantF = (constant_prop_float(pd->expression));
                     int work1 = (int)(constantF * OFFSET);
                     string a = tabs_str(tab) + "li " + allocr + "," + to_string(work1) + "\n";
                     wf(outfile, a);
                 }
                 else if (type1->varType->id == type::INT)
                 {
-                    string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop_integer(pd1->expression)) + "\n";
+                    string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop_integer(pd->expression)) + "\n";
                     wf(outfile, a);
                 }
-                cout << pd1->varailbe->buffer << endl;
-                cout << to_string(map[pd1->varailbe->buffer]->stackNum) << endl;
+                cout << pd->varailbe->buffer << endl;
+                cout << to_string(map[pd->varailbe->buffer]->stackNum) << endl;
                 cout << "hi \n";
-                string add = tabs_str(tab) + "sw " + allocr + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+                string add = tabs_str(tab) + "sw " + allocr + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
                 wf(outfile, add);
             }
             else
             {
-                Varaible *type1 = map[pd1->varailbe->buffer];
+                Varaible *type1 = map[pd->varailbe->buffer];
                 if (type1 == nullptr)
                 {
                     return;
@@ -505,12 +509,12 @@ void gen_mips_target(Node *op, string filename)
                 string add = "";
                 if (type1->varType->id == type::FLOAT)
                 {
-                    string reg = gen_float_op(pd1->expression, tab, map);
-                    add += tabs_str(tab) + "sw " + reg + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+                    string reg = gen_float_op(pd->expression, tab, map);
+                    add += tabs_str(tab) + "sw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
                 }
                 else
                 {
-                    add = tabs_str(tab) + "sw " + gen_integer_op(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]->stackNum) + "($sp) \n";
+                    add = tabs_str(tab) + "sw " + gen_integer_op(pd->expression, tab, map) + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
                 }
                 cout << "string: " + global_string << endl;
                 wf(outfile, global_string);
@@ -520,14 +524,15 @@ void gen_mips_target(Node *op, string filename)
             freeReg();
         }
 #pragma region function calls
-        else if (pd2 != nullptr)
+        else if (instanceof<funcCallNode*>(state[i]))
         {
-            if (functions.find(pd2->funcCall->id) != functions.end())
+            funcCallNode* pd = dynamic_cast<funcCallNode *>(state[i]);
+            if (functions.find(pd->funcCall->id) != functions.end())
             {
-                vector<Node *> para = pd2->params;
+                vector<Node *> para = pd->params;
                 for (int i = 0; i < para.size(); i++)
                 {
-                    builtInFunction *func = functions[pd2->funcCall->id];
+                    builtInFunction *func = functions[pd->funcCall->id];
 
                     string reg = "";
                     string gen_code = "";

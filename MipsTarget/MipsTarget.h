@@ -13,7 +13,7 @@ using namespace std;
 #ifndef INSTANCEOF_H
 #define INSTANCEOF_H
 template <typename Base, typename T>
-inline bool instanceof (const T *ptr);
+bool instanceof (T * ptr);
 #endif
 
 #ifndef CAST_TO_H

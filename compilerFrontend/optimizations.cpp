@@ -7,6 +7,7 @@
 #include <filesystem>
 #include "../compilerFrontend/Lexxer.h"
 #include "../compilerFrontend/parser.h"
+#include "../MipsTarget/MipsTarget.h"
 // #include "../compilerFrontend/parser.h"
 
 using namespace std;
@@ -26,7 +27,7 @@ int check_if_pureExpression(Node *op)
     {
         return 0;
     }
-    if (dynamic_cast<varaibleNode *>(op) != nullptr)
+    if (instanceof <varaibleNode *>(op))
     {
 
         cout << "var \n";
@@ -45,18 +46,20 @@ float constant_prop_float(Node *op)
     {
         return 1;
     }
-    IntegerNode *pd1 = dynamic_cast<IntegerNode *>(op);
-    FloatNode *pd2 = dynamic_cast<FloatNode *>(op);
+    // FloatNode *pd2 = dynamic_cast<FloatNode *>(op);
 
-    if (pd1 != nullptr)
+    if (instanceof <IntegerNode *>(op))
     {
-        return (int)stoi(pd1->num);
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+
+        return (int)stoi(pd->num);
     }
-    if (pd2 != nullptr)
+    if (instanceof <FloatNode *>(op))
     {
-        return (float)stof(pd2->num) / OFFSET;
+        FloatNode *pd = dynamic_cast<FloatNode *>(op);
+        return (float)stof(pd->num) / OFFSET;
     }
-    if (dynamic_cast<operatorNode *>(op) != nullptr)
+    if (instanceof <operatorNode *>(op))
     {
         operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
         type t = pd->token->id;
@@ -88,14 +91,20 @@ int constant_prop_integer(Node *op)
     {
         return 1;
     }
-    IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
 
-    if (pd != nullptr)
+    if (instanceof <IntegerNode *>(op))
     {
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+
         return (int)stoi(pd->num);
     }
+    if (instanceof <FloatNode *>(op))
+    {
+        FloatNode *pd = dynamic_cast<FloatNode *>(op);
+        return (int)stoi(pd->num) / OFFSET;
+    }
 
-    if (dynamic_cast<operatorNode *>(op) != nullptr)
+    if (instanceof <operatorNode *>(op))
     {
         operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
         type t = pd->token->id;

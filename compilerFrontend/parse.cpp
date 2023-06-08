@@ -84,6 +84,11 @@ struct funcCallNode : public Node
     Tokens *funcCall;
     vector<Node *> params;
 };
+struct MacroNode : public Node
+{
+    Tokens *macro;
+    Node *statement;
+};
 /**
  * @brief
  * function main(a,b){}
@@ -118,6 +123,7 @@ void setNull(Node *n)
 //     return expression(tokens);
 // }
 Tokens *current = new Tokens;
+Node* handleSatements(vector<Tokens> &tokens);
 
 /**
  * @brief I could use a stack, but a stack coesnt have peek lol
@@ -336,6 +342,23 @@ Node *expression(vector<Tokens> &tokens)
 }
 #pragma endregion
 #pragma region statements
+/**
+ * @brief helper function for 'l'
+ *
+ * @param list
+ */
+void RemoveEOLS(vector<Tokens> &list)
+{
+    while (true)
+    {
+        Tokens *e = matchAndRemove(list, type::END_OF_LINE, "remove EOLS");
+
+        if (e == nullptr)
+        {
+            return;
+        }
+    }
+}
 // will parse functions
 Node *handleFunctions(vector<Tokens> &tokens)
 {
@@ -372,6 +395,21 @@ Node *handleFunctions(vector<Tokens> &tokens)
     return f;
 }
 
+Node *handleMacros(vector<Tokens> &list)
+{
+    Tokens *name = matchAndRemove(list, type::WORD, "macros");
+    Node *statements;
+    statements = expression(list);
+    if (statements == nullptr)
+    {
+        statements = handleSatements(list);
+    }
+    MacroNode *a = new MacroNode;
+    a->macro = name;
+    a->statement = statements;
+    RemoveEOLS(list);
+    return a;
+}
 void printParams(vector<Tokens *> a)
 {
     cout << "params" << endl;
@@ -393,23 +431,7 @@ Node *testParse(vector<Tokens> &tokens)
     // printParams(f->params);
     return f;
 }
-/**
- * @brief helper function for 'l'
- *
- * @param list
- */
-void RemoveEOLS(vector<Tokens> &list)
-{
-    while (true)
-    {
-        Tokens *e = matchAndRemove(list, type::END_OF_LINE, "remove EOLS");
 
-        if (e == nullptr)
-        {
-            return;
-        }
-    }
-}
 Node *parseVar(vector<Tokens> &tokens, Tokens *name, Tokens *type)
 {
     if (name == nullptr)
@@ -456,6 +478,10 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
 Node *handleSatements(vector<Tokens> &tokens)
 {
 #pragma region functionstate
+    if (matchAndRemove(tokens, type::MACRO, "statements") != nullptr)
+    {
+        return handleMacros(tokens);
+    }
     Tokens *checkIfFunct = (matchAndRemove(tokens, type::PRINT, "functionParse") != nullptr)  ? current
                            : (matchAndRemove(tokens, type::EXIT, "functionParse") != nullptr) ? current
                                                                                               : nullptr;
@@ -522,6 +548,7 @@ Node *functionParse(vector<Tokens> &tokens)
         }
         return pd;
     }
+
     return nullptr;
 }
 #pragma endregion
@@ -542,6 +569,7 @@ Node *testExpressionParse(vector<Tokens> &tokens)
  * the entry point for parsing
  * i will eventually upgrade it to a list
  */
+
 Node *parse(vector<Tokens> &tokens)
 {
     return functionParse(tokens);
