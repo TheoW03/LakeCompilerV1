@@ -235,6 +235,7 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         int fp2 = (int)fixedpoint;
         string num = to_string(fp2);
         global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
+        return reg;
     }
 
     if (instanceof <varaibleNode *>(op))
