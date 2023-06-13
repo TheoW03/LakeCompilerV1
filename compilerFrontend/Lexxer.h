@@ -51,6 +51,7 @@ struct Tokens
     string buffer;
     type id;
     map<type, string> dictionary;
+    virtual string to_string();
 };
 #endif // NODE_H
 

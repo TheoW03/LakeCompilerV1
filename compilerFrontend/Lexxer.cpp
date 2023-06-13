@@ -45,7 +45,12 @@ struct Tokens
     string buffer;
     type id;
     map<type, string> dictionary;
+    virtual string to_string();
 };
+string Tokens::to_string()
+{
+    return dictionary[id] + "(" + buffer + ")";
+}
 
 void throwException(string message)
 {
@@ -72,6 +77,17 @@ void modifyStruct(Tokens &token, type enumType1, map<type, string> dictionary1, 
     token.id = enumType1;
     token.dictionary = dictionary1;
 }
+
+vector<Tokens> lex2(vector<string> lines)
+{
+}
+void is_operator(vector<Tokens> &tokens, vector<string> lines)
+{
+}
+void is_number(vector<Tokens> &tokens, vector<string> lines)
+{
+}
+
 vector<Tokens> lex(vector<string> lines)
 {
 
@@ -415,7 +431,7 @@ vector<Tokens> lex(vector<string> lines)
                     a.push_back(token);
                     wordBuffer = "";
                 }
-                stateIsNum = 1;
+                // stateIsNum = 1;
             }
         }
         if (buffer != "")
@@ -442,6 +458,6 @@ void printList(vector<Tokens> a)
 {
     for (int i = 0; i < a.size(); i++)
     {
-        cout << a[i].dictionary[a[i].id] + "(" + a[i].buffer + ") \n";
+        cout << a[i].to_string() << endl;
     }
 }
