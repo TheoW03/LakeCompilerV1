@@ -74,45 +74,6 @@ void handle_cli(char *argv[], int argc)
 }
 int main(int argc, char *argv[])
 {
-    // int a = 3000;
-    // int *ptr;
-
-    // *ptr = *ptr + 1;
-
-    // int**** ppptr = &a;
-    // int *ptr = &ppptr;
-    // int scaledValue = (12.3 * (double)OFFSET);
-    // cout << scaledValue << endl;
-    // int integerPart = scaledValue / OFFSET;
-
-    // // Extract the fractional part as an integer
-    // scaledValue = abs(scaledValue);
-    // cout << scaledValue << endl;
-    // // scaledValue *= -1; //abs
-    // int fractionalPart = scaledValue & 0xFFFF;
-
-    // // Calculate the fractional part as an integer value
-    // long integerFraction = (fractionalPart * 10000) / 0xFFFF;
-
-    // cout << integerPart;
-    // cout << ".";
-    // cout << integerFraction << endl;
-    // // exit(0);
-    // std::cout << integerPart << ".";
     handle_cli(argv, argc);
-
-    // vector<Tokens> a = lex(readFile("test.txt"));
-    // printList(a);
-    // cout << "lexxed" << endl;
-    // printList(a);
-    // Node *c = functionParse(a);
-    // cout << "parsed" << endl;
-    // if (c == nullptr)
-    // {
-    //     cout << "nullptr out \n";
-    //     return 1;
-    // }
-    // gen_mips_target(c);
-    // cout << "compiled \n";
     return 0;
 }
