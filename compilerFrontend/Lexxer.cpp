@@ -62,10 +62,10 @@ vector<string> readFile(string file)
     vector<string> vec;
     ifstream infile(file); // Open the file for reading
     string line;
-    cout << "input: " << endl;
+    // cout << "input: " << endl;
     while (getline(infile, line))
     {
-        cout << line + "\n";
+        // cout << line + "\n";
         vec.push_back(line);
     }
     infile.close();
@@ -180,10 +180,10 @@ vector<Tokens> lex(vector<string> lines)
             {
 
                 string str(1, current);
-                cout << "word buffer: " + wordBuffer << endl;
-                cout << "state is num: " + stateIsNum << endl;
-                cout << "buffer: " + buffer << endl;
-                cout << "state: " + state << endl;
+                // cout << "word buffer: " + wordBuffer << endl;
+                // cout << "state is num: " + stateIsNum << endl;
+                // cout << "buffer: " + buffer << endl;
+                // cout << "state: " + state << endl;
                 if (str == ")" || str == "(")
                 {
                     stateIsNum = 1;
@@ -239,7 +239,7 @@ vector<Tokens> lex(vector<string> lines)
 
                             if (buffer == "")
                             {
-                                cout << "sub \n";
+                                // cout << "sub \n";
 
                                 buffer += str;
                             }
@@ -335,7 +335,7 @@ vector<Tokens> lex(vector<string> lines)
                         if (regex_search(str, myMatch, numReg))
                         {
                             buffer += str;
-                            cout << buffer << endl;
+                            // cout << buffer << endl;
 
                             state = 1;
                         }
@@ -389,7 +389,7 @@ vector<Tokens> lex(vector<string> lines)
                                                                                                                                  : type::WORD,
                                          dictionary, wordBuffer);
                             a.push_back(token);
-                            cout << "equals" << endl;
+                            // cout << "equals" << endl;
                             wordBuffer = "";
                             stateIsNum = 1;
                         }
@@ -400,7 +400,7 @@ vector<Tokens> lex(vector<string> lines)
                     }
                     else
                     {
-                        cout << "word state != 1 \n";
+                        // cout << "word state != 1 \n";
                     }
                 }
 #pragma endregion

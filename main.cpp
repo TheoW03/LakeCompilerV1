@@ -19,13 +19,44 @@ struct Data
 {
     int x, y;
 };
-int main()
+
+void handle_cli(char *argv[], int argc)
+{
+    if (argc == 1)
+    {
+        return;
+    }
+    char *file = argv[1];
+    vector<Tokens> a = lex(readFile(file));
+
+    for (int i = 0; i < argc; i++)
+    {
+
+        if (strcmp(argv[i], "-token") == 0)
+        {
+            printList(a);
+        }
+    }
+    Node *c = functionParse(a);
+    string file1 = "";
+    for (int i = 0; i < argc; i++)
+    {
+
+        if (strcmp(argv[i], "-o") == 0)
+        {
+            file1 = argv[i + 1];
+        }
+    }
+
+    gen_mips_target(c, file1);
+    cout << "compiled sucessfully" << endl;
+}
+int main(int argc, char *argv[])
 {
     // int a = 3000;
     // int *ptr;
 
     // *ptr = *ptr + 1;
-
 
     // int**** ppptr = &a;
     // int *ptr = &ppptr;
@@ -47,6 +78,8 @@ int main()
     // cout << integerFraction << endl;
     // // exit(0);
     // std::cout << integerPart << ".";
+    handle_cli(argv, argc);
+
     vector<Tokens> a = lex(readFile("test.txt"));
     printList(a);
     cout << "lexxed" << endl;
