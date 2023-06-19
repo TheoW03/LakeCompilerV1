@@ -26,7 +26,28 @@ void handle_cli(char *argv[], int argc)
     {
         return;
     }
+    for (int i = 0; i < argc; i++)
+    {
+        if (strcmp(argv[i], "-d") == 0)
+        {
+            vector<Tokens> a = lex(readFile("test.txt"));
+            printList(a);
+            cout << "lexxed" << endl;
+            printList(a);
+            Node *c = functionParse(a);
+            cout << "parsed" << endl;
+            if (c == nullptr)
+            {
+                cout << "nullptr out \n";
+                return;
+            }
+            gen_mips_target(c);
+            cout << "demo compiled \n";
+            return;
+        }
+    }
     char *file = argv[1];
+
     vector<Tokens> a = lex(readFile(file));
 
     for (int i = 0; i < argc; i++)
@@ -80,18 +101,18 @@ int main(int argc, char *argv[])
     // std::cout << integerPart << ".";
     handle_cli(argv, argc);
 
-    vector<Tokens> a = lex(readFile("test.txt"));
-    printList(a);
-    cout << "lexxed" << endl;
-    printList(a);
-    Node *c = functionParse(a);
-    cout << "parsed" << endl;
-    if (c == nullptr)
-    {
-        cout << "nullptr out \n";
-        return 1;
-    }
-    gen_mips_target(c);
-    cout << "compiled \n";
+    // vector<Tokens> a = lex(readFile("test.txt"));
+    // printList(a);
+    // cout << "lexxed" << endl;
+    // printList(a);
+    // Node *c = functionParse(a);
+    // cout << "parsed" << endl;
+    // if (c == nullptr)
+    // {
+    //     cout << "nullptr out \n";
+    //     return 1;
+    // }
+    // gen_mips_target(c);
+    // cout << "compiled \n";
     return 0;
 }
