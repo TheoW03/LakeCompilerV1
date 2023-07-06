@@ -84,9 +84,44 @@ float interptObjs(Node *op)
 }
 
 #pragma region this is for the expression tree
+string gen_string(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
+{
+    if (op == nullptr)
+    {
+        cout << "null \n";
+        return "";
+    }
+    if (instanceof <stringNode *>(op))
+    {
+        stringNode *pd = dynamic_cast<stringNode *>(op);
+        // allocate size
 
+        /*
+          li $v0,9      # allocate syscall code.
+        li $a0,64    # 64 bytes allocated in heap.
+        syscall
+        sw $v0, p   # pointer p to  heap space
+
+        li $t0,'a'      # first byte 'a' char
+        sb $t0,0($v0)
+        li $t0,'b'      # second byte 'b' char
+        sb $t0,1($v0)
+        li $t0, 'c'
+        sb $t0, 2($v0)
+        li $t0, 'd'
+        sb $t0, 3($v0)
+
+        */
+        // and yehs
+    }
+}
 string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
 {
+    if (op == nullptr)
+    {
+        cout << "null \n";
+        return "";
+    }
     if (instanceof <IntegerNode *>(op))
     {
         IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
@@ -468,7 +503,7 @@ void gen_mips_target(Node *op, string filename)
     {
         // funcCallNode *pd2 = dynamic_cast<funcCallNode *>(state[i]);
 
-        if (instanceof<varaibleNode*>(state[i]))
+        if (instanceof <varaibleNode *>(state[i]))
         {
             varaibleNode *pd = dynamic_cast<varaibleNode *>(state[i]);
             // expression tree at its finest
@@ -525,9 +560,9 @@ void gen_mips_target(Node *op, string filename)
             freeReg();
         }
 #pragma region function calls
-        else if (instanceof<funcCallNode*>(state[i]))
+        else if (instanceof <funcCallNode *>(state[i]))
         {
-            funcCallNode* pd = dynamic_cast<funcCallNode *>(state[i]);
+            funcCallNode *pd = dynamic_cast<funcCallNode *>(state[i]);
             if (functions.find(pd->funcCall->id) != functions.end())
             {
                 vector<Node *> para = pd->params;

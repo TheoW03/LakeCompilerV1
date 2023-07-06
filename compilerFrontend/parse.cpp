@@ -61,6 +61,16 @@ struct IntegerNode : public Node
 {
     string num;
 };
+struct stringNode : public Node
+{
+    string stringBuffer;
+};
+struct VaraibleReference : public Node
+{
+    Node *expression;
+    Tokens *varailbe;
+};
+
 /**
  * @brief this gives an expression, left, rigt
  *
@@ -123,7 +133,7 @@ void setNull(Node *n)
 //     return expression(tokens);
 // }
 Tokens *current = new Tokens;
-Node* handleSatements(vector<Tokens> &tokens);
+Node *handleSatements(vector<Tokens> &tokens);
 
 /**
  * @brief I could use a stack, but a stack coesnt have peek lol
@@ -168,9 +178,15 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
 Node *factor(vector<Tokens> &tokens)
 {
     Tokens *a = new Tokens;
-    a = (matchAndRemove(tokens, type::NUMBER, "factor") != nullptr) ? current : (matchAndRemove(tokens, type::OP_PARENTHISIS, "factor") != nullptr) ? current
-                                                                            : (matchAndRemove(tokens, type::WORD, "factor") != nullptr)             ? current
-                                                                                                                                                    : nullptr;
+    a = (matchAndRemove(tokens, type::NUMBER, "factor") != nullptr)           ? current
+        : (matchAndRemove(tokens, type::OP_PARENTHISIS, "factor") != nullptr) ? current
+        : (matchAndRemove(tokens, type::WORD, "factor") != nullptr)           ? current
+                                                                              : nullptr;
+
+    if (a == nullptr)
+    {
+        a = matchAndRemove(tokens, type::STRING_LITERAL, "factor");
+    }
     type id;
     if (a != nullptr)
     {
@@ -179,6 +195,12 @@ Node *factor(vector<Tokens> &tokens)
     else
     {
         return nullptr;
+    }
+    if (id == type::STRING_LITERAL)
+    {
+        stringNode *s = new stringNode;
+        s->stringBuffer = a->buffer;
+        return s;
     }
     if (id == type::NUMBER)
     {
@@ -509,12 +531,13 @@ Node *handleSatements(vector<Tokens> &tokens)
             }
             var = parseVar(tokens, a, nullptr);
         }
-        else if (a->id == type::VAR || a->id == type::INT || a->id == type::FLOAT)
+        else if (a->id == type::VAR || a->id == type::INT || a->id == type::FLOAT || a->id == type::STRING)
         {
             var = parseVar(tokens, nullptr, a);
         }
         return var;
     }
+
 #pragma endregion
     return nullptr;
 }

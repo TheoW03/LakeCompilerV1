@@ -37,7 +37,8 @@ enum class type
     STRING,
     CHAR,
     MACRO,
-    RETURN
+    RETURN,
+    STRING_LITERAL
 };
 struct Tokens
 {
@@ -119,6 +120,7 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::FLOAT] = "FLOAT";
     dictionary[type::MACRO] = "MACRO";
     dictionary[type::RETURN] = "RETURN";
+    dictionary[type::STRING_LITERAL] = "STRING_LITERAL";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -144,6 +146,7 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["string"] = type::STRING;
     typeOfOP["#define"] = type::MACRO;
     typeOfOP["return"] = type::RETURN;
+    
 
 #pragma endregion
     int wordstate = 1;
@@ -163,7 +166,9 @@ vector<Tokens> lex(vector<string> lines)
         string line = lines[i];
         string buffer = "";
         int isComment = 0;
+        int isString = 0;
         string wordBuffer = "";
+        string stringBuffer = "";
         for (int i2 = 0; i2 < line.length(); i2++)
         {
             char current = line.at(i2);
@@ -176,6 +181,28 @@ vector<Tokens> lex(vector<string> lines)
             {
                 continue;
             }
+            if (current == '\"' || current == '\'')
+            {
+                if (isString == 0)
+                {
+                    isString = 1;
+                    continue;
+                }
+                else
+                {
+                    isString = 0;
+                    modifyStruct(token, type::STRING_LITERAL, dictionary, stringBuffer);
+                    stringBuffer = "";
+                    a.push_back(token);
+                    continue;
+                }
+            }
+            if (isString == 1)
+            {
+                stringBuffer += current;
+                continue;
+            }
+
             if (current != ' ' && current != '\t' && current != '\0')
             {
 

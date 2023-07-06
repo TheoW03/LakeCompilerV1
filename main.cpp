@@ -58,7 +58,9 @@ void handle_cli(char *argv[], int argc)
             printList(a);
         }
     }
+
     Node *c = functionParse(a);
+
     string file1 = "";
     for (int i = 0; i < argc; i++)
     {
@@ -74,6 +76,12 @@ void handle_cli(char *argv[], int argc)
 }
 int main(int argc, char *argv[])
 {
-    handle_cli(argv, argc);
+    // handle_cli(argv, argc);
+    int *ptr = 0;
+    *(ptr + 0) = 10;
+    *(ptr + 1) = 11;
+
+    int c = *(ptr);
+    cout << c << endl;
     return 0;
 }

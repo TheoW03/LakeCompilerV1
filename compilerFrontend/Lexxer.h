@@ -40,7 +40,9 @@ enum class type
     FLOAT,
     STRING,
     CHAR,
-    MACRO
+    MACRO,
+    RETURN,
+    STRING_LITERAL
 };
 #endif // TYPE
 

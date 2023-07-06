@@ -26,6 +26,12 @@ struct Node
     virtual ~Node();
     Node() : left(nullptr), right(nullptr) {}
 };
+struct VaraibleReference : public Node
+{
+    Node *expression;
+    Tokens *varailbe;
+};
+
 struct funcCallNode : public Node
 {
     Tokens *funcCall;
@@ -47,6 +53,10 @@ struct FloatNode : public Node
 struct IntegerNode : public Node
 {
     string num;
+};
+struct stringNode : public Node
+{
+    string stringBuffer;
 };
 struct operatorNode : public Node
 {
