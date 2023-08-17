@@ -31,7 +31,7 @@ void Print::execute_code_float(string &gen_string, string registers = "")
     string fracReg = allocateReg();
 
     gen_string += "div " + wholeNumReg + "," + registers + "," + to_string(OFFSET) + "\n";
-    gen_string += "abs " + registers + ", " + registers + "\n";
+    gen_string += "abs " + registers + ", " + registers + "\n"; //removes -
 
     // decimal point calculation
     // mask with offset and the mask divided by offset multiplied by 1000

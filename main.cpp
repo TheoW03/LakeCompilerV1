@@ -76,12 +76,6 @@ void handle_cli(char *argv[], int argc)
 }
 int main(int argc, char *argv[])
 {
-    // handle_cli(argv, argc);
-    int *ptr = 0;
-    *(ptr + 0) = 10;
-    *(ptr + 1) = 11;
-
-    int c = *(ptr);
-    cout << c << endl;
+    handle_cli(argv, argc);
     return 0;
 }

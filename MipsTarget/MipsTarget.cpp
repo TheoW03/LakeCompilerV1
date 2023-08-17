@@ -156,7 +156,7 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
             global_string += tabs_str(tabs) + "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
             global_string += tabs_str(tabs) + "mult " + reg + "," + reg2 + " \n";
-            global_string += tabs_str(tabs) + "mflo " + resultReg + " \n";
+            global_string += tabs_str(tabs) + "mflo " + resultReg + " \n"; //scaling
             freeReg();
             freeReg();
 
@@ -269,7 +269,7 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         float fixedpoint = (float)stoi(pd->num) / OFFSET;
         int fp2 = (int)fixedpoint;
         string num = to_string(fp2);
-        global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
+        global_string += tabs_str(tabs) + "li " + reg + "," + num + "\n";
         return reg;
     }
 
@@ -295,6 +295,8 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
                 string resultReg = allocateReg();
 
                 global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                global_string += tabs_str(tabs) + "div " + reg + "," + reg + ", " + to_string(OFFSET) + " \n"; //scaling. I forgot i worked on this lmao :')
+
                 freeReg();
                 return reg;
             }
