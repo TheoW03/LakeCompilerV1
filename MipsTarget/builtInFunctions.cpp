@@ -27,11 +27,26 @@ void Print::execute_code_integer(string &gen_string, string registers)
 }
 void Print::execute_code_float(string &gen_string, string registers = "")
 {
+
+    /*
+    slt     $t2,    $t1,    0
+    mul     $t2,    $t2,    45
+    mflo    $t3
+    li      $a0,    $t2
+    li      $v0,    11
+    syscall
+    */
     string wholeNumReg = allocateReg();
     string fracReg = allocateReg();
+    string negatveReg = allocateReg();
+    gen_string += "slt " + negatveReg + ", " + registers + ", 0 \n";
+    gen_string += "mul " + negatveReg + ", " + negatveReg + ", 45 \n";
+    gen_string += "mflo " + negatveReg + "\n";
+    gen_string += "move $a0, "+negatveReg +"\n li $v0, 11 \n syscall \n"; 
 
+
+    gen_string += "abs " + registers + ", " + registers + "\n"; // removes -
     gen_string += "div " + wholeNumReg + "," + registers + "," + to_string(OFFSET) + "\n";
-    gen_string += "abs " + registers + ", " + registers + "\n"; //removes -
 
     // decimal point calculation
     // mask with offset and the mask divided by offset multiplied by 1000

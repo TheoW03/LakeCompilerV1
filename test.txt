@@ -1,5 +1,7 @@
 function main(string args){
-   float a = 2.15;
-   float b =a-3.5; //-0 doesnt exist 
-   print(b);
+   float a = -0.34;
+   print(a);
+      print(a);
+   print(a);
+
 }
