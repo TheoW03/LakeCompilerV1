@@ -14,6 +14,7 @@ public:
     funcCallNode *function;
     virtual void execute_code_integer(string &gen_string, string registers);
     virtual void execute_code_float(string &gen_string, string registers);
+    virtual void setup_params(vector<Node *> params, string &gen_string, map<string, Varaible*> map);
 };
 
 #endif
@@ -26,6 +27,7 @@ public:
     Print();
     void execute_code_integer(string &gen_string, string registers);
     void execute_code_float(string &gen_string, string registers);
+    void setup_params(vector<Node *> params,string &gen_string, map<string, Varaible*> map);
 };
 #endif
 
@@ -37,5 +39,6 @@ public:
     Exit();
     void execute_code_integer(string &gen_string, string registers);
     void execute_code_float(string &gen_string, string registers);
+    void setup_params(vector<Node *> params, string &gen_string, map<string, Varaible*> map);
 };
 #endif

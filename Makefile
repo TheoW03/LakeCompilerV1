@@ -1,9 +1,9 @@
 output:main.o Lexxer.o parse.o MipsTarget.o ARMTarget.o optimizations.o builtInFunctions.o
 	g++ Lexxer.o ARMTarget.o main.o parse.o MipsTarget.o optimizations.o builtInFunctions.o -o output
-Lexxer.o: compilerFrontend/Lexxer.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h MipsTarget/MipsTarget.h 
+Lexxer.o: compilerFrontend/Lexxer.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h  
 	g++ -c -g compilerFrontend/Lexxer.cpp
 
-parse.o: compilerFrontend/parse.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h MipsTarget/MipsTarget.h 
+parse.o: compilerFrontend/parse.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h
 	g++ -c -g compilerFrontend/parse.cpp
 
 MipsTarget.o: MipsTarget/MipsTarget.cpp compilerFrontend/parser.h MipsTarget/builtInFunction.h compilerFrontend/Lexxer.h MipsTarget/MipsTarget.h compilerFrontend/optimizations.h 

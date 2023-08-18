@@ -35,11 +35,11 @@ Node::~Node()
 }
 using namespace std;
 
-struct Varaible
-{
-    Tokens *varType;
-    int stackNum;
-};
+// struct Varaible
+// {
+//     Tokens *varType;
+//     int stackNum;
+// };
 string tabs_str(vector<string> &tabs)
 {
     string t = "";
@@ -144,7 +144,7 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
     {
         varaibleNode *pd = dynamic_cast<varaibleNode *>(op);
         // type a = map[pd1->varailbe->buffer]->varType->id;
-        if (map[pd->varailbe->buffer]->varType->id == type::INT) // go back later :')
+        if (map[pd->varailbe->buffer]->varType->id == type::INT)
         {
 
             string reg = allocateReg();
@@ -156,7 +156,7 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
             global_string += tabs_str(tabs) + "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
             global_string += tabs_str(tabs) + "mult " + reg + "," + reg2 + " \n";
-            global_string += tabs_str(tabs) + "mflo " + resultReg + " \n"; //scaling
+            global_string += tabs_str(tabs) + "mflo " + resultReg + " \n"; // scaling
             freeReg();
             freeReg();
 
@@ -295,7 +295,7 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
                 string resultReg = allocateReg();
 
                 global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-                global_string += tabs_str(tabs) + "div " + reg + "," + reg + ", " + to_string(OFFSET) + " \n"; //scaling. I forgot i worked on this lmao :')
+                global_string += tabs_str(tabs) + "div " + reg + "," + reg + ", " + to_string(OFFSET) + " \n"; // scaling. I forgot i worked on this lmao :')
 
                 freeReg();
                 return reg;
@@ -450,10 +450,10 @@ void gen_function(FunctionNode *function, map<string, Varaible *> &map)
     }
 }
 
-int convert_toFixPoint(float num)
-{
-    return (int)num / 6536;
-}
+// int convert_toFixPoint(float num)
+// {
+//     return (int)num / 6536;
+// }
 /**
  * @brief
  *
@@ -568,39 +568,47 @@ void gen_mips_target(Node *op, string filename)
             if (functions.find(pd->funcCall->id) != functions.end())
             {
                 vector<Node *> para = pd->params;
-                for (int i = 0; i < para.size(); i++)
+                builtInFunction *func = functions[pd->funcCall->id];
+                if (func != nullptr)
                 {
-                    builtInFunction *func = functions[pd->funcCall->id];
-
-                    string reg = "";
-                    string gen_code = "";
-                    if (check_if_pureExpression(para[i]) == 0)
-                    {
-                        reg = allocateReg();
-                        string a = tabs_str(tab) + "li " + reg + "," + to_string(constant_prop_float(para[i])) + "\n";
-                        wf(outfile, a);
-                        func->execute_code_float(gen_code, reg);
-
-                        wf(outfile, gen_code);
-                        // gen_code = "";
-                    }
-                    else
-                    {
-                        reg = gen_float_op(para[i], tab, map);
-                        wf(outfile, global_string);
-                        global_string = "";
-
-                        // string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
-                        func->execute_code_float(gen_code, reg);
-                        wf(outfile, gen_code);
-                        // gen_code = "";
-                        // string add = tabs_str(tab) + "sw " + gen_opertors(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
-                        // cout << "string: " + global_string << endl;
-                        // wf(outfile, global_string);
-                        // global_string = "";
-                        // wf(outfile, add);
-                    }
+                    string gen_string = "";
+                    func->setup_params(para, gen_string, map);
+                    wf(outfile,gen_string);
                 }
+
+                // for (int i = 0; i < para.size(); i++)
+                // {
+                //     builtInFunction *func = functions[pd->funcCall->id];
+
+                //     string reg = "";
+                //     string gen_code = "";
+                //     if (check_if_pureExpression(para[i]) == 0)
+                //     {
+                //         reg = allocateReg();
+                //         string a = tabs_str(tab) + "li " + reg + "," + to_string(constant_prop_float(para[i])) + "\n";
+                //         wf(outfile, a);
+                //         func->execute_code_float(gen_code, reg);
+
+                //         wf(outfile, gen_code);
+                //         // gen_code = "";
+                //     }
+                //     else
+                //     {
+                //         reg = gen_float_op(para[i], tab, map);
+                //         wf(outfile, global_string);
+                //         global_string = "";
+
+                //         // string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
+                //         func->execute_code_float(gen_code, reg);
+                //         wf(outfile, gen_code);
+                //         // gen_code = "";
+                //         // string add = tabs_str(tab) + "sw " + gen_opertors(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
+                //         // cout << "string: " + global_string << endl;
+                //         // wf(outfile, global_string);
+                //         // global_string = "";
+                //         // wf(outfile, add);
+                //     }
+                // }
             }
             else
             {

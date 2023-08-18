@@ -1,7 +1,7 @@
 function main(string args){
-   float a = -0.34;
-   print(a);
-      print(a);
-   print(a);
+   int a = 4;
+   print("%f",a);
+      print("%d",a);
+   print("%f",a);
 
 }

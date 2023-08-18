@@ -484,9 +484,49 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
     vector<Node *> vars;
     while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlecalls") == nullptr)
     {
-        Node *var = expression(tokens);
-        matchAndRemove(tokens, type::COMMA, "handlecalls");
-        vars.push_back(var);
+        // Node *var = expression(tokens);
+        Tokens *var = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)             ? current
+                      : (matchAndRemove(tokens, type::NUMBER, "parsefunctions") != nullptr)         ? current
+                      : (matchAndRemove(tokens, type::STRING_LITERAL, "parseFunctions") != nullptr) ? current
+                                                                                                    : nullptr;
+
+        matchAndRemove(tokens, type::COMMA, "handlefunctions");
+        VaraibleReference *v = new VaraibleReference;
+        if (var->id == type::NUMBER)
+        {
+            string myString = var->buffer;
+            if (myString.find(".") == string::npos)
+            {
+                IntegerNode *intNode = new IntegerNode;
+                intNode->num = var->buffer;
+                cout << "is int" << endl;
+                vars.push_back(intNode);
+            }
+            else
+            {
+                int fPoint = (int)(stof(myString) * OFFSET);
+                cout << fPoint << endl;
+                cout << "hi \n";
+                myString = to_string(fPoint); // whoses idea was it to give me a C++ compiler >:3
+                cout << myString << endl;
+                int myInt;
+                FloatNode *floatNode = new FloatNode;
+                floatNode->num = to_string(fPoint);
+                vars.push_back(floatNode);
+            }
+        }
+        else if (var->id == type::WORD)
+        {
+            varaibleNode *v1 = new varaibleNode;
+            v1->varailbe = var;
+            vars.push_back(v1);
+        }
+        else if (var->id == type::STRING_LITERAL)
+        {
+            stringNode *s = new stringNode;
+            s->stringBuffer = var->buffer;
+            vars.push_back(s);
+        }
     }
     f1->params = vars;
     return f1;

@@ -2,8 +2,6 @@
 
 a MIPS 32 target Transpiler. from a pythonic, JS, C like syntax
 
-it also kind of supports x86 if i can figure that out 
-
 coded by TheoW03, in C++ 
 
 # lang definition
@@ -21,7 +19,7 @@ function main(string args){ //this is how you call the main method (this is how 
     float pi = 3.1415; //floats
     int random_constant = 100; //integer
     random_constant = pi + random_constant * ((pi + random_constant) % 2)/10; 
-    print(random_constant); //print to console. support for strings are not added yet 
+    print("%f",random_constant); // %f -> float %i -> integer. this is a temp system until I add something better :3
     exit(1); //exit
     
 }

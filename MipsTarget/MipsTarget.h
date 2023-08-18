@@ -22,27 +22,23 @@ template <typename Base, typename T>
 T *cast_to(T *ptr);
 #endif
 
-#ifndef VARAIBLENODE_H
-#define VARAIBLENODE_H
-struct VaraibleNode
+
+#ifndef VARAIBLE_H
+#define VARAIBLE_H
+struct Varaible
 {
-    Node *val;
-    string reg;
+    Tokens *varType;
+    int stackNum;
 };
 #endif
-// #ifndef VARAIBLE_H
-// #define VARAIBLE_H
-// struct Varaible
-// {
-//     Tokens *varType;
-//     int stackNum;
-// };
-// #endif
 
 void traverse(Node *node);
 void gen_mips_target(Node *op, string filename = "");
 string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map);
+string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map);
+string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map);
 string allocateReg();
+void freeReg();
 void print_global();
 float interptObjs(Node *op);
 void prepare_interptMips(varaibleNode *var, map<string, int> &map);
