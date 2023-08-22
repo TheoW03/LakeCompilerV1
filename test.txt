@@ -1,5 +1,5 @@
 function main(string args){
-    float a = 9/5;
+    float a = 9/8;
     float b = 9/5;
     if(a eq b){
         a = a + 1;

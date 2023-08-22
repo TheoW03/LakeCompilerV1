@@ -35,20 +35,6 @@ Node::~Node()
     // implementation of the destructor goes here
 }
 
-// struct Varaible
-// {
-//     Tokens *varType;
-//     int stackNum;
-// };
-string tabs_str(vector<string> &tabs)
-{
-    string t = "";
-    for (int i = 0; i < tabs.size(); i++)
-    {
-        t += tabs[i];
-    }
-    return t;
-}
 void addtabs(vector<string> &tabs)
 {
     tabs.push_back("\t");
@@ -613,13 +599,17 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
     {
         global_string = "";
         IfSatementNode *pd = dynamic_cast<IfSatementNode *>(statement);
-
+        if (pd->statements.size() == 0)
+        {
+            return;
+        }
         handle_boolean(pd->condition, var);
 
         wf(outfile, global_string);
 
         global_string = "";
         int c = 0;
+
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
@@ -628,13 +618,6 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
             {
                 c = 1;
             }
-            // if (instanceof <IfSatementNode *>(pd->statements[i]))
-            // {
-            //     global_string = "L" + to_string(nOfBranch) + ": \n";
-            //     wf(outfile, global_string);
-            //     nOfBranch++;
-            //     global_string = "";
-            // }
         }
 
         // handle statements this will be a recursive function later
@@ -827,7 +810,7 @@ void gen_mips_target(Node *op, string filename)
         //             global_string = "";
         //         }
     }
-    string exitStack = "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n" + tabs_str(tab) + "jr $ra \n";
+    string exitStack = "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
     wf(outfile, exitStack);
 #pragma endregion // iterate function
     // write everything in
