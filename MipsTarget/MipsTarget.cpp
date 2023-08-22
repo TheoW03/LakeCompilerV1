@@ -446,6 +446,7 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
         {
             string resultReg = allocateReg();
             global_string += "bne " + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + " , L" + to_string(nOfBranch) + "\n";
+            global_string += "nop \n";
             return "test";
         }
     }
