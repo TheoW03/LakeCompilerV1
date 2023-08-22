@@ -43,7 +43,9 @@ enum class type
     MACRO,
     RETURN,
     STRING_LITERAL,
-    BOOL_EQ
+    BOOL_EQ,
+    TRUE,
+    FALSE
 };
 #endif // TYPE
 

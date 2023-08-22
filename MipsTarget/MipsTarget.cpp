@@ -115,7 +115,7 @@ string gen_string(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
         // and yehs
     }
 }
-string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
+string gen_float_op(Node *op, map<string, Varaible *> &map)
 {
     if (op == nullptr)
     {
@@ -128,14 +128,14 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         cout << "works in num \n";
         string reg = allocateReg();
         int num = stoi(pd->num) * OFFSET;
-        global_string += tabs_str(tabs) + "li " + reg + "," + to_string(num) + "\n";
+        global_string += "li " + reg + "," + to_string(num) + "\n";
         return reg;
     }
     if (instanceof <FloatNode *>(op))
     {
         FloatNode *pd = dynamic_cast<FloatNode *>(op);
         string reg = allocateReg();
-        global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
+        global_string += "li " + reg + "," + pd->num + "\n";
         return reg;
     }
 
@@ -151,12 +151,12 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
             string reg2 = allocateReg();
             string resultReg = allocateReg();
 
-            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
 
-            global_string += tabs_str(tabs) + "li " + reg2 + "," + to_string(OFFSET) + "\n";
+            global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
-            global_string += tabs_str(tabs) + "mult " + reg + "," + reg2 + " \n";
-            global_string += tabs_str(tabs) + "mflo " + resultReg + " \n"; // scaling
+            global_string += "mult " + reg + "," + reg2 + " \n";
+            global_string += "mflo " + resultReg + " \n"; // scaling
             freeReg();
             freeReg();
 
@@ -165,11 +165,11 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         else
         {
             string reg = allocateReg();
-            global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
             return reg;
         }
         string reg = allocateReg();
-        global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+        global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
         return reg;
     }
     if (instanceof <operatorNode *>(op))
@@ -186,10 +186,10 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         if (t == type::ADDITION)
         {
             // return
-            string left = gen_float_op(op->left, tabs, map);
+            string left = gen_float_op(op->left, map);
 
-            string right = gen_float_op(op->right, tabs, map);
-            global_string += tabs_str(tabs) + "add " + resultReg + "," + left + ", " + right + " \n";
+            string right = gen_float_op(op->right, map);
+            global_string += "add " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
             return resultReg;
@@ -197,12 +197,12 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         if (t == type::SUBTRACT)
         {
             // return
-            string left = gen_float_op(op->left, tabs, map);
+            string left = gen_float_op(op->left, map);
             cout << "sub";
 
-            string right = gen_float_op(op->right, tabs, map);
+            string right = gen_float_op(op->right, map);
 
-            global_string += tabs_str(tabs) + "sub " + resultReg + "," + left + ", " + right + " \n";
+            global_string += "sub " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
             return resultReg;
@@ -210,10 +210,10 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         if (t == type::MULTIPLY)
         {
             // return
-            string left = gen_float_op(op->left, tabs, map);
-            string right = gen_float_op(op->right, tabs, map);
-            global_string += tabs_str(tabs) + "mult " + left + ", " + right + " \n";
-            global_string += tabs_str(tabs) + "mflo " + resultReg + " \n";
+            string left = gen_float_op(op->left, map);
+            string right = gen_float_op(op->right, map);
+            global_string += "mult " + left + ", " + right + " \n";
+            global_string += "mflo " + resultReg + " \n";
             freeReg();
             freeReg();
             return resultReg;
@@ -221,9 +221,9 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         if (t == type::DIVISION)
         {
             // return
-            string left = gen_float_op(op->left, tabs, map);
-            string right = gen_float_op(op->right, tabs, map);
-            global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
+            string left = gen_float_op(op->left, map);
+            string right = gen_float_op(op->right, map);
+            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
             return resultReg;
@@ -231,10 +231,10 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         if (t == type::MOD)
         {
 
-            string left = gen_float_op(op->left, tabs, map);
-            string right = gen_float_op(op->right, tabs, map);
-            global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
-            global_string += tabs_str(tabs) + "mfhi " + resultReg + "\n";
+            string left = gen_float_op(op->left, map);
+            string right = gen_float_op(op->right, map);
+            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
+            global_string += "mfhi " + resultReg + "\n";
             freeReg();
             freeReg();
             return resultReg;
@@ -244,7 +244,7 @@ string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map
         }
     }
 }
-string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
+string gen_integer_op(Node *op, map<string, Varaible *> &map)
 {
 
     if (op == nullptr)
@@ -259,7 +259,7 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         cout << "works in num \n";
 
         string reg = allocateReg();
-        global_string += tabs_str(tabs) + "li " + reg + "," + pd->num + "\n";
+        global_string += "li " + reg + "," + pd->num + "\n";
         return reg;
     }
     if (instanceof <FloatNode *>(op))
@@ -269,7 +269,7 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         float fixedpoint = (float)stoi(pd->num) / OFFSET;
         int fp2 = (int)fixedpoint;
         string num = to_string(fp2);
-        global_string += tabs_str(tabs) + "li " + reg + "," + num + "\n";
+        global_string += "li " + reg + "," + num + "\n";
         return reg;
     }
 
@@ -294,8 +294,8 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
                 string reg = allocateReg();
                 string resultReg = allocateReg();
 
-                global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-                global_string += tabs_str(tabs) + "div " + reg + "," + reg + ", " + to_string(OFFSET) + " \n"; // scaling. I forgot i worked on this lmao :')
+                global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                global_string += "div " + reg + "," + reg + ", " + to_string(OFFSET) + " \n"; // scaling. I forgot i worked on this lmao :')
 
                 freeReg();
                 return reg;
@@ -303,7 +303,7 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
             else
             {
                 string reg = allocateReg();
-                global_string += tabs_str(tabs) + "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
                 return reg;
             }
         }
@@ -322,9 +322,9 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         if (t == type::ADDITION)
         {
             // return
-            string left = gen_integer_op(op->left, tabs, map);
-            string right = gen_integer_op(op->right, tabs, map);
-            global_string += tabs_str(tabs) + "add " + resultReg + "," + left + ", " + right + " \n";
+            string left = gen_integer_op(op->left, map);
+            string right = gen_integer_op(op->right, map);
+            global_string += "add " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
             return resultReg;
@@ -332,9 +332,9 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         if (t == type::SUBTRACT)
         {
             // return
-            string left = gen_integer_op(op->left, tabs, map);
-            string right = gen_integer_op(op->right, tabs, map);
-            global_string += tabs_str(tabs) + "sub " + resultReg + "," + left + ", " + right + " \n";
+            string left = gen_integer_op(op->left, map);
+            string right = gen_integer_op(op->right, map);
+            global_string += "sub " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
             return resultReg;
@@ -342,10 +342,10 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         if (t == type::MULTIPLY)
         {
             // return
-            string left = gen_integer_op(op->left, tabs, map);
-            string right = gen_integer_op(op->right, tabs, map);
-            global_string += tabs_str(tabs) + "mult " + left + ", " + right + " \n";
-            global_string += tabs_str(tabs) + "mflo " + resultReg + " \n";
+            string left = gen_integer_op(op->left, map);
+            string right = gen_integer_op(op->right, map);
+            global_string += "mult " + left + ", " + right + " \n";
+            global_string += "mflo " + resultReg + " \n";
             freeReg();
             freeReg();
             return resultReg;
@@ -353,19 +353,19 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
         if (t == type::DIVISION)
         {
             // return
-            string left = gen_integer_op(op->left, tabs, map);
-            string right = gen_integer_op(op->right, tabs, map);
-            global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
+            string left = gen_integer_op(op->left, map);
+            string right = gen_integer_op(op->right, map);
+            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
             return resultReg;
         }
         if (t == type::MOD)
         {
-            string left = gen_integer_op(op->left, tabs, map);
-            string right = gen_integer_op(op->right, tabs, map);
-            global_string += tabs_str(tabs) + "div " + resultReg + "," + left + ", " + right + " \n";
-            global_string += tabs_str(tabs) + "mfhi " + resultReg + "\n";
+            string left = gen_integer_op(op->left, map);
+            string right = gen_integer_op(op->right, map);
+            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
+            global_string += "mfhi " + resultReg + "\n";
             freeReg();
             freeReg();
             return resultReg;
@@ -445,7 +445,6 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
         if (pd->op->id == type::BOOL_EQ)
         {
             string resultReg = allocateReg();
-            nOfBranch++;
             global_string += "bne " + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + " , L" + to_string(nOfBranch) + "\n";
             return "test";
         }
@@ -529,6 +528,125 @@ void gen_function(FunctionNode *function, map<string, Varaible *> &map)
 // {
 //     return (int)num / 6536;
 // }
+void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outfile)
+{
+    map<type, builtInFunction *> functions;
+
+    functions[type::PRINT] = new Print();
+    functions[type::EXIT] = new Exit();
+
+    if (instanceof <varaibleNode *>(statement))
+    {
+        varaibleNode *pd = dynamic_cast<varaibleNode *>(statement);
+        if (check_if_pureExpression(pd->expression) == 0)
+        {
+            Varaible *type1 = var[pd->varailbe->buffer];
+            if (type1 == nullptr)
+            {
+                return;
+            }
+            string allocr = allocateReg();
+            if (type1->varType->id == type::FLOAT)
+            {
+                float constantF = (constant_prop_float(pd->expression));
+                int work1 = (int)(constantF * OFFSET);
+                string a = "li " + allocr + "," + to_string(work1) + "\n";
+                wf(outfile, a);
+            }
+            else if (type1->varType->id == type::INT)
+            {
+                string a = "li " + allocr + "," + to_string(constant_prop_integer(pd->expression)) + "\n";
+                wf(outfile, a);
+            }
+            cout << pd->varailbe->buffer << endl;
+            cout << to_string(var[pd->varailbe->buffer]->stackNum) << endl;
+            cout << "hi \n";
+            string add = "sw " + allocr + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            wf(outfile, add);
+        }
+        else
+        {
+            Varaible *type1 = var[pd->varailbe->buffer];
+            if (type1 == nullptr)
+            {
+                return;
+            }
+            cout << "else \n";
+            string add = "";
+            if (type1->varType->id == type::FLOAT)
+            {
+                string reg = gen_float_op(pd->expression, var);
+                add += "sw " + reg + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            }
+            else
+            {
+                add = "sw " + gen_integer_op(pd->expression, var) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            }
+            cout << "string: " + global_string << endl;
+            wf(outfile, global_string);
+            global_string = "";
+            wf(outfile, add);
+        }
+        freeReg();
+    }
+    else if (instanceof <funcCallNode *>(statement))
+    {
+        funcCallNode *pd = dynamic_cast<funcCallNode *>(statement);
+        if (functions.find(pd->funcCall->id) != functions.end())
+        {
+            vector<Node *> para = pd->params;
+            builtInFunction *func = functions[pd->funcCall->id];
+            if (func != nullptr)
+            {
+                string gen_string = "";
+                func->setup_params(para, gen_string, var);
+                wf(outfile, gen_string);
+            }
+        }
+        else
+        {
+            // load params into register a and do the rest
+        }
+    }
+    else if (instanceof <IfSatementNode *>(statement))
+    {
+        global_string = "";
+        IfSatementNode *pd = dynamic_cast<IfSatementNode *>(statement);
+
+        handle_boolean(pd->condition, var);
+
+        wf(outfile, global_string);
+
+        global_string = "";
+        int c = 0;
+        for (int i = 0; i < pd->statements.size(); i++)
+        {
+
+            statementsGen(pd->statements[i], var, outfile); // write a new function for this T~T
+            if (instanceof <IfSatementNode *>(pd->statements[i]))
+            {
+                c = 1;
+            }
+            // if (instanceof <IfSatementNode *>(pd->statements[i]))
+            // {
+            //     global_string = "L" + to_string(nOfBranch) + ": \n";
+            //     wf(outfile, global_string);
+            //     nOfBranch++;
+            //     global_string = "";
+            // }
+        }
+
+        // handle statements this will be a recursive function later
+        if (c == 1)
+        {
+            global_string = "L" + to_string(nOfBranch) + ": \n";
+            wf(outfile, global_string);
+            nOfBranch++;
+        }
+        c = 0;
+        global_string = "";
+    }
+}
 /**
  * @brief
  *
@@ -575,142 +693,144 @@ void gen_mips_target(Node *op, string filename)
 
     vector<string> tab;
     addtabs(tab);
-    string setupstack = tabs_str(tab) + "addi $sp, $sp,-" + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
+    string setupstack = "addi $sp, $sp,-" + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
     wf(outfile, setupstack);
     for (int i = 0; i < state.size(); i++)
     {
-        // funcCallNode *pd2 = dynamic_cast<funcCallNode *>(state[i]);
+        statementsGen(state[i], map, outfile);
 
-        if (instanceof <varaibleNode *>(state[i]))
-        {
-            varaibleNode *pd = dynamic_cast<varaibleNode *>(state[i]);
-            // expression tree at its finest
-            cout << check_if_pureExpression(pd->expression) << endl;
-            if (check_if_pureExpression(pd->expression) == 0)
-            {
-                Varaible *type1 = map[pd->varailbe->buffer];
-                if (type1 == nullptr)
-                {
-                    return;
-                }
-                string allocr = allocateReg();
-                if (type1->varType->id == type::FLOAT)
-                {
-                    float constantF = (constant_prop_float(pd->expression));
-                    int work1 = (int)(constantF * OFFSET);
-                    string a = tabs_str(tab) + "li " + allocr + "," + to_string(work1) + "\n";
-                    wf(outfile, a);
-                }
-                else if (type1->varType->id == type::INT)
-                {
-                    string a = tabs_str(tab) + "li " + allocr + "," + to_string(constant_prop_integer(pd->expression)) + "\n";
-                    wf(outfile, a);
-                }
-                cout << pd->varailbe->buffer << endl;
-                cout << to_string(map[pd->varailbe->buffer]->stackNum) << endl;
-                cout << "hi \n";
-                string add = tabs_str(tab) + "sw " + allocr + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-                wf(outfile, add);
-            }
-            else
-            {
-                Varaible *type1 = map[pd->varailbe->buffer];
-                if (type1 == nullptr)
-                {
-                    return;
-                }
-                cout << "else \n";
-                string add = "";
-                if (type1->varType->id == type::FLOAT)
-                {
-                    string reg = gen_float_op(pd->expression, tab, map);
-                    add += tabs_str(tab) + "sw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-                }
-                else
-                {
-                    add = tabs_str(tab) + "sw " + gen_integer_op(pd->expression, tab, map) + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-                }
-                cout << "string: " + global_string << endl;
-                wf(outfile, global_string);
-                global_string = "";
-                wf(outfile, add);
-            }
-            freeReg();
-        }
-#pragma region function calls
-        else if (instanceof <funcCallNode *>(state[i]))
-        {
-            funcCallNode *pd = dynamic_cast<funcCallNode *>(state[i]);
-            if (functions.find(pd->funcCall->id) != functions.end())
-            {
-                vector<Node *> para = pd->params;
-                builtInFunction *func = functions[pd->funcCall->id];
-                if (func != nullptr)
-                {
-                    string gen_string = "";
-                    func->setup_params(para, gen_string, map);
-                    wf(outfile, gen_string);
-                }
+        //         // funcCallNode *pd2 = dynamic_cast<funcCallNode *>(state[i]);
 
-                // for (int i = 0; i < para.size(); i++)
-                // {
-                //     builtInFunction *func = functions[pd->funcCall->id];
+        //         if (instanceof <varaibleNode *>(state[i]))
+        //         {
+        //             varaibleNode *pd = dynamic_cast<varaibleNode *>(state[i]);
+        //             // expression tree at its finest
+        //             cout << check_if_pureExpression(pd->expression) << endl;
+        //             if (check_if_pureExpression(pd->expression) == 0)
+        //             {
+        //                 Varaible *type1 = map[pd->varailbe->buffer];
+        //                 if (type1 == nullptr)
+        //                 {
+        //                     return;
+        //                 }
+        //                 string allocr = allocateReg();
+        //                 if (type1->varType->id == type::FLOAT)
+        //                 {
+        //                     float constantF = (constant_prop_float(pd->expression));
+        //                     int work1 = (int)(constantF * OFFSET);
+        //                     string a = "li " + allocr + "," + to_string(work1) + "\n";
+        //                     wf(outfile, a);
+        //                 }
+        //                 else if (type1->varType->id == type::INT)
+        //                 {
+        //                     string a = "li " + allocr + "," + to_string(constant_prop_integer(pd->expression)) + "\n";
+        //                     wf(outfile, a);
+        //                 }
+        //                 cout << pd->varailbe->buffer << endl;
+        //                 cout << to_string(map[pd->varailbe->buffer]->stackNum) << endl;
+        //                 cout << "hi \n";
+        //                 string add = "sw " + allocr + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+        //                 wf(outfile, add);
+        //             }
+        //             else
+        //             {
+        //                 Varaible *type1 = map[pd->varailbe->buffer];
+        //                 if (type1 == nullptr)
+        //                 {
+        //                     return;
+        //                 }
+        //                 cout << "else \n";
+        //                 string add = "";
+        //                 if (type1->varType->id == type::FLOAT)
+        //                 {
+        //                     string reg = gen_float_op(pd->expression, map);
+        //                     add += "sw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+        //                 }
+        //                 else
+        //                 {
+        //                     add = "sw " + gen_integer_op(pd->expression, map) + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+        //                 }
+        //                 cout << "string: " + global_string << endl;
+        //                 wf(outfile, global_string);
+        //                 global_string = "";
+        //                 wf(outfile, add);
+        //             }
+        //             freeReg();
+        //         }
+        // #pragma region function calls
+        //         else if (instanceof <funcCallNode *>(state[i]))
+        //         {
+        //             funcCallNode *pd = dynamic_cast<funcCallNode *>(state[i]);
+        //             if (functions.find(pd->funcCall->id) != functions.end())
+        //             {
+        //                 vector<Node *> para = pd->params;
+        //                 builtInFunction *func = functions[pd->funcCall->id];
+        //                 if (func != nullptr)
+        //                 {
+        //                     string gen_string = "";
+        //                     func->setup_params(para, gen_string, map);
+        //                     wf(outfile, gen_string);
+        //                 }
 
-                //     string reg = "";
-                //     string gen_code = "";
-                //     if (check_if_pureExpression(para[i]) == 0)
-                //     {
-                //         reg = allocateReg();
-                //         string a = tabs_str(tab) + "li " + reg + "," + to_string(constant_prop_float(para[i])) + "\n";
-                //         wf(outfile, a);
-                //         func->execute_code_float(gen_code, reg);
+        //                 // for (int i = 0; i < para.size(); i++)
+        //                 // {
+        //                 //     builtInFunction *func = functions[pd->funcCall->id];
 
-                //         wf(outfile, gen_code);
-                //         // gen_code = "";
-                //     }
-                //     else
-                //     {
-                //         reg = gen_float_op(para[i], tab, map);
-                //         wf(outfile, global_string);
-                //         global_string = "";
+        //                 //     string reg = "";
+        //                 //     string gen_code = "";
+        //                 //     if (check_if_pureExpression(para[i]) == 0)
+        //                 //     {
+        //                 //         reg = allocateReg();
+        //                 //         string a = tabs_str(tab) + "li " + reg + "," + to_string(constant_prop_float(para[i])) + "\n";
+        //                 //         wf(outfile, a);
+        //                 //         func->execute_code_float(gen_code, reg);
 
-                //         // string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
-                //         func->execute_code_float(gen_code, reg);
-                //         wf(outfile, gen_code);
-                //         // gen_code = "";
-                //         // string add = tabs_str(tab) + "sw " + gen_opertors(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
-                //         // cout << "string: " + global_string << endl;
-                //         // wf(outfile, global_string);
-                //         // global_string = "";
-                //         // wf(outfile, add);
-                //     }
-                // }
-            }
+        //                 //         wf(outfile, gen_code);
+        //                 //         // gen_code = "";
+        //                 //     }
+        //                 //     else
+        //                 //     {
+        //                 //         reg = gen_float_op(para[i], tab, map);
+        //                 //         wf(outfile, global_string);
+        //                 //         global_string = "";
 
-            else
-            {
-            }
-#pragma endregion // function calls
-        }
-        else if (instanceof <IfSatementNode *>(state[i]))
-        {
-            // just treat it like "float expression"
-            cout << "if node" << endl;
-            global_string = "";
-            IfSatementNode *pd = dynamic_cast<IfSatementNode *>(state[i]);
+        //                 //         // string a = tabs_str(tab) + "li " + allocr + "," + to_string(solve(pd1->expression)) + "\n";
+        //                 //         func->execute_code_float(gen_code, reg);
+        //                 //         wf(outfile, gen_code);
+        //                 //         // gen_code = "";
+        //                 //         // string add = tabs_str(tab) + "sw " + gen_opertors(pd1->expression, tab, map) + "," + to_string(map[pd1->varailbe->buffer]) + "($sp) \n";
+        //                 //         // cout << "string: " + global_string << endl;
+        //                 //         // wf(outfile, global_string);
+        //                 //         // global_string = "";
+        //                 //         // wf(outfile, add);
+        //                 //     }
+        //                 // }
+        //             }
 
-            handle_boolean(pd->condition, map);
-            // handle statements this will be a recursive function later
-            global_string += "L" + to_string(nOfBranch) + ": \n";
-            wf(outfile, global_string);
-            global_string = "";
-        }
+        //             else
+        //             {
+        //             }
+        // #pragma endregion // function calls
+        //         }
+        //         else if (instanceof <IfSatementNode *>(state[i]))
+        //         {
+        //             // just treat it like "float expression"
+        //             cout << "if node" << endl;
+        //             global_string = "";
+        //             IfSatementNode *pd = dynamic_cast<IfSatementNode *>(state[i]);
+
+        //             handle_boolean(pd->condition, map);
+        //             // handle statements this will be a recursive function later
+        //             global_string += "L" + to_string(nOfBranch) + ": \n";
+        //             wf(outfile, global_string);
+        //             global_string = "";
+        //         }
     }
-    string exitStack = tabs_str(tab) + "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n" + tabs_str(tab) + "jr $ra \n";
+    string exitStack = "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n" + tabs_str(tab) + "jr $ra \n";
     wf(outfile, exitStack);
 #pragma endregion // iterate function
     // write everything in
-    string exitStuff = tabs_str(tab) + "li $v0, 10 \n" + tabs_str(tab) + "syscall # exited program pop into QtSpim and it should work";
+    string exitStuff = "li $v0, 10 \n syscall # exited program pop into QtSpim and it should work";
     wf(outfile, exitStuff);
     outfile.close();
 }

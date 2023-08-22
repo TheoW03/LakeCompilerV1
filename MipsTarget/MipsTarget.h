@@ -22,7 +22,6 @@ template <typename Base, typename T>
 T *cast_to(T *ptr);
 #endif
 
-
 #ifndef VARAIBLE_H
 #define VARAIBLE_H
 struct Varaible
@@ -34,9 +33,9 @@ struct Varaible
 
 void traverse(Node *node);
 void gen_mips_target(Node *op, string filename = "");
-string gen_opertors(Node *op, vector<string> &tabs, map<string, int> &map);
-string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map);
-string gen_float_op(Node *op, vector<string> &tabs, map<string, Varaible *> &map);
+string gen_opertors(Node *op, map<string, int> &map);
+string gen_integer_op(Node *op, map<string, Varaible *> &map);
+string gen_float_op(Node *op, map<string, Varaible *> &map);
 string allocateReg();
 void freeReg();
 void print_global();

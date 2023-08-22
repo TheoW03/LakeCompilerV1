@@ -65,23 +65,23 @@ float constant_prop_float(Node *op)
         type t = pd->token->id;
         if (t == type::ADDITION)
         {
-            return constant_prop_float(op->right) + constant_prop_float(op->left);
+            return constant_prop_float(op->left) + constant_prop_float(op->right);
         }
         if (t == type::SUBTRACT)
         {
-            return constant_prop_float(op->right) - constant_prop_float(op->left);
+            return constant_prop_float(op->left) - constant_prop_float(op->right);
         }
         if (t == type::MULTIPLY)
         {
-            return constant_prop_float(op->right) * constant_prop_float(op->left);
+            return constant_prop_float(op->left) * constant_prop_float(op->right);
         }
         if (t == type::DIVISION)
         {
-            return constant_prop_float(op->right) / constant_prop_float(op->left);
+            return constant_prop_float(op->left) / constant_prop_float(op->right);
         }
         if (t == type::MOD)
         {
-            return ((int)constant_prop_float(op->right) % (int)constant_prop_float(op->left));
+            return ((int)constant_prop_float(op->left) % (int)constant_prop_float(op->right));
         }
     }
 }
