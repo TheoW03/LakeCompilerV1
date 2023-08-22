@@ -31,7 +31,18 @@ struct VaraibleReference : public Node
     Node *expression;
     Tokens *varailbe;
 };
+struct BoolExpressionNode : public Node
+{
+    Node *right;
+    Node *left;
+    Tokens *op;
+};
+struct IfSatementNode : public Node
+{
 
+    BoolExpressionNode *condition;
+    vector<Node *> statements;
+};
 struct funcCallNode : public Node
 {
     Tokens *funcCall;

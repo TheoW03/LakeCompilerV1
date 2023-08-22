@@ -38,7 +38,8 @@ enum class type
     CHAR,
     MACRO,
     RETURN,
-    STRING_LITERAL
+    STRING_LITERAL,
+    BOOL_EQ
 };
 struct Tokens
 {
@@ -121,6 +122,8 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::MACRO] = "MACRO";
     dictionary[type::RETURN] = "RETURN";
     dictionary[type::STRING_LITERAL] = "STRING_LITERAL";
+    dictionary[type::BOOL_EQ] = "BOOL_EQ";
+    dictionary[type::IF] = "IF";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -146,7 +149,8 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["string"] = type::STRING;
     typeOfOP["#define"] = type::MACRO;
     typeOfOP["return"] = type::RETURN;
-    
+    typeOfOP["equals"] = type::BOOL_EQ;
+    typeOfOP["eq"] = type::BOOL_EQ;
 
 #pragma endregion
     int wordstate = 1;

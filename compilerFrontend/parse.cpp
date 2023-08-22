@@ -65,6 +65,19 @@ struct stringNode : public Node
 {
     string stringBuffer;
 };
+
+struct BoolExpressionNode : public Node
+{
+    Node *right;
+    Node *left;
+    Tokens *op;
+};
+struct IfSatementNode : public Node
+{
+
+    BoolExpressionNode *condition;
+    vector<Node *> statements;
+};
 struct VaraibleReference : public Node
 {
     Node *expression;
@@ -531,12 +544,41 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
     f1->params = vars;
     return f1;
 }
+Node *handleIfStatements(vector<Tokens> &tokens)
+{
+    BoolExpressionNode *a = new BoolExpressionNode;
+    matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
+    Node *right = factor(tokens);
+
+    Tokens *op = matchAndRemove(tokens, type::BOOL_EQ, "a");
+    Node *left = factor(tokens);
+
+    a->right = right;
+    a->left = left;
+    a->op = op;
+    IfSatementNode *ifStatement = new IfSatementNode;
+    ifStatement->condition = a;
+    matchAndRemove(tokens, type::CL_PARENTHISIS, "a");
+    matchAndRemove(tokens, type::BEGIN, "a");
+    vector<Node *> states;
+    RemoveEOLS(tokens);
+
+    while (matchAndRemove(tokens, type::END, "j") == nullptr)
+    {
+        RemoveEOLS(tokens);
+        states.push_back(handleSatements(tokens));
+        RemoveEOLS(tokens);
+    }
+    ifStatement->statements = states;
+    return ifStatement;
+}
 /**
  * @brief function stuff
  *
  * @param tokens
  * @return Node*
  */
+
 Node *handleSatements(vector<Tokens> &tokens)
 {
 #pragma region functionstate
@@ -559,9 +601,15 @@ Node *handleSatements(vector<Tokens> &tokens)
                 : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)  ? current
                 : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
                 : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
+                : (matchAndRemove(tokens, type::IF, "k") != nullptr)                  ? current
                                                                                       : nullptr;
+
     if (a != nullptr)
     {
+        if (a->id == type::IF)
+        {
+            return handleIfStatements(tokens);
+        }
         Node *var;
         if (a->id == type::WORD)
         {

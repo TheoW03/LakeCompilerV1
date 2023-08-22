@@ -77,5 +77,6 @@ void handle_cli(char *argv[], int argc)
 int main(int argc, char *argv[])
 {
     handle_cli(argv, argc);
+
     return 0;
 }

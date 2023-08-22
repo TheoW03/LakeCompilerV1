@@ -42,7 +42,8 @@ enum class type
     CHAR,
     MACRO,
     RETURN,
-    STRING_LITERAL
+    STRING_LITERAL,
+    BOOL_EQ
 };
 #endif // TYPE
 

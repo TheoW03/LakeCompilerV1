@@ -12,6 +12,7 @@
 #include "../MipsTarget/builtInFunction.h"
 
 namespace fs = std::filesystem;
+using namespace std;
 
 #define OFFSET_HEXA 0x10000
 
@@ -33,7 +34,6 @@ Node::~Node()
 {
     // implementation of the destructor goes here
 }
-using namespace std;
 
 // struct Varaible
 // {
@@ -379,6 +379,81 @@ string gen_integer_op(Node *op, vector<string> &tabs, map<string, Varaible *> &m
 }
 #pragma endregion
 
+int nOfBranch = 0;
+string handle_boolean(Node *op, map<string, Varaible *> map)
+{
+    if (op == nullptr)
+    {
+
+        return "";
+        // c++ moment. casually coding and bam "cout is ambigous " T~T
+    }
+    if (instanceof <IntegerNode *>(op))
+    {
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+        cout << "works in num \n";
+        string reg = allocateReg();
+        int num = stoi(pd->num) * OFFSET;
+        global_string += "li " + reg + "," + to_string(num) + "\n";
+        return reg;
+    }
+    if (instanceof <FloatNode *>(op))
+    {
+        FloatNode *pd = dynamic_cast<FloatNode *>(op);
+        string reg = allocateReg();
+        global_string += "li " + reg + "," + pd->num + "\n";
+        return reg;
+    }
+
+    // varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
+    if (instanceof <varaibleNode *>(op))
+    {
+
+        varaibleNode *pd = dynamic_cast<varaibleNode *>(op);
+        // type a = map[pd1->varailbe->buffer]->varType->id;
+        if (map[pd->varailbe->buffer]->varType->id == type::INT)
+        {
+
+            string reg = allocateReg();
+            string reg2 = allocateReg();
+            string resultReg = allocateReg();
+
+            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+
+            global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
+
+            global_string += "mult " + reg + "," + reg2 + " \n";
+            global_string += "mflo " + resultReg + " \n"; // scaling
+            freeReg();
+            freeReg();
+
+            return resultReg;
+        }
+        else
+        {
+            string reg = allocateReg();
+            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            return reg;
+        }
+        string reg = allocateReg();
+        global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+        return reg;
+    }
+    if (instanceof <BoolExpressionNode *>(op))
+    {
+        BoolExpressionNode *pd = dynamic_cast<BoolExpressionNode *>(op);
+        if (pd->op->id == type::BOOL_EQ)
+        {
+            string resultReg = allocateReg();
+            nOfBranch++;
+            global_string += "bne " + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + " , L" + to_string(nOfBranch) + "\n";
+            return "test";
+        }
+    }
+
+    // may save for later. its getting late lol
+}
+
 void print_global()
 {
     cout << global_string << endl;
@@ -468,6 +543,7 @@ void gen_function(FunctionNode *function, map<string, Varaible *> &map)
  */
 void gen_mips_target(Node *op, string filename)
 {
+    cout << "a";
     map<string, Node *> vars;
     map<type, builtInFunction *> functions;
 
@@ -573,7 +649,7 @@ void gen_mips_target(Node *op, string filename)
                 {
                     string gen_string = "";
                     func->setup_params(para, gen_string, map);
-                    wf(outfile,gen_string);
+                    wf(outfile, gen_string);
                 }
 
                 // for (int i = 0; i < para.size(); i++)
@@ -610,10 +686,24 @@ void gen_mips_target(Node *op, string filename)
                 //     }
                 // }
             }
+
             else
             {
             }
 #pragma endregion // function calls
+        }
+        else if (instanceof <IfSatementNode *>(state[i]))
+        {
+            // just treat it like "float expression"
+            cout << "if node" << endl;
+            global_string = "";
+            IfSatementNode *pd = dynamic_cast<IfSatementNode *>(state[i]);
+
+            handle_boolean(pd->condition, map);
+            // handle statements this will be a recursive function later
+            global_string += "L" + to_string(nOfBranch) + ": \n";
+            wf(outfile, global_string);
+            global_string = "";
         }
     }
     string exitStack = tabs_str(tab) + "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n" + tabs_str(tab) + "jr $ra \n";
