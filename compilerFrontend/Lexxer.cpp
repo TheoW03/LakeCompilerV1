@@ -41,7 +41,11 @@ enum class type
     STRING_LITERAL,
     BOOL_EQ,
     TRUE,
-    FALSE
+    FALSE,
+    LT,
+    GT,
+    LTE,
+    GTE
 };
 struct Tokens
 {
@@ -82,16 +86,6 @@ void modifyStruct(Tokens &token, type enumType1, map<type, string> dictionary1, 
     token.dictionary = dictionary1;
 }
 
-vector<Tokens> lex2(vector<string> lines)
-{
-}
-void is_operator(vector<Tokens> &tokens, vector<string> lines)
-{
-}
-void is_number(vector<Tokens> &tokens, vector<string> lines)
-{
-}
-
 vector<Tokens> lex(vector<string> lines)
 {
 
@@ -128,6 +122,10 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::IF] = "IF";
     dictionary[type::TRUE] = "TRUE";
     dictionary[type::FALSE] = "FALSE";
+    dictionary[type::GT] = "GT";
+    dictionary[type::LT] = "LT";
+    dictionary[type::GTE] = "GTE";
+    dictionary[type::LTE] = "LTE";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -154,7 +152,13 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["#define"] = type::MACRO;
     typeOfOP["return"] = type::RETURN;
     typeOfOP["equals"] = type::BOOL_EQ;
-    typeOfOP["eq"] = type::BOOL_EQ;
+    typeOfOP["=="] = type::BOOL_EQ;
+    typeOfOP["<="] = type::LTE;
+    typeOfOP[">="] = type::GTE;
+    typeOfOP[">"] = type::GT;
+    typeOfOP["<"] = type::LT;
+
+    typeOfOP["="] = type::EQUALS;
     typeOfOP["true"] = type::TRUE;
     typeOfOP["false"] = type::FALSE;
 
@@ -235,12 +239,28 @@ vector<Tokens> lex(vector<string> lines)
 
                 if (stateIsNum == 1)
                 {
+
+                    cout << str << endl;
+
                     if (wordBuffer != "")
                     {
-                        modifyStruct(token, (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer] : type::WORD, dictionary, wordBuffer);
-                        a.push_back(token);
-                        wordBuffer = "";
+
+                        if (wordBuffer == "=")
+                        {
+                            modifyStruct(token, type::EQUALS, dictionary, wordBuffer);
+                            a.push_back(token);
+                            wordBuffer = "";
+                        }
+                        else
+                        {
+                            modifyStruct(token, (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer] : type::WORD, dictionary, wordBuffer);
+
+                            a.push_back(token);
+                            wordBuffer = "";
+                        }
                     }
+                    wordstate = 1;
+
 #pragma region num
 
                     // 1-9
@@ -406,9 +426,21 @@ vector<Tokens> lex(vector<string> lines)
                     }
                     if (wordstate == 1)
                     {
+                        cout << "state == 1" << endl;
+                        if (str == "=" || str == ">" || str == "<")
+                        {
+                            wordstate = 2;
+                            if (wordBuffer != "")
+                            {
+                                modifyStruct(token, (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer] : type::WORD, dictionary, wordBuffer);
+                                a.push_back(token);
+                                wordBuffer = "";
+                            }
 
-                        // seperator chars
-                        if (str == "=" || str == "," || str == "}" || str == "{" || str == ";" || regex_search(str, myMatch, opRegex) || str == "-")
+                            wordBuffer += str;
+                            stateIsNum = 1;
+                        }
+                        else if (str == "," || str == "}" || str == "{" || str == ";" || regex_search(str, myMatch, opRegex) || str == "-")
                         {
                             if (wordBuffer != "")
                             {
@@ -418,12 +450,11 @@ vector<Tokens> lex(vector<string> lines)
                                 wordBuffer = "";
                             }
                             wordBuffer += str;
-                            modifyStruct(token, (wordBuffer == "=") ? type::EQUALS : (wordBuffer == ",")                         ? type::COMMA
-                                                                                 : (wordBuffer == "{")                           ? type::BEGIN
-                                                                                 : (wordBuffer == "}")                           ? type::END
-                                                                                 : (wordBuffer == ";")                           ? type::END_OF_LINE
-                                                                                 : (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer]
-                                                                                                                                 : type::WORD,
+                            modifyStruct(token, (wordBuffer == ",") ? type::COMMA : (wordBuffer == "{")                         ? type::BEGIN
+                                                                                : (wordBuffer == "}")                           ? type::END
+                                                                                : (wordBuffer == ";")                           ? type::END_OF_LINE
+                                                                                : (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer]
+                                                                                                                                : type::WORD,
                                          dictionary, wordBuffer);
                             a.push_back(token);
                             // cout << "equals" << endl;
@@ -435,8 +466,63 @@ vector<Tokens> lex(vector<string> lines)
                             wordBuffer += str;
                         }
                     }
-                    else
+                    else if (wordstate == 2)
                     {
+                        if (str == "=")
+                        {
+                            if (wordBuffer == "<")
+                            {
+                                wordBuffer += str;
+                                cout << wordBuffer << endl;
+                                modifyStruct(token, type::LTE, dictionary, wordBuffer);
+                                a.push_back(token);
+                                wordBuffer = "";
+                                stateIsNum = 1;
+                                wordstate = 1;
+                            }
+                            else if (wordBuffer == ">")
+                            {
+                                wordBuffer += str;
+                                cout << wordBuffer << endl;
+                                modifyStruct(token, type::GTE, dictionary, wordBuffer);
+                                a.push_back(token);
+                                wordBuffer = "";
+                                stateIsNum = 1;
+                                wordstate = 1;
+                            }
+                            else
+                            {
+                                wordBuffer += str;
+                                cout << wordBuffer << endl;
+                                modifyStruct(token, type::BOOL_EQ, dictionary, wordBuffer);
+                                a.push_back(token);
+                                wordBuffer = "";
+                                stateIsNum = 1;
+                                wordstate = 1;
+                            }
+                        }
+                        else
+                        {
+                            cout << "word: " << wordBuffer << endl;
+
+                            if (wordBuffer != "")
+                            {
+                                cout << "word: " << wordBuffer << endl;
+
+                                modifyStruct(token, type::EQUALS, dictionary, wordBuffer);
+                                wordBuffer = "";
+                                a.push_back(token);
+                            }
+
+                            wordBuffer += str;
+                            cout << "buffer" << str << endl;
+                            modifyStruct(token, (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer] : type::WORD, dictionary, wordBuffer);
+                            wordBuffer = "";
+                            a.push_back(token);
+                            wordstate = 1;
+                            stateIsNum = 1;
+                        }
+
                         // cout << "word state != 1 \n";
                     }
                 }

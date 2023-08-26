@@ -1,16 +1,15 @@
 function main(string args){
-    float a = 9/8;
-    float b = 9/5;
-    if(a eq b){
-        a = a + 1;
-        b = b + 1;
-        if(a eq b){
-            if(a eq b){
-                b = 10;
-                print("%f",b);
-             }
-            print("%f",b);
-        }    
+    float a = 20;
+    float b = 10;
+    if(a > b){
+        a = 21;
+        b = 20;
+        if(a <= b){
+            b = 0;
+            if(b == 0){
+                b = 1;
+            }
+        }
     }
-    print("%f",b);
+    print("%f", b);
 }
