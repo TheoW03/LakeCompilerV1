@@ -76,8 +76,8 @@ void handle_cli(char *argv[], int argc)
 }
 int main(int argc, char *argv[])
 {
-    // handle_cli(argv, argc);
-    vector<Tokens> a = lex(readFile("test.txt"));
-    Node *c = functionParse(a);
-    return 0;
+    handle_cli(argv, argc);
+    // vector<Tokens> a = lex(readFile("test.txt"));
+    // Node *c = functionParse(a);
+    // return 0;
 }

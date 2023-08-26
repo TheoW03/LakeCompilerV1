@@ -433,11 +433,46 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
             string resultReg = allocateReg();
             global_string += "bne " + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + " , L" + to_string(nOfBranch) + "\n";
             global_string += "nop \n";
-            return "test";
+            return "";
+        }
+        if (pd->op->id == type::GT)
+        {
+            string resultReg = allocateReg();
+            global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
+            global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+            global_string += "nop \n";
+            return "";
+        }
+        if (pd->op->id == type::LT)
+        {
+            string resultReg = allocateReg();
+            global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
+            global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+            global_string += "nop \n";
+            return "";
+        }
+        if (pd->op->id == type::LTE)
+        {
+            string resultReg = allocateReg();
+            //=
+            global_string += "slt " + resultReg + "," + handle_boolean(pd->left, map) + " ," + handle_boolean(pd->right, map) + "\n";
+            global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+            global_string += "nop \n";
+
+            return "";
+        }
+        if (pd->op->id == type::GTE)
+        {
+            string resultReg = allocateReg();
+
+            //<
+            global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
+            global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+            global_string += "nop \n";
+
+            return "";
         }
     }
-
-    // may save for later. its getting late lol
 }
 
 void print_global()
@@ -608,7 +643,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
         wf(outfile, global_string);
 
         global_string = "";
-        int c = 0;
+        int c = 1;
 
         for (int i = 0; i < pd->statements.size(); i++)
         {
