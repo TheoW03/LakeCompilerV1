@@ -45,7 +45,11 @@ enum class type
     STRING_LITERAL,
     BOOL_EQ,
     TRUE,
-    FALSE
+    FALSE,
+    LT,
+    GT,
+    LTE,
+    GTE
 };
 #endif // TYPE
 

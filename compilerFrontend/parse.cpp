@@ -550,7 +550,12 @@ Node *handleIfStatements(vector<Tokens> &tokens)
     matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
     Node *right = factor(tokens);
 
-    Tokens *op = matchAndRemove(tokens, type::BOOL_EQ, "a");
+    Tokens *op = (matchAndRemove(tokens, type::BOOL_EQ, "parsefunctions") != nullptr) ? current
+                 : (matchAndRemove(tokens, type::LTE, "parsefunctions") != nullptr)   ? current
+                 : (matchAndRemove(tokens, type::GTE, "parsefunctions") != nullptr)   ? current
+                 : (matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)    ? current
+                 : (matchAndRemove(tokens, type::LT, "parseFunctions") != nullptr)    ? current
+                                                                                      : nullptr;
     Node *left = factor(tokens);
 
     a->right = right;

@@ -78,6 +78,6 @@ int main(int argc, char *argv[])
 {
     // handle_cli(argv, argc);
     vector<Tokens> a = lex(readFile("test.txt"));
-    printList(a);
+    Node *c = functionParse(a);
     return 0;
 }

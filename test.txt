@@ -1,0 +1,16 @@
+function main(string args){
+    float a = 9/8;
+    float b = 9/5;
+    if(a == b){
+        a = a + 1;
+        b = b + 1;
+        if(a == b){
+            if(a == b){
+                b = 10;
+                print("%f",b);
+             }
+            print("%f",b);
+        }    
+    }
+    print("%f",b);
+}

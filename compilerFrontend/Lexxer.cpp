@@ -426,7 +426,8 @@ vector<Tokens> lex(vector<string> lines)
                     }
                     if (wordstate == 1)
                     {
-                        if (str == "=")
+                        cout << "state == 1" << endl;
+                        if (str == "=" || str == ">" || str == "<")
                         {
                             wordstate = 2;
                             if (wordBuffer != "")
@@ -469,13 +470,36 @@ vector<Tokens> lex(vector<string> lines)
                     {
                         if (str == "=")
                         {
-                            wordBuffer += str;
-                            cout << wordBuffer << endl;
-                            modifyStruct(token, type::BOOL_EQ, dictionary, wordBuffer);
-                            a.push_back(token);
-                            wordBuffer = "";
-                            stateIsNum = 1;
-                            wordstate = 1;
+                            if (wordBuffer == "<")
+                            {
+                                wordBuffer += str;
+                                cout << wordBuffer << endl;
+                                modifyStruct(token, type::LTE, dictionary, wordBuffer);
+                                a.push_back(token);
+                                wordBuffer = "";
+                                stateIsNum = 1;
+                                wordstate = 1;
+                            }
+                            else if (wordBuffer == ">")
+                            {
+                                wordBuffer += str;
+                                cout << wordBuffer << endl;
+                                modifyStruct(token, type::GTE, dictionary, wordBuffer);
+                                a.push_back(token);
+                                wordBuffer = "";
+                                stateIsNum = 1;
+                                wordstate = 1;
+                            }
+                            else
+                            {
+                                wordBuffer += str;
+                                cout << wordBuffer << endl;
+                                modifyStruct(token, type::BOOL_EQ, dictionary, wordBuffer);
+                                a.push_back(token);
+                                wordBuffer = "";
+                                stateIsNum = 1;
+                                wordstate = 1;
+                            }
                         }
                         else
                         {
