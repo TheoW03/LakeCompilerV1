@@ -2,7 +2,7 @@ function main(string args){
     float a = 20;
     float b = 10;
     if(a > b){
-        a = 21;
+        a = 20;
         b = 20;
         if(a <= b){
             b = 0;
