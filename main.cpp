@@ -77,17 +77,17 @@ void handle_cli(char *argv[], int argc)
 }
 int main(int argc, char *argv[])
 {
-    // handle_cli(argv, argc);
+    handle_cli(argv, argc);
     
     //ARM finally 
 
 
-    vector<Tokens> a = lex(readFile("test.txt"));
-    Node *c = testExpressionParse(a);
-    gen_ARM_target(c);
+    // vector<Tokens> a = lex(readFile("test.txt"));
+    // Node *c = testExpressionParse(a);
+    // gen_ARM_target(c);
 
 
-    
+
     
     // return 0;
 }
