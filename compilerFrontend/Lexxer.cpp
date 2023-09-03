@@ -45,7 +45,8 @@ enum class type
     LT,
     GT,
     LTE,
-    GTE
+    GTE,
+    BOOL
 };
 struct Tokens
 {
@@ -126,6 +127,8 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::LT] = "LT";
     dictionary[type::GTE] = "GTE";
     dictionary[type::LTE] = "LTE";
+    dictionary[type::BOOL] = "BOOL";
+    
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -161,6 +164,7 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["="] = type::EQUALS;
     typeOfOP["true"] = type::TRUE;
     typeOfOP["false"] = type::FALSE;
+    typeOfOP["bool"] = type::BOOL;
 
 #pragma endregion
     int wordstate = 1;
@@ -516,9 +520,9 @@ vector<Tokens> lex(vector<string> lines)
 
                             wordBuffer += str;
                             cout << "buffer" << str << endl;
-                            modifyStruct(token, (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer] : type::WORD, dictionary, wordBuffer);
-                            wordBuffer = "";
-                            a.push_back(token);
+                            // modifyStruct(token, (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer] : type::WORD, dictionary, wordBuffer);
+                            // wordBuffer = "";
+                            // a.push_back(token);
                             wordstate = 1;
                             stateIsNum = 1;
                         }

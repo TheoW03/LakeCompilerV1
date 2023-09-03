@@ -163,7 +163,7 @@ string gen_float_op(Node *op, map<string, Varaible *> &map)
         cout << "is in op node \n";
         operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
         type t = pd->token->id;
-        
+
         string resultReg = allocateReg();
         if (t == type::ADDITION)
         {
@@ -386,7 +386,21 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
         global_string += "li " + reg + "," + pd->num + "\n";
         return reg;
     }
-
+    if (instanceof <BooleanLiteralNode *>(op))
+    {
+        BooleanLiteralNode *pd = dynamic_cast<BooleanLiteralNode *>(op);
+        string reg = allocateReg();
+        if (pd->value->id == type::TRUE)
+        {
+            global_string += "li " + reg + ", 1 \n";
+        }
+        else
+        {
+            global_string += "li " + reg + ", 0 \n";
+        }
+        // global_string += "li " + reg + "," + pd->num + "\n";
+        return reg;
+    }
     // varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
     if (instanceof <varaibleNode *>(op))
     {
@@ -433,6 +447,10 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
         }
         if (pd->op->id == type::GT)
         {
+            if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
+            {
+                return "";
+            }
             string resultReg = allocateReg();
             global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
             global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
@@ -441,6 +459,10 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
         }
         if (pd->op->id == type::LT)
         {
+            if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
+            {
+                return "";
+            }
             string resultReg = allocateReg();
             global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
             global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
@@ -449,6 +471,10 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
         }
         if (pd->op->id == type::LTE)
         {
+            if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
+            {
+                return "";
+            }
             string resultReg = allocateReg();
             //=
             global_string += "slt " + resultReg + "," + handle_boolean(pd->left, map) + " ," + handle_boolean(pd->right, map) + "\n";
@@ -459,6 +485,7 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
         }
         if (pd->op->id == type::GTE)
         {
+
             string resultReg = allocateReg();
 
             //<
@@ -576,6 +603,11 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
                 string a = "li " + allocr + "," + to_string(constant_prop_integer(pd->expression)) + "\n";
                 wf(outfile, a);
             }
+            else
+            {
+                string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression))+ " \n";
+                wf(outfile, a);
+            }
             cout << pd->varailbe->buffer << endl;
             cout << to_string(var[pd->varailbe->buffer]->stackNum) << endl;
             cout << "hi \n";
@@ -596,10 +628,15 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
                 string reg = gen_float_op(pd->expression, var);
                 add += "sw " + reg + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
             }
-            else
+            else if (type1->varType->id == type::INT)
             {
                 add = "sw " + gen_integer_op(pd->expression, var) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
             }
+            else
+            {
+                add = "sw " + handle_boolean(pd->expression, var) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            }
+
             cout << "string: " + global_string << endl;
             wf(outfile, global_string);
             global_string = "";

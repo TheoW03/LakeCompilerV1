@@ -39,7 +39,27 @@ int check_if_pureExpression(Node *op)
         check_if_pureExpression(op->right);
     }
 }
+int constant_prop_boolean(Node *op)
+{
+    if (op == nullptr)
+    {
+        return 0;
+    }
+    if (instanceof <BooleanLiteralNode *>(op))
+    {
+        BooleanLiteralNode *pd = dynamic_cast<BooleanLiteralNode *>(op);
 
+        if (pd->value->id == type::TRUE)
+        {
+            cout << "true" << endl;
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+}
 float constant_prop_float(Node *op)
 {
     if (op == nullptr)

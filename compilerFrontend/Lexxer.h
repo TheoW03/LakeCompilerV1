@@ -49,7 +49,8 @@ enum class type
     LT,
     GT,
     LTE,
-    GTE
+    GTE,
+    BOOL
 };
 #endif // TYPE
 

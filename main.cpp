@@ -72,22 +72,21 @@ void handle_cli(char *argv[], int argc)
     }
 
     gen_mips_target(c, file1);
-    
+
     cout << "compiled sucessfully" << endl;
 }
 int main(int argc, char *argv[])
 {
     handle_cli(argv, argc);
-    
-    //ARM finally 
 
+    // ARM finally
 
     // vector<Tokens> a = lex(readFile("test.txt"));
+    // printList(a);
+    // Node *c = functionParse(a);
+
     // Node *c = testExpressionParse(a);
     // gen_ARM_target(c);
 
-
-
-    
     // return 0;
 }

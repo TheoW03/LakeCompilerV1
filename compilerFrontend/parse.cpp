@@ -65,18 +65,27 @@ struct stringNode : public Node
 {
     string stringBuffer;
 };
-
+struct BooleanLiteralNode : public Node
+{
+    Tokens *value;
+};
 struct BoolExpressionNode : public Node
 {
     Node *right;
     Node *left;
     Tokens *op;
 };
+struct ElseNode : public Node
+{
+
+    vector<Node *> statements;
+};
 struct IfSatementNode : public Node
 {
 
     BoolExpressionNode *condition;
     vector<Node *> statements;
+    ElseNode *Else;
 };
 struct VaraibleReference : public Node
 {
@@ -98,6 +107,7 @@ struct StatementNode : public Node
     struct Node *expression;
     struct Tokens *nameOfVar;
 };
+
 /**
  * @brief calls
  * print();
@@ -199,6 +209,15 @@ Node *factor(vector<Tokens> &tokens)
     if (a == nullptr)
     {
         a = matchAndRemove(tokens, type::STRING_LITERAL, "factor");
+    }
+    if (a == nullptr)
+    {
+        a = matchAndRemove(tokens, type::TRUE, "factor")    ? current
+            : matchAndRemove(tokens, type::FALSE, "factor") ? current
+                                                            : nullptr;
+        BooleanLiteralNode *boolean = new BooleanLiteralNode;
+        boolean->value = a;
+        return boolean;
     }
     type id;
     if (a != nullptr)
@@ -410,7 +429,9 @@ Node *handleFunctions(vector<Tokens> &tokens)
                           : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)  ? current
                           : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
                           : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
-                                                                                                : nullptr;
+                          : (matchAndRemove(tokens, type::BOOL, "parseFunctions") != nullptr)   ? current
+
+                                                                                              : nullptr;
         Tokens *word = matchAndRemove(tokens, type::WORD, "handlefunctions");
 
         matchAndRemove(tokens, type::COMMA, "handlefunctions");
@@ -601,10 +622,11 @@ Node *handleSatements(vector<Tokens> &tokens)
     }
 #pragma endregion
 #pragma region varstates
-    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)     ? current
-                : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr)    ? current
-                : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)  ? current
-                : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
+    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)    ? current
+                : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr)   ? current
+                : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr) ? current
+                : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)   ? current
+                : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)   ? current
                 : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
                 : (matchAndRemove(tokens, type::IF, "k") != nullptr)                  ? current
                                                                                       : nullptr;
@@ -624,7 +646,7 @@ Node *handleSatements(vector<Tokens> &tokens)
             }
             var = parseVar(tokens, a, nullptr);
         }
-        else if (a->id == type::VAR || a->id == type::INT || a->id == type::FLOAT || a->id == type::STRING)
+        else if (a->id == type::VAR || a->id == type::INT || a->id == type::FLOAT || a->id == type::STRING || a->id == type::BOOL)
         {
             var = parseVar(tokens, nullptr, a);
         }

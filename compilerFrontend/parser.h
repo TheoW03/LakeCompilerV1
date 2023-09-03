@@ -37,19 +37,26 @@ struct BoolExpressionNode : public Node
     Node *left;
     Tokens *op;
 };
+struct BooleanLiteralNode : public Node
+{
+    Tokens *value;
+};
+struct ElseNode : public Node
+{
+
+    vector<Node *> statements;
+};
 struct IfSatementNode : public Node
 {
 
     BoolExpressionNode *condition;
     vector<Node *> statements;
+    ElseNode *Else;
 };
 struct funcCallNode : public Node
 {
     Tokens *funcCall;
     vector<Node *> params;
-};
-struct NullStruct : public Node
-{
 };
 
 struct NumNode : public Node

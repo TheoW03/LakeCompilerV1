@@ -1,1 +1,9 @@
-1-1+10
+function main(string args){
+    bool a = true;
+    bool b = true;
+    if(a == b){
+        print("%n",20);
+    }
+
+
+}
