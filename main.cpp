@@ -72,6 +72,7 @@ void handle_cli(char *argv[], int argc)
     }
 
     gen_mips_target(c, file1);
+    
     cout << "compiled sucessfully" << endl;
 }
 int main(int argc, char *argv[])
