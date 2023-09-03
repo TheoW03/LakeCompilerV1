@@ -81,10 +81,13 @@ int main(int argc, char *argv[])
     
     //ARM finally 
 
-    
+
     vector<Tokens> a = lex(readFile("test.txt"));
     Node *c = testExpressionParse(a);
     gen_ARM_target(c);
+
+
+    
     
     // return 0;
 }
