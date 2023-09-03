@@ -8,8 +8,7 @@
 #include "../compilerFrontend/parser.h"
 using namespace std;
 
-string allocate_register();
-void freeRegister();
-string gen_opertorsx86(Node *op, vector<string> &tabs);
-void gen_x86_target(Node *op, string filename = "");
-void wfx86(ofstream &outfile, string word);
+
+string gen_ARM_operators(Node *op);
+void wfARM(ofstream &outfile, string word);
+void gen_ARM_target(Node *op, string filename = "");

@@ -1,15 +1,1 @@
-function main(string args){
-    float a = 20;
-    float b = 10;
-    if(a > b){
-        a = 21;
-        b = 20;
-        if(a <= b){
-            b = 0;
-            if(b == 0){
-                b = 1;
-            }
-        }
-    }
-    print("%f", b);
-}
+1-1+10

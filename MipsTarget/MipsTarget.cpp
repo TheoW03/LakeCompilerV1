@@ -162,12 +162,8 @@ string gen_float_op(Node *op, map<string, Varaible *> &map)
     {
         cout << "is in op node \n";
         operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
-        type t;
-        if (pd->token != nullptr)
-        {
-            t = pd->token->id;
-            cout << "token op: " + pd->token->buffer << endl;
-        }
+        type t = pd->token->id;
+        
         string resultReg = allocateReg();
         if (t == type::ADDITION)
         {

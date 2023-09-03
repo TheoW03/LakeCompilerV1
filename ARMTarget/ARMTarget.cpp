@@ -13,135 +13,123 @@
 
 #include "../compilerFrontend/Lexxer.h"
 #include "../compilerFrontend/parser.h"
-
+#include "../MipsTarget/MipsTarget.h"
 using namespace std;
 namespace fs = std::filesystem;
 
-string global_string1 = "";
 
 int currentRegister = -1;
 string allocate_register()
 {
+
+    if (currentRegister >= 9)
+    {
+        currentRegister = -1;
+    }
     currentRegister++;
-    if (currentRegister > 3)
+    return "R" + to_string(currentRegister);
+}
+void free_reg()
+{
+
+    currentRegister--;
+    if (currentRegister < 0)
     {
         currentRegister = 0;
     }
-    cout << "add: ";
-    cout << to_string(currentRegister) << endl;
-    string registers[] = {"eax", "ebx", "ecx", "edx"};
-
-    global_string1 += "xor " + registers[currentRegister] + "," + registers[currentRegister] + "\n";
-    return registers[currentRegister];
 }
-void freeRegister()
-{
-    string registers[] = {"eax", "ebx", "ecx", "edx"};
-    int b = currentRegister;
-    if (b < 0)
-    {
-        b = 0;
-    }
-    global_string1 += "xor " + registers[b] + "," + registers[b] + "\n";
-    currentRegister--;\
-    if (currentRegister < 0)
-    {
-
-        currentRegister = -1;
-    }
-    cout << "this is from freereg";
-
-    cout << "free: " + to_string(currentRegister) << endl;
-}
-string gen_opertorsx86(Node *op, vector<string> &tabs)
+string global_string1 = "";
+string gen_ARM_operators(Node *op)
 {
     if (op == nullptr)
     {
         return "";
     }
-    if (op == nullptr)
+    if (instanceof <IntegerNode *>(op))
     {
-        cout << "null \n";
-        return "";
-    }
-    // mem errro :')
-    NumNode *pd;
-    if ((pd = dynamic_cast<NumNode *>(op)) != nullptr)
-    {
-        cout << "works in num \n";
+        string allocateReg = allocate_register();
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+        global_string1 += "MOV " + allocateReg + ", " + pd->num+ "\n";
 
-        string reg = allocate_register();
-        global_string1 += "mov " + reg + "," + pd->num + "\n";
-        return reg;
+        return allocateReg;
     }
-    if (dynamic_cast<operatorNode *>(op) != nullptr)
+    if (instanceof <operatorNode *>(op))
     {
-        cout << "is in op node \n";
-        operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
-        type t;
-        if (pd->token != nullptr)
-        {
-            t = pd->token->id;
-            cout << "token op: " + pd->token->buffer << endl;
-        }
+        operatorNode *pd = dynamic_cast<operatorNode *>(op);
+        type t = pd->token->id;
         string resultReg = allocate_register();
         if (t == type::ADDITION)
         {
-            // return
-            string left = gen_opertorsx86(op->left, tabs);
-            string right = gen_opertorsx86(op->right, tabs);
-            if (resultReg == left)
-            {
-                left = "0";
-            }
-            global_string1 += "add " + resultReg + "," + left + "\n";
-            if (resultReg == right)
-            {
-                right = "0";
-            }
-            global_string1 += "add " + resultReg + "," + right + "\n";
-            freeRegister();
-            freeRegister();
+            string left = gen_ARM_operators(op->left);
+
+            string right = gen_ARM_operators(op->right);
+            global_string1 += "ADD " + resultReg + "," + left + ", " + right + " \n";
+            free_reg();
+            free_reg();
+            return resultReg;
+        }
+        if (t == type::SUBTRACT)
+        {
+            string left = gen_ARM_operators(op->left);
+
+            string right = gen_ARM_operators(op->right);
+            global_string1 += "SUB " + resultReg + "," + left + ", " + right + " \n";
+            free_reg();
+            free_reg();
+            return resultReg;
+        }
+
+        if (t == type::MULTIPLY)
+        {
+            string left = gen_ARM_operators(op->left);
+
+            string right = gen_ARM_operators(op->right);
+            global_string1 += "MUL " + resultReg + "," + left + ", " + right + " \n";
+            free_reg();
+            free_reg();
             return resultReg;
         }
     }
+
     return "";
 }
 /**
- * @brief writes to file 
- * 
- * @param outfile 
- * @param word 
+ * @brief writes to file
+ *
+ * @param outfile
+ * @param word
  */
-void wfx86(ofstream &outfile, string word)
+void wfARM(ofstream &outfile, string word)
 {
     outfile << word << endl;
 }
-void gen_x86_target(Node *op, string filename = "")
+void gen_ARM_target(Node *op, string filename = "")
 {
 
-    string dirname = "x86TargetFiles/x86TargetASM";
+    string dirname = "ARMTarget/ARMTargetOut";
     int status = fs::create_directories(dirname);
 
     if (filename == "")
     {
         filename = "out.s";
     }
+    ofstream outfile(dirname + "/" + filename);
+    gen_ARM_operators(op);
+    wfARM(outfile,global_string1);
 
-    ofstream outfile("x86TargetFiles/x86TargetASM/" + filename);
-    string word = "section .data \n format  db \"%d\", 10, 0 \n section .text \n extern printf \n \t global main \n main: \n ";
-    wfx86(outfile, word);
-    vector<string> tab;
-    string resultReg = gen_opertorsx86(op, tab);
+    // string word = "section .data \n format  db \"%d\", 10, 0 \n section .text \n extern printf \n \t global main \n main: \n ";
+    // wfx86(outfile, word);
+    // vector<string> tab;
+    // string resultReg = gen_opertorsx86(op, tab);
 
-    string start = "\t push rbp \n\t mov rax,0 ";
-    wfx86(outfile, start);
-    wfx86(outfile, global_string1);
-    string printans = "mov rdi,format \n mov esi, " + resultReg + "\n xor " + resultReg + "," + resultReg + "\n call printf\n";
-    wfx86(outfile, printans);
-    wfx86(outfile, "\n \t pop rbp \n \t ret");
-    // mov        rax,0        ; Exit code 0
-    //  pop        rbp          ; Pop stack
-    //  ret
+    // string start = "\t push rbp \n\t mov rax,0 ";
+    // wfx86(outfile, start);
+    // wfx86(outfile, global_string1);
+    // string printans = "mov rdi,format \n mov esi, " + resultReg + "\n xor " + resultReg + "," + resultReg + "\n call printf\n";
+    // wfx86(outfile, printans);
+    // wfx86(outfile, "\n \t pop rbp \n \t ret");
+    // // mov        rax,0        ; Exit code 0
+    // //  pop        rbp          ; Pop stack
+    // //  ret
     outfile.close();
 }
