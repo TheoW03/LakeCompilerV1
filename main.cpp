@@ -80,6 +80,8 @@ int main(int argc, char *argv[])
     // handle_cli(argv, argc);
     
     //ARM finally 
+
+    
     vector<Tokens> a = lex(readFile("test.txt"));
     Node *c = testExpressionParse(a);
     gen_ARM_target(c);
