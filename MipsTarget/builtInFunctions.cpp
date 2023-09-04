@@ -34,7 +34,7 @@ void Print::setup_params(vector<Node *> params, string &gen_string, map<string, 
         // or once i add support for strings/string concat
 
         stringNode *a = dynamic_cast<stringNode *>(params[0]);
-        if (a->stringBuffer == "%n")
+        if (a->stringBuffer == "%d")
         {
             if (check_if_pureExpression(params[1]) == 0)
             {
