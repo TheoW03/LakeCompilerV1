@@ -605,7 +605,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
             }
             else
             {
-                string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression))+ " \n";
+                string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression)) + " \n";
                 wf(outfile, a);
             }
             cout << pd->varailbe->buffer << endl;
@@ -745,7 +745,15 @@ void gen_mips_target(Node *op, string filename)
 
     vector<string> tab;
     addtabs(tab);
-    string setupstack = "addi $sp, $sp,-" + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
+    string setupstack = "";
+    if (max_size != 0)
+    {
+        setupstack = "addi $sp, $sp,-" + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
+    }
+    else
+    {
+        setupstack = "addi $sp, $sp, " + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
+    }
     wf(outfile, setupstack);
     for (int i = 0; i < state.size(); i++)
     {

@@ -63,7 +63,9 @@ void Print::setup_params(vector<Node *> params, string &gen_string, map<string, 
             if (check_if_pureExpression(params[1]) == 0)
             {
                 string reg = allocateReg();
-                gen_string += "li " + reg + "," + to_string(constant_prop_float(params[1])) + "\n";
+                // int conversion =
+                int fPoint = (int)(constant_prop_float(params[1]) * OFFSET);
+                gen_string += "li " + reg + "," + to_string(fPoint) + "\n";
                 execute_code_float(gen_string, reg);
                 freeReg();
             }
