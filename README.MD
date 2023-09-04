@@ -19,7 +19,7 @@ function main(string args){ //this is how you call the main method (this is how 
     float pi = 3.1415; //floats
     int random_constant = 100; //integer
     random_constant = pi + random_constant * ((pi + random_constant) % 2)/10; 
-    print("%f",random_constant); // %f -> float %i -> integer. this is a temp system until I add something better :3
+    print("%f",random_constant); // %f -> float %d -> integer. this is a temp system until I add something better :3
     exit(1); //exit
     
 }
