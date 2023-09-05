@@ -698,6 +698,10 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
         c = 0;
         global_string = "";
     }
+    else if (instanceof <LoopNode *>(statement))
+    {
+        
+    }
 }
 /**
  * @brief
@@ -713,7 +717,6 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
  */
 void gen_mips_target(Node *op, string filename)
 {
-    cout << "a";
     map<string, Node *> vars;
     map<type, builtInFunction *> functions;
 

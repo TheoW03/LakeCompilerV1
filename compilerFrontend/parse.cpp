@@ -107,7 +107,11 @@ struct StatementNode : public Node
     struct Node *expression;
     struct Tokens *nameOfVar;
 };
-
+struct LoopNode : public Node
+{
+    BoolExpressionNode *condition;
+    vector<Node *> statements;
+};
 /**
  * @brief calls
  * print();
@@ -340,6 +344,7 @@ Node *term(vector<Tokens> &tokens)
     return opNode;
     // do stuff
 }
+
 /**
  * @brief +,-
  *
@@ -510,6 +515,23 @@ Node *parseVar(vector<Tokens> &tokens, Tokens *name, Tokens *type)
  * @param checkIfFunct
  * @return Node*
  */
+BoolExpressionNode *handleBooleanExpression(vector<Tokens> &tokens)
+{
+    Node *right = factor(tokens);
+
+    Tokens *op = (matchAndRemove(tokens, type::BOOL_EQ, "parsefunctions") != nullptr) ? current
+                 : (matchAndRemove(tokens, type::LTE, "parsefunctions") != nullptr)   ? current
+                 : (matchAndRemove(tokens, type::GTE, "parsefunctions") != nullptr)   ? current
+                 : (matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)    ? current
+                 : (matchAndRemove(tokens, type::LT, "parseFunctions") != nullptr)    ? current
+                                                                                      : nullptr;
+    Node *left = factor(tokens);
+    BoolExpressionNode *a = new BoolExpressionNode;
+    a->right = right;
+    a->left = left;
+    a->op = op;
+    return a;
+}
 Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
 {
     funcCallNode *f1 = new funcCallNode;
@@ -565,23 +587,35 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
     f1->params = vars;
     return f1;
 }
+Node *handleLoops(vector<Tokens> &tokens)
+{
+    LoopNode *loop = new LoopNode;
+    BoolExpressionNode *a = new BoolExpressionNode;
+    matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
+    a = handleBooleanExpression(tokens);
+    matchAndRemove(tokens, type::CL_PARENTHISIS, "a");
+    matchAndRemove(tokens, type::BEGIN, "a");
+    vector<Node *> states;
+    RemoveEOLS(tokens);
+
+    while (matchAndRemove(tokens, type::END, "j") == nullptr)
+    {
+        RemoveEOLS(tokens);
+        states.push_back(handleSatements(tokens));
+        RemoveEOLS(tokens);
+    }
+    loop->condition = a;
+    loop->statements = states;
+
+    return loop;
+}
+
 Node *handleIfStatements(vector<Tokens> &tokens)
 {
     BoolExpressionNode *a = new BoolExpressionNode;
     matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
-    Node *right = factor(tokens);
+    a = handleBooleanExpression(tokens);
 
-    Tokens *op = (matchAndRemove(tokens, type::BOOL_EQ, "parsefunctions") != nullptr) ? current
-                 : (matchAndRemove(tokens, type::LTE, "parsefunctions") != nullptr)   ? current
-                 : (matchAndRemove(tokens, type::GTE, "parsefunctions") != nullptr)   ? current
-                 : (matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)    ? current
-                 : (matchAndRemove(tokens, type::LT, "parseFunctions") != nullptr)    ? current
-                                                                                      : nullptr;
-    Node *left = factor(tokens);
-
-    a->right = right;
-    a->left = left;
-    a->op = op;
     IfSatementNode *ifStatement = new IfSatementNode;
     ifStatement->condition = a;
     matchAndRemove(tokens, type::CL_PARENTHISIS, "a");
@@ -622,13 +656,14 @@ Node *handleSatements(vector<Tokens> &tokens)
     }
 #pragma endregion
 #pragma region varstates
-    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)    ? current
-                : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr)   ? current
-                : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr) ? current
-                : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)   ? current
+    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)     ? current
+                : (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr)    ? current
+                : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)  ? current
+                : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
                 : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)   ? current
                 : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
                 : (matchAndRemove(tokens, type::IF, "k") != nullptr)                  ? current
+                : (matchAndRemove(tokens, type::LOOP, "k") != nullptr)                ? current
                                                                                       : nullptr;
 
     if (a != nullptr)
@@ -637,6 +672,11 @@ Node *handleSatements(vector<Tokens> &tokens)
         {
             return handleIfStatements(tokens);
         }
+        if (a->id == type::LOOP)
+        {
+            return handleLoops(tokens);
+        }
+
         Node *var;
         if (a->id == type::WORD)
         {
@@ -651,6 +691,14 @@ Node *handleSatements(vector<Tokens> &tokens)
             var = parseVar(tokens, nullptr, a);
         }
         return var;
+    }else{
+        cout << "undefined statement" << endl;
+        cout << "" << endl;
+        cout << "1st one is the undefined statement" << endl;
+        cout << "================" << endl;
+        printList(tokens);
+        
+        exit(0);
     }
 
 #pragma endregion

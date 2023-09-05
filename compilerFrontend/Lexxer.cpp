@@ -128,7 +128,6 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::GTE] = "GTE";
     dictionary[type::LTE] = "LTE";
     dictionary[type::BOOL] = "BOOL";
-    
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -233,19 +232,22 @@ vector<Tokens> lex(vector<string> lines)
                 {
                     stateIsNum = 1;
                 }
-                if (regex_search(str, myMatch, numReg) || regex_search(str, myMatch, opRegex) || str == ")" || str == "(" || str == "-")
+                else if (regex_search(str, myMatch, numReg) || regex_search(str, myMatch, opRegex) || str == ")" || str == "(" || str == "-")
                 {
                 }
                 else
                 {
                     stateIsNum = 0;
+
                 }
 
                 if (stateIsNum == 1)
                 {
 
-                    cout << str << endl;
-
+                    cout << "string: " + str + "\n"
+                         << endl;
+                    cout << "buffer: " + buffer + "\n";
+                    cout << "state: " + to_string(state) << endl;
                     if (wordBuffer != "")
                     {
 
@@ -272,8 +274,7 @@ vector<Tokens> lex(vector<string> lines)
                     {
 
                         // cout << current;
-                        // cout << "string: " + str + "\n";
-                        // cout << "buffer: " + buffer + "\n";
+
                         if (regex_search(str, myMatch, numReg))
                         {
                             buffer += str;
@@ -353,30 +354,31 @@ vector<Tokens> lex(vector<string> lines)
                     //+,*,/,%
                     else if (state == 2)
                     {
-                        // if (buffer != "")
-                        // {
-                        //     if (typeOfOP.find(buffer) != typeOfOP.end())
-                        //     {
-                        //         // Tokens token(buffer, typeOfOP[buffer]);
-                        //         // token.dictionary = dictionary;
-                        //         modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
-                        //         a.push_back(token);
-                        //     }
-                        //     else
-                        //     {
-                        //         // Tokens token(buffer, type::NUMBER);
-                        //         // token.dictionary = dictionary;
-                        //         modifyStruct(token, type::NUMBER, dictionary, buffer);
-                        //         a.push_back(token);
-                        //     }
-                        //     buffer = "";
-                        // }
+                        if (buffer != "")
+                        {
+                            if (typeOfOP.find(buffer) != typeOfOP.end())
+                            {
+                                // Tokens token(buffer, typeOfOP[buffer]);
+                                // token.dictionary = dictionary;
+                                modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                                a.push_back(token);
+                            }
+                            else
+                            {
+                                // Tokens token(buffer, type::NUMBER);
+                                // token.dictionary = dictionary;
+                                modifyStruct(token, type::NUMBER, dictionary, buffer);
+                                a.push_back(token);
+                            }
+                            buffer = "";
+                        }
                         if (str == "-")
                         {
+                            cout << "here" << endl;
                             buffer += str;
                             state = 1;
                         }
-                        if (str == ")" || str == "(")
+                        else if (str == ")" || str == "(")
                         {
                             if (buffer != "")
                             {
@@ -393,12 +395,23 @@ vector<Tokens> lex(vector<string> lines)
 
                             state = 1;
                         }
-                        if (regex_search(str, myMatch, numReg))
+                        else if (regex_search(str, myMatch, numReg))
                         {
+
                             buffer += str;
                             // cout << buffer << endl;
 
                             state = 1;
+                        }
+                        else if (str == "+" || str == "*" || str == "/")
+                        {
+                            buffer += str;
+                            modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                            a.push_back(token);
+                            buffer = "";
+                            state = 2;
+
+                            
                         }
                     }
                     else if (state == 3)
@@ -408,6 +421,8 @@ vector<Tokens> lex(vector<string> lines)
                 }
                 else if (stateIsNum == 0)
                 {
+                    cout << "string: " + str << endl;
+                    cout << "wordBuffer: " + wordBuffer + "\n";
 #pragma region word
 
                     if (buffer != "")
@@ -483,6 +498,7 @@ vector<Tokens> lex(vector<string> lines)
                                 wordBuffer = "";
                                 stateIsNum = 1;
                                 wordstate = 1;
+                                state = 1;
                             }
                             else if (wordBuffer == ">")
                             {
@@ -493,6 +509,7 @@ vector<Tokens> lex(vector<string> lines)
                                 wordBuffer = "";
                                 stateIsNum = 1;
                                 wordstate = 1;
+                                state = 1;
                             }
                             else
                             {
@@ -503,6 +520,7 @@ vector<Tokens> lex(vector<string> lines)
                                 wordBuffer = "";
                                 stateIsNum = 1;
                                 wordstate = 1;
+                                state = 1;
                             }
                         }
                         else
@@ -519,12 +537,13 @@ vector<Tokens> lex(vector<string> lines)
                             }
 
                             wordBuffer += str;
-                            cout << "buffer" << str << endl;
+                            cout << "buffer: " << wordBuffer << endl;
                             // modifyStruct(token, (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer] : type::WORD, dictionary, wordBuffer);
                             // wordBuffer = "";
                             // a.push_back(token);
                             wordstate = 1;
                             stateIsNum = 1;
+                            state = 1;
                         }
 
                         // cout << "word state != 1 \n";

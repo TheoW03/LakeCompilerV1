@@ -1,5 +1,7 @@
 function main(string args){
 
-print("%f", 10);
-
+int a = 0;
+while(a == 10){
+    a = a--1;
+}
 }

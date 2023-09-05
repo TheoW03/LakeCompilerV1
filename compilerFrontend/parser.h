@@ -41,6 +41,11 @@ struct BooleanLiteralNode : public Node
 {
     Tokens *value;
 };
+struct LoopNode : public Node
+{
+    BoolExpressionNode *condition;
+    vector<Node *> statements;
+};
 struct ElseNode : public Node
 {
 
