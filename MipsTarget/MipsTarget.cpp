@@ -700,7 +700,32 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
     }
     else if (instanceof <LoopNode *>(statement))
     {
-        
+
+        //wip
+        global_string = "";
+        LoopNode *pd = dynamic_cast<LoopNode *>(statement);
+        if (pd->statements.size() == 0)
+        {
+            return;
+        }
+        nOfBranch++;
+        int branchnum = nOfBranch;
+        global_string += "b L" + to_string(branchnum) + "\n";
+        nOfBranch++;
+        global_string += "L" + to_string(nOfBranch) + ": \n # loop"; // condition
+        wf(outfile, global_string);
+        global_string = "";
+        for (int i = 0; i < pd->statements.size(); i++)
+        {
+
+            statementsGen(pd->statements[i], var, outfile); // write a new function for this T~T
+        }
+        global_string += "L" + to_string(nOfBranch) + ": \n # condition";
+        wf(outfile, global_string);
+        global_string = "";
+
+        handle_boolean(pd->condition, var);
+        wf(outfile, global_string);
     }
 }
 /**
