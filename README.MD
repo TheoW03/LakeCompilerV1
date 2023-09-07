@@ -16,9 +16,18 @@ coded by TheoW03, in C++
 #define tau 6.28318531 //it can lex this but no support for parsing this yet  but this is a macro
 
 function main(string args){ //this is how you call the main method (this is how you do comments)
-    float pi = 3.1415; //floats
+    float pi = 3.1415; // floats
     int random_constant = 100; //integer
+    bool turringComplete = true; //i think lol 
     random_constant = pi + random_constant * ((pi + random_constant) % 2)/10; 
+    //if statemnets
+    if(random_constant == 100){
+        print("%d", random_constant);
+    }
+    //loops 
+    while(random_constant < 1000){
+        random_constant = random_constant + 1;
+    }
     print("%f",random_constant); // %f -> float %d -> integer. this is a temp system until I add something better :3
     exit(1); //exit
     

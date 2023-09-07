@@ -592,13 +592,26 @@ void prepare_interptMips(varaibleNode *var, map<string, Varaible *> &map)
     a->varType = var->typeOfVar;
     map[var->varailbe->buffer] = a;
 }
-void gen_function(FunctionNode *function, map<string, Varaible *> &map)
-{
-    vector<Node *> state = function->statements;
 
+void gen_function(vector<Node *> state, map<string, Varaible *> &map)
+{
+    if (state.size() == 0)
+    {
+        return;
+    }
     for (int i = 0; i < state.size(); i++)
     {
-        if (instanceof <varaibleNode *>(state[i]))
+        if (instanceof <IfSatementNode *>(state[i]))
+        {
+            IfSatementNode *pd = dynamic_cast<IfSatementNode *>(state[i]);
+            gen_function(pd->statements, map);
+        }
+        else if (instanceof <LoopNode *>(state[i]))
+        {
+            LoopNode *pd = dynamic_cast<LoopNode *>(state[i]);
+            gen_function(pd->statements, map);
+        }
+        else if (instanceof <varaibleNode *>(state[i]))
         {
             varaibleNode *pd = dynamic_cast<varaibleNode *>(state[i]);
 
@@ -607,12 +620,31 @@ void gen_function(FunctionNode *function, map<string, Varaible *> &map)
                 prepare_interptMips(pd, map);
             }
         }
-        else
-        {
-            cout << "null ptr \n";
-        }
     }
 }
+
+// void gen_function(FunctionNode *function, map<string, Varaible *> &map)
+// {
+//     vector<Node *> state = function->statements;
+
+//     for (int i = 0; i < state.size(); i++)
+//     {
+
+//         if (instanceof <varaibleNode *>(state[i]))
+//         {
+//             varaibleNode *pd = dynamic_cast<varaibleNode *>(state[i]);
+
+//             if (map.find(pd->varailbe->buffer) == map.end())
+//             {
+//                 prepare_interptMips(pd, map);
+//             }
+//         }
+//         else
+//         {
+//             cout << "null ptr \n";
+//         }
+//     }
+// }
 
 // int convert_toFixPoint(float num)
 // {
@@ -820,7 +852,7 @@ void gen_mips_target(Node *op, string filename)
 #pragma region iterate vector of functions sarts here
     string function_name = pd->nameOfFunction->buffer + ": \n";
     wf(outfile, function_name);
-    gen_function(pd, map);
+    gen_function(state, map);
 
     vector<string> tab;
     addtabs(tab);
