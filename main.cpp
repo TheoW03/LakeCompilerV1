@@ -78,22 +78,4 @@ void handle_cli(char *argv[], int argc)
 int main(int argc, char *argv[])
 {
     handle_cli(argv, argc);
-    // int i = 0;
-
-    // while (i <= 10)
-    // {
-    //     cout << i << endl;
-    //     i++;
-    // }
-
-    // ARM finally
-
-    // vector<Tokens> a = lex(readFile("test.txt"));
-    // printList(a);
-    // Node *c = functionParse(a);
-
-    // Node *c = testExpressionParse(a);
-    // gen_ARM_target(c);
-
-    // return 0;
 }
