@@ -362,7 +362,7 @@ string gen_integer_op(Node *op, map<string, Varaible *> &map)
 #pragma endregion
 
 int nOfBranch = 0;
-string handle_boolean(Node *op, map<string, Varaible *> map)
+string handle_boolean(Node *op, map<string, Varaible *> map, int isLoop = 0)
 {
     if (op == nullptr)
     {
@@ -441,8 +441,17 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
         if (pd->op->id == type::BOOL_EQ)
         {
             string resultReg = allocateReg();
-            global_string += "bne " + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + " , L" + to_string(nOfBranch) + "\n";
-            global_string += "nop \n";
+            if (isLoop == 1)
+            {
+                global_string += "beq " + handle_boolean(pd->right, map, isLoop) + " ," + handle_boolean(pd->left, map, isLoop) + " , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+            }
+            else
+            {
+                global_string += "bne " + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + " , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+            }
+
             return "";
         }
         if (pd->op->id == type::GT)
@@ -452,9 +461,19 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
                 return "";
             }
             string resultReg = allocateReg();
-            global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
-            global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-            global_string += "nop \n";
+            if (isLoop == 1)
+            {
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, isLoop) + " ," + handle_boolean(pd->left, map, isLoop) + "\n";
+                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+            }
+            else
+            {
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
+                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+            }
+
             return "";
         }
         if (pd->op->id == type::LT)
@@ -464,9 +483,19 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
                 return "";
             }
             string resultReg = allocateReg();
-            global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
-            global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-            global_string += "nop \n";
+            if (isLoop == 1)
+            {
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, isLoop) + " ," + handle_boolean(pd->left, map, isLoop) + "\n";
+                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+            }
+            else
+            {
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
+                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+            }
+
             return "";
         }
         if (pd->op->id == type::LTE)
@@ -475,11 +504,20 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
             {
                 return "";
             }
+
             string resultReg = allocateReg();
-            //=
-            global_string += "slt " + resultReg + "," + handle_boolean(pd->left, map) + " ," + handle_boolean(pd->right, map) + "\n";
-            global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-            global_string += "nop \n";
+            if (isLoop == 1)
+            {
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, map, isLoop) + " ," + handle_boolean(pd->right, map, isLoop) + "\n";
+                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+            }
+            else
+            {
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, map) + " ," + handle_boolean(pd->right, map) + "\n";
+                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+            }
 
             return "";
         }
@@ -487,11 +525,18 @@ string handle_boolean(Node *op, map<string, Varaible *> map)
         {
 
             string resultReg = allocateReg();
-
-            //<
-            global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
-            global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-            global_string += "nop \n";
+            if (isLoop == 1)
+            {
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, isLoop) + " ," + handle_boolean(pd->left, map, isLoop) + "\n";
+                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+            }
+            else
+            {
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
+                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+            }
 
             return "";
         }
@@ -701,7 +746,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
     else if (instanceof <LoopNode *>(statement))
     {
 
-        //wip
+        // wip
         global_string = "";
         LoopNode *pd = dynamic_cast<LoopNode *>(statement);
         if (pd->statements.size() == 0)
@@ -709,23 +754,29 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
             return;
         }
         nOfBranch++;
-        int branchnum = nOfBranch;
-        global_string += "b L" + to_string(branchnum) + "\n";
+        int b = nOfBranch;
+        global_string += "b L" + to_string(b) + "\n";
         nOfBranch++;
         global_string += "L" + to_string(nOfBranch) + ": \n # loop"; // condition
         wf(outfile, global_string);
+        global_string = "";
+
+        handle_boolean(pd->condition, var, 1);
+        string condition = global_string;
+        nOfBranch++;
         global_string = "";
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
             statementsGen(pd->statements[i], var, outfile); // write a new function for this T~T
         }
-        global_string += "L" + to_string(nOfBranch) + ": \n # condition";
+        global_string += "L" + to_string(b) + ": \n # condition";
         wf(outfile, global_string);
+        wf(outfile, condition);
+
         global_string = "";
 
-        handle_boolean(pd->condition, var);
-        wf(outfile, global_string);
+        // wf(outfile, global_string);
     }
 }
 /**

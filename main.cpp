@@ -78,7 +78,13 @@ void handle_cli(char *argv[], int argc)
 int main(int argc, char *argv[])
 {
     handle_cli(argv, argc);
+    // int i = 0;
 
+    // while (i <= 10)
+    // {
+    //     cout << i << endl;
+    //     i++;
+    // }
 
     // ARM finally
 
