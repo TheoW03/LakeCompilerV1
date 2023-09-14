@@ -27,7 +27,7 @@ int check_if_pureExpression(Node *op)
     {
         return 0;
     }
-    if (instanceof <varaibleNode *>(op))
+    if (instanceof <VaraibleReference *>(op))
     {
 
         cout << "var \n";

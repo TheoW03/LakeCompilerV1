@@ -31,6 +31,14 @@ struct VaraibleReference : public Node
     Node *expression;
     Tokens *varailbe;
 };
+struct VaraibleDeclaration : public Node
+{
+    Node *expression;
+    Tokens *varailbe;
+    Tokens *typeOfVar;
+    int size;
+};
+
 struct BoolExpressionNode : public Node
 {
     Node *right;

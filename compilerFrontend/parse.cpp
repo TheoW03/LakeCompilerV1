@@ -52,6 +52,13 @@ struct NumNode : public Node
 {
     string num;
 };
+struct VaraibleDeclaration : public Node
+{
+    Node *expression;
+    Tokens *varailbe;
+    Tokens *typeOfVar;
+    int size;
+};
 
 struct FloatNode : public Node
 {
@@ -275,20 +282,25 @@ Node *factor(vector<Tokens> &tokens)
 
         return exp;
     }
+    // else if (id == type::WORD)
+    // {
+    //     varaibleNode *var = new varaibleNode;
+    //     var->varailbe = a;
+    //     cout << "has been based var \n";
+    //     // NumNode *numN = new NumNode;
+    //     // string b = a->buffer;
+    //     // // cout << "b: " + b << endl;
+    //     // numN->num = b;
+    //     // // cout << "numN: "+numN->num << endl;
+    //     // return numN;
+    //     return var;
+    // }
     else if (id == type::WORD)
     {
-        varaibleNode *var = new varaibleNode;
+        VaraibleReference *var = new VaraibleReference;
         var->varailbe = a;
-        cout << "has been based var \n";
-        // NumNode *numN = new NumNode;
-        // string b = a->buffer;
-        // // cout << "b: " + b << endl;
-        // numN->num = b;
-        // // cout << "numN: "+numN->num << endl;
-        // return numN;
         return var;
     }
-
     else
     {
         return nullptr;
@@ -480,6 +492,13 @@ void printParams(vector<Tokens *> a)
     }
 }
 
+Node *parserVarRef(vector<Tokens> &tokens, Tokens *name)
+{
+    VaraibleReference *var = new VaraibleReference;
+    var->varailbe = name;
+    var->expression = expression(tokens);
+    return var;
+}
 /**
  * @brief just me testing, ignore
  *
@@ -495,12 +514,10 @@ Node *testParse(vector<Tokens> &tokens)
 
 Node *parseVar(vector<Tokens> &tokens, Tokens *name, Tokens *type)
 {
-    if (name == nullptr)
-    {
-        name = matchAndRemove(tokens, type::WORD, "parseVar");
-    }
+
+    name = matchAndRemove(tokens, type::WORD, "parseVar");
     matchAndRemove(tokens, type::EQUALS, "parseVar");
-    varaibleNode *n = new varaibleNode;
+    VaraibleDeclaration *n = new VaraibleDeclaration;
     n->expression = expression(tokens);
     n->varailbe = name;
     n->size = 4;
@@ -532,6 +549,7 @@ BoolExpressionNode *handleBooleanExpression(vector<Tokens> &tokens)
     a->op = op;
     return a;
 }
+
 Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
 {
     funcCallNode *f1 = new funcCallNode;
@@ -573,7 +591,7 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
         }
         else if (var->id == type::WORD)
         {
-            varaibleNode *v1 = new varaibleNode;
+            VaraibleReference *v1 = new VaraibleReference;
             v1->varailbe = var;
             vars.push_back(v1);
         }
@@ -684,20 +702,23 @@ Node *handleSatements(vector<Tokens> &tokens)
             {
                 return handleCalls(tokens, a);
             }
-            var = parseVar(tokens, a, nullptr);
+            // var = parseVar(tokens, a, nullptr);
+            var = parserVarRef(tokens, a);
         }
         else if (a->id == type::VAR || a->id == type::INT || a->id == type::FLOAT || a->id == type::STRING || a->id == type::BOOL)
         {
             var = parseVar(tokens, nullptr, a);
         }
         return var;
-    }else{
+    }
+    else
+    {
         cout << "undefined statement" << endl;
         cout << "" << endl;
         cout << "1st one is the undefined statement" << endl;
         cout << "================" << endl;
         printList(tokens);
-        
+
         exit(0);
     }
 

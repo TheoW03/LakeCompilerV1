@@ -7,18 +7,10 @@
 #include "compilerFrontend/Lexxer.h"
 #include "compilerFrontend/parser.h" // #define String string
 #include <cmath>
+#include <functional>
 using namespace std;
 
-template <typename Base, typename T>
-bool instanceof (T * ptr)
-{
-    return dynamic_cast<Base>(ptr);
-}
-
-struct Data
-{
-    int x, y;
-};
+#pragma endregion
 
 void handle_cli(char *argv[], int argc)
 {
@@ -77,5 +69,11 @@ void handle_cli(char *argv[], int argc)
 }
 int main(int argc, char *argv[])
 {
+
     handle_cli(argv, argc);
+
+    // Print the final result
+    // std::cout << "Result: " << result.value << std::endl; // Output: Result: 12
+
+    return 0;
 }
