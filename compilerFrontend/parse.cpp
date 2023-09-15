@@ -36,14 +36,14 @@ struct Node
  * @brief a = 0;
  *
  */
-struct varaibleNode : public Node
-{
-    Node *expression;
-    Tokens *varailbe;
-    Tokens *typeOfVar;
+// struct varaibleNode : public Node
+// {
+//     Node *expression;
+//     Tokens *varailbe;
+//     Tokens *typeOfVar;
 
-    int size;
-};
+//     int size;
+// };
 /**
  * @brief numbers
  *
@@ -141,7 +141,7 @@ struct MacroNode : public Node
 struct FunctionNode : public Node
 {
     struct Tokens *nameOfFunction;
-    vector<varaibleNode *> params;
+    vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
 };
 #pragma endregion
@@ -438,7 +438,7 @@ Node *handleFunctions(vector<Tokens> &tokens)
     Tokens *name = matchAndRemove(tokens, type::WORD, "handlefunctions");
     matchAndRemove(tokens, type::OP_PARENTHISIS, "handlefunctions");
 
-    vector<varaibleNode *> vars;
+    vector<VaraibleDeclaration *> vars;
 
     while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlefunctions") == nullptr)
     {
@@ -452,7 +452,7 @@ Node *handleFunctions(vector<Tokens> &tokens)
         Tokens *word = matchAndRemove(tokens, type::WORD, "handlefunctions");
 
         matchAndRemove(tokens, type::COMMA, "handlefunctions");
-        varaibleNode *v = new varaibleNode;
+        VaraibleDeclaration *v = new VaraibleDeclaration;
         v->typeOfVar = typeVar;
         v->varailbe = word;
         vars.push_back(v);

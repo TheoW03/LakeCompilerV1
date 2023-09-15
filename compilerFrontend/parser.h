@@ -99,18 +99,18 @@ struct StatementNode : public Node
     struct Tokens *nameOfVar;
 };
 
-struct varaibleNode : public Node
-{
-    Node *expression;
-    Tokens *varailbe;
-    Tokens *typeOfVar;
+// struct varaibleNode : public Node
+// {
+//     Node *expression;
+//     Tokens *varailbe;
+//     Tokens *typeOfVar;
 
-    int size;
-};
+//     int size;
+// };
 struct FunctionNode : public Node
 {
     struct Tokens *nameOfFunction;
-    vector<varaibleNode *> params;
+    vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
 };
 #endif // NODE_H
