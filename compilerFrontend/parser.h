@@ -37,6 +37,7 @@ struct VaraibleDeclaration : public Node
     Tokens *varailbe;
     Tokens *typeOfVar;
     int size;
+    int constant;
 };
 
 struct BoolExpressionNode : public Node
@@ -72,10 +73,6 @@ struct funcCallNode : public Node
     vector<Node *> params;
 };
 
-struct NumNode : public Node
-{
-    string num;
-};
 struct FloatNode : public Node
 {
     string num;
@@ -99,12 +96,11 @@ struct StatementNode : public Node
     struct Tokens *nameOfVar;
 };
 
-// struct varaibleNode : public Node
+// struct ConstantVarNode : public Node
 // {
 //     Node *expression;
 //     Tokens *varailbe;
 //     Tokens *typeOfVar;
-
 //     int size;
 // };
 struct FunctionNode : public Node

@@ -538,34 +538,6 @@ string handle_boolean(Node *op, map<string, Varaible *> map, int isLoop = 0)
     }
 }
 
-void print_global()
-{
-    cout << global_string << endl;
-}
-void traverse(Node *node)
-{
-    if (node == nullptr)
-    {
-        cout << "null" << endl;
-        return;
-    }
-    NumNode *pd;
-    if ((pd = dynamic_cast<NumNode *>(node)) != nullptr)
-    {
-        NumNode *a = static_cast<NumNode *>(node);
-        cout << a->num << endl;
-    }
-    else
-    {
-        cout << "null" << endl;
-    }
-
-    traverse(node->left);
-    traverse(node->right);
-
-    // traverse(node->right);
-}
-
 /**
  * @brief
  *
@@ -583,6 +555,7 @@ void prepare_interptMips(VaraibleDeclaration *var, map<string, Varaible *> &map,
 {
     // max_size += 4;
     Varaible *a = new Varaible;
+    a->constant = var->constant;
     a->stackNum = max_size;
     a->varType = var->typeOfVar;
     map[var->varailbe->buffer] = a;
@@ -757,6 +730,13 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
             {
                 return;
             }
+            if (type1->constant == 1)
+            {
+                cout << "is constant";
+                exit(1);
+
+                return;
+            }
             string allocr = allocateReg();
             if (type1->varType->id == type::FLOAT)
             {
@@ -786,6 +766,13 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
             Varaible *type1 = var[pd->varailbe->buffer];
             if (type1 == nullptr)
             {
+                return;
+            }
+            if (type1->constant == 1)
+            {
+                cout << "err: is constant" << endl;
+                exit(1);
+
                 return;
             }
             cout << "else \n";

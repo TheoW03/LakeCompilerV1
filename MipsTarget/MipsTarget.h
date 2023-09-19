@@ -28,6 +28,7 @@ struct Varaible
 {
     Tokens *varType;
     int stackNum;
+    int constant;
 };
 #endif
 
