@@ -111,7 +111,7 @@ struct FunctionNode : public Node
 };
 #endif // NODE_H
 
-Node *parse(vector<Tokens> &tokens);
+vector<FunctionNode *> parse(vector<Tokens> &tokens);
 
 Node *term(vector<Tokens> &tokens);
 Node *factor(vector<Tokens> &tokens);
@@ -124,7 +124,7 @@ Node *handleFunctions(vector<Tokens> &tokens);
 void printParams(vector<Tokens *> a);
 Node *testParse(vector<Tokens> &tokens);
 
-Node *functionParse(vector<Tokens> &tokens);
+vector<FunctionNode *> functionParse(vector<Tokens> &tokens);
 Node *parseVar(vector<Tokens> &tokens, Tokens *name);
 Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct);
 Node *handleSatements(vector<Tokens> &tokens);

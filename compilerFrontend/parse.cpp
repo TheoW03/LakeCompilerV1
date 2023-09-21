@@ -730,13 +730,17 @@ Node *handleSatements(vector<Tokens> &tokens)
  * @param tokens
  * @return Node*
  */
-Node *functionParse(vector<Tokens> &tokens)
+vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
 {
     printList(tokens);
-    FunctionNode *f;
-    vector<Node *> states;
-    if (matchAndRemove(tokens, type::FUNCTION, "functioon parse") != nullptr)
+    vector<FunctionNode *> functionNodes;
+    while (matchAndRemove(tokens, type::FUNCTION, "functioon parse") != nullptr)
     {
+
+        FunctionNode *f;
+        vector<Node *> states;
+        // if (matchAndRemove(tokens, type::FUNCTION, "functioon parse") != nullptr)
+        // {
         Node *func = handleFunctions(tokens);
         matchAndRemove(tokens, type::BEGIN, "parsefunctions");
         while (matchAndRemove(tokens, type::END, "parsefunctions") == nullptr)
@@ -751,10 +755,12 @@ Node *functionParse(vector<Tokens> &tokens)
         {
             pd->statements = states;
         }
-        return pd;
+        functionNodes.push_back(pd);
+        RemoveEOLS(tokens);
+        // return pd;
     }
 
-    return nullptr;
+    return functionNodes;
 }
 #pragma endregion
 
@@ -775,7 +781,7 @@ Node *testExpressionParse(vector<Tokens> &tokens)
  * i will eventually upgrade it to a list
  */
 
-Node *parse(vector<Tokens> &tokens)
+vector<FunctionNode *> parse(vector<Tokens> &tokens)
 {
     return functionParse(tokens);
 

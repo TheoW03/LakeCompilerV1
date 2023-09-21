@@ -3,3 +3,11 @@ function main(string args){
 const int a = 10;
 print("%d", a);
 }
+function b(){
+    const int a = 10;
+    print("%d", a);
+}
+function c(){
+    const int a = 10;
+    print("%d", a);
+}

@@ -901,7 +901,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
  * and then go through each node, and generate ASM using the code
  * and yeh.
  */
-void gen_mips_target(Node *op, string filename)
+void gen_mips_target(vector<FunctionNode *> op, string filename)
 {
     map<string, Node *> vars;
     map<type, builtInFunction *> functions;
@@ -918,45 +918,54 @@ void gen_mips_target(Node *op, string filename)
     }
 
     ofstream outfile("MipsTarget/MipsTargetASM/" + filename);
-    // FILE* fp = fopen("output.s", "w");
-    FunctionNode *pd = dynamic_cast<FunctionNode *>(op);
-    vector<Node *> state = pd->statements;
-    map<string, Varaible *> map;
-    map["."] = 0;
     string word = ".data \n .text \n";
 
     wf(outfile, word);
+
+    for (int i = 0; i < op.size(); i++)
+    {
+
+        // FILE* fp = fopen("output.s", "w");
+        FunctionNode *pd = dynamic_cast<FunctionNode *>(op[i]);
+        vector<Node *> state = pd->statements;
+        map<string, Varaible *> map;
+        max_size = 0;
+        map["."] = 0;
+
 // where to iterate on list of vectors
 #pragma region iterate vector of functions sarts here
-    string function_name = pd->nameOfFunction->buffer + ": \n";
-    wf(outfile, function_name);
-    gen_function(state, max_size);
+        string function_name = pd->nameOfFunction->buffer + ": \n";
+        wf(outfile, function_name);
+        gen_function(state, max_size);
 
-    vector<string> tab;
-    addtabs(tab);
-    string setupstack = "";
-    if (max_size != 0)
-    {
-        setupstack = "addi $sp, $sp,-" + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
-    }
-    else
-    {
-        setupstack = "addi $sp, $sp, " + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
-    }
-    wf(outfile, setupstack);
-    for (int i = 0; i < state.size(); i++)
-    {
-        statementsGen(state[i], map, outfile);
-    }
-    string exitStack = "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
-    wf(outfile, exitStack);
+        vector<string> tab;
+        addtabs(tab);
+        string setupstack = "";
+        if (max_size != 0)
+        {
+            setupstack = "addi $sp, $sp,-" + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
+        }
+        else
+        {
+            setupstack = "addi $sp, $sp, " + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
+        }
+        wf(outfile, setupstack);
+        for (int i = 0; i < state.size(); i++)
+        {
+            statementsGen(state[i], map, outfile);
+        }
+        string exitStack = "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
+        wf(outfile, exitStack);
+        if (pd->nameOfFunction->buffer == "main")
+        {
+            string exitStuff = "li $v0, 10 \n syscall # exited program pop into QtSpim and it should work";
+            wf(outfile, exitStuff);
+        }
 #pragma endregion // iterate function
-    // write everything in
-    string exitStuff = "li $v0, 10 \n syscall # exited program pop into QtSpim and it should work";
-    wf(outfile, exitStuff);
+    }
     outfile.close();
 }
-void a()
-{
-    gen_mips_target(nullptr);
-}
+// void a()
+// {
+//     gen_mips_target(nullptr);
+// }

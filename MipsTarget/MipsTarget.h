@@ -33,7 +33,7 @@ struct Varaible
 #endif
 
 void traverse(Node *node);
-void gen_mips_target(Node *op, string filename = "");
+void gen_mips_target(vector<FunctionNode *> op, string filename = "");
 string gen_opertors(Node *op, map<string, int> &map);
 string gen_integer_op(Node *op, map<string, Varaible *> &map);
 string gen_float_op(Node *op, map<string, Varaible *> &map);
