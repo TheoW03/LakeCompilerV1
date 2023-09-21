@@ -769,21 +769,35 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
                          : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)   ? current
                          : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
                                                                                                : nullptr;
-            
+
             pd->returnType = f1;
         }
-        matchAndRemove(tokens, type::BEGIN, "parsefunctions");
-        while (matchAndRemove(tokens, type::END, "parsefunctions") == nullptr)
+        else if (matchAndRemove(tokens, type::SEMI_COLON, "parsefunctions") != nullptr)
         {
-            RemoveEOLS(tokens);
+            Tokens *f1 = (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)    ? current
+                         : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
+                         : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)   ? current
+                         : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
+                                                                                               : nullptr;
+            pd->returnType = f1;
+            if (matchAndRemove(tokens, type::SUBTRACT, "parsefunctions") != nullptr && matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)
+            {
+                matchAndRemove(tokens, type::RETURN, "parsefunctions");
+                states.push_back(handleReturn(tokens));
+            }
+        }
 
-            states.push_back(handleSatements(tokens));
-            RemoveEOLS(tokens);
-        }
-        if (pd != nullptr)
+        if (matchAndRemove(tokens, type::BEGIN, "parsefunctions") != nullptr)
         {
-            pd->statements = states;
+            while (matchAndRemove(tokens, type::END, "parsefunctions") == nullptr)
+            {
+                RemoveEOLS(tokens);
+                states.push_back(handleSatements(tokens));
+                RemoveEOLS(tokens);
+            }
         }
+        pd->statements = states;
+
         functionNodes.push_back(pd);
         RemoveEOLS(tokens);
         // return pd;

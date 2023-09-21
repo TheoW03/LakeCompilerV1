@@ -1,13 +1,10 @@
-fn main(string args) returns int{ //shout out to ada lovelace
+fn main(string args) returns int{
+    int pi = 3;
+    return 0;
+}
 
-const int a = 10;
-print("%d", a);
-}
-fn b(){
-    const int a = 10;
-    print("%d", a);
-}
-fn c(){
-    const int a = 10;
-    print("%d", a);
+fn f(int x) : int -> return x + 1;
+
+fn hello(int a) returns int { 
+    return 0;
 }

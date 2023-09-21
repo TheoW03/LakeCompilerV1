@@ -52,7 +52,8 @@ enum class type
     GTE,
     BOOL,
     CONSTANT,
-    RETURNS
+    RETURNS,
+    SEMI_COLON
 
 };
 #endif // TYPE

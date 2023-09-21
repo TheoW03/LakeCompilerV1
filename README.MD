@@ -32,10 +32,7 @@ fn main(string args) returns int { //this is how you call the main method (this 
     return 0;
     
 }
-fn f(int x) returns int{
-    return x+1;
-}
-
+fn f(int x) : int -> return x + 1; //new feature i been thinking of. 
 ```
 
  # run transpiled code

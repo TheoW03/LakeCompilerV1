@@ -48,7 +48,8 @@ enum class type
     GTE,
     BOOL,
     CONSTANT,
-    RETURNS
+    RETURNS,
+    SEMI_COLON
 };
 struct Tokens
 {
@@ -133,6 +134,8 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::CONSTANT] = "CONST";
     dictionary[type::RETURNS] = "RETURNS";
 
+    dictionary[type::SEMI_COLON] = "SEMI_COLON";
+
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
     typeOfOP["-"] = type::SUBTRACT;
@@ -172,6 +175,7 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["bool"] = type::BOOL;
     typeOfOP["const"] = type::CONSTANT;
     typeOfOP["returns"] = type::RETURNS;
+    typeOfOP[":"] = type::SEMI_COLON;
 
 #pragma endregion
     int wordstate = 1;
@@ -379,7 +383,17 @@ vector<Tokens> lex(vector<string> lines)
                             }
                             buffer = "";
                         }
-                        if (str == "-")
+                        if (buffer == "-" && str == ">")
+                        {
+                            buffer += str;
+                            if (buffer == "->")
+                            {
+                                modifyStruct(token, typeOfOP[buffer], dictionary, buffer);
+                                buffer = "";
+                            }
+                            state = 1;
+                        }
+                        else if (str == "-")
                         {
                             cout << "here" << endl;
                             buffer += str;

@@ -26,7 +26,7 @@ void handle_cli(char *argv[], int argc)
             printList(a);
             cout << "lexxed" << endl;
             printList(a);
-            vector<FunctionNode*> c = functionParse(a);
+            vector<FunctionNode *> c = functionParse(a);
             cout << "parsed" << endl;
             if (c.size() == 0)
             {
@@ -51,7 +51,7 @@ void handle_cli(char *argv[], int argc)
         }
     }
 
-    vector<FunctionNode*> c = functionParse(a);
+    vector<FunctionNode *> c = functionParse(a);
 
     string file1 = "";
     for (int i = 0; i < argc; i++)
@@ -70,8 +70,9 @@ void handle_cli(char *argv[], int argc)
 int main(int argc, char *argv[])
 {
 
-    handle_cli(argv, argc);
+    // handle_cli(argv, argc);
     // vector<Tokens> a = lex(readFile("test.txt"));
+    // printList(a);
     // vector<FunctionNode *> b = functionParse(a);
     // gen_mips_target(b);
     //     cout << "compiled sucessfully" << endl;
