@@ -95,7 +95,10 @@ struct StatementNode : public Node
     struct Node *expression;
     struct Tokens *nameOfVar;
 };
-
+struct ReturnStatment : public Node
+{
+    Node *expression;
+};
 // struct ConstantVarNode : public Node
 // {
 //     Node *expression;

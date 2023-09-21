@@ -64,6 +64,10 @@ struct BooleanLiteralNode : public Node
 {
     Tokens *value;
 };
+struct ReturnStatment : public Node
+{
+    Node *expression;
+};
 struct BoolExpressionNode : public Node
 {
     Node *right;
@@ -638,6 +642,13 @@ Node *handleIfStatements(vector<Tokens> &tokens)
     ifStatement->statements = states;
     return ifStatement;
 }
+
+Node *handleReturn(vector<Tokens> &tokens)
+{
+    ReturnStatment *returns = new ReturnStatment;
+    returns->expression = expression(tokens);
+    return returns;
+}
 /**
  * @brief function stuff
  *
@@ -671,6 +682,7 @@ Node *handleSatements(vector<Tokens> &tokens)
                 : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr)   ? current
                 : (matchAndRemove(tokens, type::IF, "k") != nullptr)                    ? current
                 : (matchAndRemove(tokens, type::LOOP, "k") != nullptr)                  ? current
+                : (matchAndRemove(tokens, type::RETURN, "k") != nullptr)                ? current
                                                                                         : nullptr;
 
     if (a != nullptr)
@@ -682,6 +694,10 @@ Node *handleSatements(vector<Tokens> &tokens)
         if (a->id == type::LOOP)
         {
             return handleLoops(tokens);
+        }
+        if (a->id == type::RETURN)
+        {
+            return handleReturn(tokens);
         }
 
         Node *var;
