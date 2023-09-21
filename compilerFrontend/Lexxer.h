@@ -51,7 +51,8 @@ enum class type
     LTE,
     GTE,
     BOOL,
-    CONSTANT
+    CONSTANT,
+    RETURNS
 
 };
 #endif // TYPE

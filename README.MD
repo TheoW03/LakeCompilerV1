@@ -13,24 +13,27 @@ coded by TheoW03, in C++
 //* -> multiply
 // / -> divison
 // +,- -> addition and subtraction
-#define tau 6.28318531 //it can lex this but no support for parsing this yet  but this is a macro
 
-function main(string args){ //this is how you call the main method (this is how you do comments)
-    float pi = 3.1415; // floats
-    int random_constant = 100; //integer
+fn main(string args) returns int { //this is how you call the main method (this is how you do comments), returns for return
+    const float pi = 3.1415; // floats
+    int random_var = 100; //integer
     bool turringComplete = true; //i think lol 
-    random_constant = pi + random_constant * ((pi + random_constant) % 2)/10; 
+    random_var = pi + random_var * ((pi + random_var) % 2)/10; 
     //if statemnets
-    if(random_constant == 100){
-        print("%d", random_constant);
+    if(random_var == 100){
+        print("%d", random_var);
     }
     //loops 
-    while(random_constant < 1000){
-        random_constant = random_constant + 1;
+    while(random_var < 1000){
+        random_var = random_var + 1;
     }
-    print("%f",random_constant); // %f -> float %d -> integer. this is a temp system until I add something better :3
+    print("%f",random_var); // %f -> float %d -> integer. this is a temp system until I add something better :3
     exit(1); //exit
+    return 0;
     
+}
+fn f(int x) returns int{
+    return x+1;
 }
 
 ```

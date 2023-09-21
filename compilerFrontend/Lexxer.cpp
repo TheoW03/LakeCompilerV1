@@ -47,7 +47,8 @@ enum class type
     LTE,
     GTE,
     BOOL,
-    CONSTANT
+    CONSTANT,
+    RETURNS
 };
 struct Tokens
 {
@@ -130,6 +131,7 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::LTE] = "LTE";
     dictionary[type::BOOL] = "BOOL";
     dictionary[type::CONSTANT] = "CONST";
+    dictionary[type::RETURNS] = "RETURNS";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -139,7 +141,9 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["("] = type::OP_PARENTHISIS;
     typeOfOP[")"] = type::CL_PARENTHISIS;
     typeOfOP["%"] = type::MOD;
-    typeOfOP["function"] = type::FUNCTION;
+    // typeOfOP["function"] = type::FUNCTION;
+    typeOfOP["fn"] = type::FUNCTION;
+
     typeOfOP["if"] = type::IF;
     typeOfOP["and"] = type::AND;
     typeOfOP["or"] = type::OR;
@@ -167,6 +171,7 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["false"] = type::FALSE;
     typeOfOP["bool"] = type::BOOL;
     typeOfOP["const"] = type::CONSTANT;
+    typeOfOP["returns"] = type::RETURNS;
 
 #pragma endregion
     int wordstate = 1;

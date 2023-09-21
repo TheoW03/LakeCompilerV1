@@ -1,13 +1,13 @@
-function main(string args){
+fn main(string args) returns int{ //shout out to ada lovelace
 
 const int a = 10;
 print("%d", a);
 }
-function b(){
+fn b(){
     const int a = 10;
     print("%d", a);
 }
-function c(){
+fn c(){
     const int a = 10;
     print("%d", a);
 }

@@ -111,6 +111,7 @@ struct FunctionNode : public Node
     struct Tokens *nameOfFunction;
     vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
+    Tokens* returnType;
 };
 #endif // NODE_H
 

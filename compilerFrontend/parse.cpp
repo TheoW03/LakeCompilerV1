@@ -135,6 +135,7 @@ struct FunctionNode : public Node
     struct Tokens *nameOfFunction;
     vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
+    Tokens *returnType;
 };
 #pragma endregion
 Node *expression(vector<Tokens> &tokens);
@@ -754,10 +755,23 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
     {
 
         FunctionNode *f;
+
         vector<Node *> states;
         // if (matchAndRemove(tokens, type::FUNCTION, "functioon parse") != nullptr)
         // {
         Node *func = handleFunctions(tokens);
+        FunctionNode *pd = dynamic_cast<FunctionNode *>(func);
+
+        if (matchAndRemove(tokens, type::RETURNS, "parsefunctions") != nullptr)
+        {
+            Tokens *f1 = (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)    ? current
+                         : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
+                         : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)   ? current
+                         : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
+                                                                                               : nullptr;
+            
+            pd->returnType = f1;
+        }
         matchAndRemove(tokens, type::BEGIN, "parsefunctions");
         while (matchAndRemove(tokens, type::END, "parsefunctions") == nullptr)
         {
@@ -766,7 +780,6 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
             states.push_back(handleSatements(tokens));
             RemoveEOLS(tokens);
         }
-        FunctionNode *pd = dynamic_cast<FunctionNode *>(func);
         if (pd != nullptr)
         {
             pd->statements = states;
