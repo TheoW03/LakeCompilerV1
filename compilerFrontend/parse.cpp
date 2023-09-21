@@ -782,7 +782,6 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
             pd->returnType = f1;
             if (matchAndRemove(tokens, type::SUBTRACT, "parsefunctions") != nullptr && matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)
             {
-                matchAndRemove(tokens, type::RETURN, "parsefunctions");
                 states.push_back(handleReturn(tokens));
             }
         }

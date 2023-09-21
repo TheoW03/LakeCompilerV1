@@ -3,7 +3,7 @@ fn main(string args) returns int{
     return 0;
 }
 
-fn f(int x) : int -> return x + 1;
+fn f(int x) : int -> x + 1;
 
 fn hello(int a) returns int { 
     return 0;
