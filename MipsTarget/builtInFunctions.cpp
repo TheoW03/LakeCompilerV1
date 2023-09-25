@@ -23,6 +23,7 @@ void builtInFunction::setup_params(vector<Node *> params, string &gen_string, ma
 Print::Print()
 {
 }
+
 void Print::setup_params(vector<Node *> params, string &gen_string, map<string, Varaible *> map)
 {
     if (instanceof <stringNode *>(params[0]))
@@ -94,7 +95,6 @@ void Print::execute_code_integer(string &gen_string, string registers)
     gen_string += "li  $v0, 1 \n move $a0, " + registers + "\n syscall \n";
     gen_string += "li $a0, 10 \n li $v0, 11 \n syscall \n"; // new line
 }
-
 void Print::execute_code_float(string &gen_string, string registers = "")
 {
 

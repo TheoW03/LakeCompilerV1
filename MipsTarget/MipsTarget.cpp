@@ -39,6 +39,7 @@ void remove(vector<string> &tabs)
     tabs.pop_back();
 }
 int nextRegister = -1;
+int nextArgRegister = -1;
 string allocateReg()
 {
     if (nextRegister >= 9)
@@ -47,6 +48,15 @@ string allocateReg()
     }
     nextRegister++;
     return "$t" + to_string(nextRegister);
+}
+string allocate_argumentRegister()
+{
+    if (nextArgRegister >= 9)
+    {
+        nextArgRegister = -1;
+    }
+    nextArgRegister++;
+    return "$a" + to_string(nextArgRegister);
 }
 string global_string = "";
 void freeReg()
@@ -637,6 +647,7 @@ void interptFunctions()
 // {
 //     return (int)num / 6536;
 // }
+
 void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outfile)
 {
     map<type, builtInFunction *> functions;
@@ -927,6 +938,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
 
         // FILE* fp = fopen("output.s", "w");
         FunctionNode *pd = dynamic_cast<FunctionNode *>(op[i]);
+
         vector<Node *> state = pd->statements;
         map<string, Varaible *> map;
         max_size = 0;
@@ -936,6 +948,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
 #pragma region iterate vector of functions sarts here
         string function_name = pd->nameOfFunction->buffer + ": \n";
         wf(outfile, function_name);
+        
         gen_function(state, max_size);
 
         vector<string> tab;

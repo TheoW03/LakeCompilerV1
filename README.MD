@@ -1,4 +1,4 @@
-# MIPSTrans32
+# MTLake32
 
 a MIPS 32 target Transpiler. from a pythonic, JS, C like syntax
 
