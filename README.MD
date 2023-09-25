@@ -35,7 +35,20 @@ fn main(string args) returns int { //this is how you call the main method (this 
 fn f(int x) : int -> x + 1; //new feature i been thinking of. for a while >:3
 ```
 
- # run transpiled code
+# CLI commands
+
+1st arg is the file name
+
+-d : runs a demo of this dir, the file is test.txt and the out file is MIPSTarget/MipsTargetASM/out.s
+
+-token : outputs the token list
+
+-o ``file``:  output file if none specified its going to be MipsTarget/MipsTargetASM/out.s
+
+-v : version
+
+
+# run transpiled code
 
 <b>MIPS target</b>
 
@@ -57,14 +70,3 @@ https://spimsimulator.sourceforge.net/
 <br>
 
 
-# CLI commands
-
-1st arg is the file name
-
--d : runs a demo of this dir, the file is test.txt and the out file is MIPSTarget/MipsTargetASM/out.s
-
--token : outputs the token list
-
--o ``file``:  output file if none specified its going to be MipsTarget/MipsTargetASM/out.s
-
--v : version
