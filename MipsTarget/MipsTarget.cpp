@@ -561,16 +561,18 @@ void wf(ofstream &outfile, string word)
 
 // here includethe size of var.
 // and type load into struct and it will return that
+int stack_number = 0;
+
 void prepare_interptMips(VaraibleDeclaration *var, map<string, Varaible *> &map, int size)
 {
     // max_size += 4;
+    stack_number += size;
     Varaible *a = new Varaible;
     a->constant = var->constant;
-    a->stackNum = max_size;
+    a->stackNum = stack_number;
     a->varType = var->typeOfVar;
     map[var->varailbe->buffer] = a;
 }
-int stack_number = 0;
 
 void gen_function(vector<Node *> state, int &stackNum)
 {
@@ -596,6 +598,14 @@ void gen_function(vector<Node *> state, int &stackNum)
             VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(state[i]);
             stackNum += 4;
         }
+        // else if (instanceof <funcCallNode *>(state[i]))
+        // {
+        //     funcCallNode *pd = dynamic_cast<funcCallNode *>(state[i]);
+        //     if (pd->funcCall->id == type::WORD)
+        //     {
+        //         stackNum += 4;
+        //     }
+        // }
         // if (instanceof <IfSatementNode *>(state[i]))
         // {
         //     IfSatementNode *pd = dynamic_cast<IfSatementNode *>(state[i]);
@@ -826,7 +836,12 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
         }
         else
         {
-            // load params into register a and do the rest
+            vector<Node *> para = pd->params;
+            global_string += "sw $ra,4($sp) \n";
+            global_string += "jal " + pd->funcCall->buffer + "\n";
+            global_string += "lw $ra,4($sp) \n";
+            wf(outfile, global_string);
+            global_string = "";
         }
     }
     else if (instanceof <IfSatementNode *>(statement))
@@ -941,14 +956,15 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
 
         vector<Node *> state = pd->statements;
         map<string, Varaible *> map;
-        max_size = 0;
+        max_size = 4;
+        stack_number = 4;
         map["."] = 0;
 
 // where to iterate on list of vectors
 #pragma region iterate vector of functions sarts here
         string function_name = pd->nameOfFunction->buffer + ": \n";
         wf(outfile, function_name);
-        
+
         gen_function(state, max_size);
 
         vector<string> tab;
