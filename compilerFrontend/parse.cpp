@@ -177,12 +177,12 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
     {
         return nullptr;
     }
-    cout << "caller: " + caller << endl;
-    cout << "passed: " + tokens[0].dictionary[typeT];
-    cout << "\n";
-    cout << "id: " + tokens[0].dictionary[tokens[0].id];
-    cout << "\n";
-    cout << "buf: " + tokens[0].buffer + " \n";
+    // cout << "caller: " + caller << endl;
+    // cout << "passed: " + tokens[0].dictionary[typeT];
+    // cout << "\n";
+    // cout << "id: " + tokens[0].dictionary[tokens[0].id];
+    // cout << "\n";
+    // cout << "buf: " + tokens[0].buffer + " \n";
     if (tokens[0].id == typeT)
     {
 
@@ -749,7 +749,6 @@ Node *handleSatements(vector<Tokens> &tokens)
  */
 vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
 {
-    printList(tokens);
     vector<FunctionNode *> functionNodes;
     while (matchAndRemove(tokens, type::FUNCTION, "functioon parse") != nullptr)
     {

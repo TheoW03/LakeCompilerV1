@@ -558,8 +558,6 @@ void wf(ofstream &outfile, string word)
     outfile << word << endl;
 }
 
-// here includethe size of var.
-// and type load into struct and it will return that
 int stack_number = 0;
 
 void prepare_interptMips(VaraibleDeclaration *var, map<string, Varaible *> &map, int size)
@@ -597,65 +595,8 @@ void gen_function(vector<Node *> state, int &stackNum)
             VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(state[i]);
             stackNum += 4;
         }
-        // else if (instanceof <funcCallNode *>(state[i]))
-        // {
-        //     funcCallNode *pd = dynamic_cast<funcCallNode *>(state[i]);
-        //     if (pd->funcCall->id == type::WORD)
-        //     {
-        //         stackNum += 4;
-        //     }
-        // }
-        // if (instanceof <IfSatementNode *>(state[i]))
-        // {
-        //     IfSatementNode *pd = dynamic_cast<IfSatementNode *>(state[i]);
-        //     gen_function(pd->statements, map);
-        // }
-        // else if (instanceof <LoopNode *>(state[i]))
-        // {
-        //     LoopNode *pd = dynamic_cast<LoopNode *>(state[i]);
-        //     gen_function(pd->statements, map);
-        // }
-        // else if (instanceof <varaibleNode *>(state[i]))
-        // {
-        //     varaibleNode *pd = dynamic_cast<varaibleNode *>(state[i]);
-
-        //     if (map.find(pd->varailbe->buffer) == map.end())
-        //     {
-        //         prepare_interptMips(pd, map);
-        //     }
-        // }
     }
 }
-void interptFunctions()
-{
-}
-// void gen_function(FunctionNode *function, map<string, Varaible *> &map)
-// {
-//     vector<Node *> state = function->statements;
-
-//     for (int i = 0; i < state.size(); i++)
-//     {
-
-//         if (instanceof <varaibleNode *>(state[i]))
-//         {
-//             varaibleNode *pd = dynamic_cast<varaibleNode *>(state[i]);
-
-//             if (map.find(pd->varailbe->buffer) == map.end())
-//             {
-//                 prepare_interptMips(pd, map);
-//             }
-//         }
-//         else
-//         {
-//             cout << "null ptr \n";
-//         }
-//     }
-// }
-
-// int convert_toFixPoint(float num)
-// {
-//     return (int)num / 6536;
-// }
 
 void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, FunctionNode *> f, ofstream &outfile)
 {
@@ -733,7 +674,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
             wf(outfile, add);
         }
     }
-    if (instanceof <VaraibleReference *>(statement))
+    else if (instanceof <VaraibleReference *>(statement))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(statement);
 
@@ -818,7 +759,6 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
         }
         freeReg();
     }
-
     else if (instanceof <funcCallNode *>(statement))
     {
         funcCallNode *pd = dynamic_cast<funcCallNode *>(statement);
@@ -1066,7 +1006,3 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
     }
     outfile.close();
 }
-// void a()
-// {
-//     gen_mips_target(nullptr);
-// }
