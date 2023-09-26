@@ -61,7 +61,6 @@ string allocate_argumentRegister()
 string global_string = "";
 void freeReg()
 {
-
     nextRegister--;
     if (nextRegister < 0)
     {
@@ -658,7 +657,7 @@ void interptFunctions()
 //     return (int)num / 6536;
 // }
 
-void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outfile)
+void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, FunctionNode *> f, ofstream &outfile)
 {
     map<type, builtInFunction *> functions;
 
@@ -837,6 +836,49 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
         else
         {
             vector<Node *> para = pd->params;
+            vector<VaraibleDeclaration *> param = f[pd->funcCall->buffer]->params;
+            for (int i = 0; i < param.size(); i++)
+            {
+                if (param[i]->typeOfVar->id == type::FLOAT)
+                {
+                    if (check_if_pureExpression(para[i]) == 0)
+                    {
+                        string a = "li " + allocate_argumentRegister() + "," + to_string(constant_prop_float(para[i])) + "\n";
+                        wf(outfile, a);
+                        a = "";
+                    }
+                    else
+                    {
+                        global_string = "";
+                        string reg = gen_float_op(para[i], var);
+                        wf(outfile, global_string);
+                        string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+                        wf(outfile, a);
+                        global_string = "";
+                        a = "";
+                    }
+                }
+                else if (param[i]->typeOfVar->id == type::INT)
+                {
+                    if (check_if_pureExpression(para[i]) == 0)
+                    {
+                        string a = "li " + allocate_argumentRegister() + "," + to_string(constant_prop_integer(para[i])) + "\n";
+                        wf(outfile, a);
+                        a = "";
+                    }
+                    else
+                    {
+                        global_string = "";
+                        string reg = gen_integer_op(para[i], var);
+                        wf(outfile, global_string);
+                        string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+                        wf(outfile, a);
+                        global_string = "";
+                        a = "";
+                    }
+                }
+            }
+            nextArgRegister = -1;
             global_string += "sw $ra,4($sp) \n";
             global_string += "jal " + pd->funcCall->buffer + "\n";
             global_string += "lw $ra,4($sp) \n";
@@ -862,7 +904,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen(pd->statements[i], var, outfile); // write a new function for this T~T
+            statementsGen(pd->statements[i], var, f, outfile); // write a new function for this T~T
             if (instanceof <IfSatementNode *>(pd->statements[i]))
             {
                 c = 1;
@@ -904,7 +946,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, ofstream &outf
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen(pd->statements[i], var, outfile); // write a new function for this T~T
+            statementsGen(pd->statements[i], var, f, outfile); // write a new function for this T~T
         }
         global_string += "L" + to_string(b) + ": \n # condition";
         wf(outfile, global_string);
@@ -935,6 +977,9 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
     functions[type::PRINT] = new Print();
     functions[type::EXIT] = new Exit();
 
+    map<string, FunctionNode *> f;
+    f["."] = nullptr;
+
     string dirname = "MipsTarget/MipsTargetASM/";
     int status = fs::create_directories(dirname);
 
@@ -947,6 +992,11 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
     string word = ".data \n .text \n";
 
     wf(outfile, word);
+    for (int i = 0; i < op.size(); i++)
+    {
+
+        f[op[i]->nameOfFunction->buffer] = op[i];
+    }
 
     for (int i = 0; i < op.size(); i++)
     {
@@ -964,7 +1014,14 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
 #pragma region iterate vector of functions sarts here
         string function_name = pd->nameOfFunction->buffer + ": \n";
         wf(outfile, function_name);
-
+        vector<VaraibleDeclaration *> params = pd->params;
+        if (pd->nameOfFunction->buffer != "main")
+        {
+            for (int i = 0; i < params.size(); i++)
+            {
+                max_size += 4;
+            }
+        }
         gen_function(state, max_size);
 
         vector<string> tab;
@@ -979,9 +1036,24 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
             setupstack = "addi $sp, $sp, " + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
         }
         wf(outfile, setupstack);
+        if (pd->nameOfFunction->buffer != "main")
+        {
+            for (int i = 0; i < params.size(); i++)
+            {
+                prepare_interptMips(params[i], map, 4);
+            }
+            string add;
+            for (int i = 0; i < params.size(); i++)
+            {
+                add += "sw " + allocate_argumentRegister() + "," + to_string(map[params[i]->varailbe->buffer]->stackNum) + "($sp) \n";
+            }
+            nextArgRegister = -1;
+            wf(outfile, add);
+        }
+
         for (int i = 0; i < state.size(); i++)
         {
-            statementsGen(state[i], map, outfile);
+            statementsGen(state[i], map, f, outfile);
         }
         string exitStack = "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
         wf(outfile, exitStack);

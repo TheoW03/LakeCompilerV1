@@ -1,15 +1,15 @@
 fn main(string args) returns int{
     int pi = 1;
-    func1();
+    func1(pi);
     return 0;
 }
-fn func1(string args) returns int{
+fn func1(int a) returns int{
     int pi = 2;
-    print("%d",pi);
+    print("%d",a);
     func2();
     return 0;
 }
-fn func2(string args) returns int{
+fn func2() returns int{
     int pi = 3;
     print("%d",pi);
     return 0;
