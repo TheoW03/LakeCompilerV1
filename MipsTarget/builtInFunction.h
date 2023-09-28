@@ -1,9 +1,13 @@
-#include "../compilerFrontend/parser.h"
 #include <iostream>
-#include <string.h>
-#include "../compilerFrontend/Lexxer.h"
+#include <string>
+#include <vector>
+
 #include "../compilerFrontend/parser.h"
+#include "../compilerFrontend/Lexxer.h"
+#include "../MipsTarget/UtilFunctions.h"
+#include "../compilerFrontend/optimizations.h"
 #include "../MipsTarget/MipsTarget.h"
+
 using namespace std;
 
 #ifndef BUILT_IN_H

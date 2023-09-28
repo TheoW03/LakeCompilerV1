@@ -1,12 +1,15 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <vector>
 
 #include <sys/stat.h>
 #include <fstream>
 #include <typeinfo>
 #include <filesystem>
 #include "../compilerFrontend/Lexxer.h"
+#include "../MipsTarget/UtilFunctions.h"
+
 #include "../compilerFrontend/parser.h"
 #include "../compilerFrontend/optimizations.h"
 #include "../MipsTarget/builtInFunction.h"
@@ -17,11 +20,7 @@ using namespace std;
 
 #define OFFSET_HEXA 0x10000
 
-template <typename Base, typename T>
-bool instanceof (T * ptr)
-{
-    return dynamic_cast<Base>(ptr);
-}
+
 
 int max_size = 0;
 
@@ -29,15 +28,12 @@ Node::~Node()
 {
     // implementation of the destructor goes here
 }
-
-void addtabs(vector<string> &tabs)
+struct Scope_dimension
 {
-    tabs.push_back("\t");
-}
-void remove(vector<string> &tabs)
-{
-    tabs.pop_back();
-}
+    map<string, Varaible *> vars;
+    int stack_allocation;
+};
+// int scope_dimension = 1;
 int nextRegister = -1;
 int nextArgRegister = -1;
 string allocateReg()
@@ -49,6 +45,32 @@ string allocateReg()
     nextRegister++;
     return "$t" + to_string(nextRegister);
 }
+Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
+{
+    for (int i = 0; i < scope.size(); i++)
+    {
+        map<string, Varaible *> b = scope[i]->vars;
+        if (b.find(var->varailbe->buffer) != b.end())
+        {
+            return b[var->varailbe->buffer];
+        }
+    }
+    return nullptr;
+}
+
+void allocate_Scope(vector<Scope_dimension *> &scope)
+{
+    Scope_dimension *a = new Scope_dimension;
+    map<string, Varaible *> b;
+    a->vars = b;
+    scope.push_back(a);
+}
+
+void deallocate_Scope(VaraibleReference *var, vector<Scope_dimension *> &scope)
+{
+    scope.erase(scope.end());
+}
+
 string allocate_argumentRegister()
 {
     if (nextArgRegister >= 9)
@@ -81,9 +103,11 @@ string gen_string(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
         cout << "null \n";
         return "";
     }
+
     if (instanceof <stringNode *>(op))
     {
         stringNode *pd = dynamic_cast<stringNode *>(op);
+        // instanceof1<stringNode *>(op);
         // allocate size
 
         /*
@@ -946,10 +970,13 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
 
         vector<Node *> state = pd->statements;
         map<string, Varaible *> map;
+        vector<Scope_dimension *> scope;
+        Scope_dimension *l = new Scope_dimension;
         max_size = 4;
         stack_number = 4;
         map["."] = 0;
-
+        l->vars = map;
+        allocate_Scope(scope);
 // where to iterate on list of vectors
 #pragma region iterate vector of functions sarts here
         string function_name = pd->nameOfFunction->buffer + ": \n";
@@ -965,7 +992,6 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         gen_function(state, max_size);
 
         vector<string> tab;
-        addtabs(tab);
         string setupstack = "";
         if (max_size != 0)
         {

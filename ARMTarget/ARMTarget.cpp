@@ -10,10 +10,12 @@
 #include <cstdlib>
 #include <sys/stat.h>
 #include <filesystem>
+#include <typeinfo>
 
 #include "../compilerFrontend/Lexxer.h"
 #include "../compilerFrontend/parser.h"
 #include "../MipsTarget/MipsTarget.h"
+
 using namespace std;
 namespace fs = std::filesystem;
 

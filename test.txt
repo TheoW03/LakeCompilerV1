@@ -1,11 +1,11 @@
 fn main(string args) returns int{
-    int pi = 1;
+    int pi = 40;
     func1(pi);
     return 0;
 }
-fn func1(int a) returns int{
+fn func1(float a) returns int{
     int pi = 2;
-    print("%d",a);
+    print("%f",a);
     func2();
     return 0;
 }

@@ -1,7 +1,13 @@
 #include <iostream>
+#include <string>
+#include <vector>
+
 #include "../MipsTarget/builtInFunction.h"
 #include "../compilerFrontend/parser.h"
 #include "../compilerFrontend/Lexxer.h"
+#include "../MipsTarget/UtilFunctions.h"
+#include "../compilerFrontend/optimizations.h"
+#include "../MipsTarget/MipsTarget.h"
 
 using namespace std;
 

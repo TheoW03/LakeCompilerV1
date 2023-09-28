@@ -5,9 +5,10 @@
 #include <typeinfo>
 #include <sstream>
 
+#define OFFSET 65536
+
 using namespace std;
 
-#define OFFSET 65536
 #pragma region Node
 
 // useless
@@ -38,6 +39,11 @@ struct Node
 //     Tokens *typeOfVar;
 //     int size;
 // };
+template <typename Base, typename T> 
+bool instanceof2 (T * ptr)
+{
+    return (dynamic_cast<Base>(ptr) != nullptr);
+}
 
 struct VaraibleDeclaration : public Node
 {

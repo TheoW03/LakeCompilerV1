@@ -7,7 +7,7 @@
 #include <filesystem>
 #include "../compilerFrontend/Lexxer.h"
 #include "../compilerFrontend/parser.h"
-#include "../MipsTarget/MipsTarget.h"
+#include "../MipsTarget/UtilFunctions.h"
 // #include "../compilerFrontend/parser.h"
 
 using namespace std;
