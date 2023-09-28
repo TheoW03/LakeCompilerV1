@@ -32,18 +32,6 @@ struct Node
     int value;
     status s = status::NODE;
 };
-// struct ConstantVarNode : public Node
-// {
-//     Node *expression;
-//     Tokens *varailbe;
-//     Tokens *typeOfVar;
-//     int size;
-// };
-template <typename Base, typename T> 
-bool instanceof2 (T * ptr)
-{
-    return (dynamic_cast<Base>(ptr) != nullptr);
-}
 
 struct VaraibleDeclaration : public Node
 {
