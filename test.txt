@@ -1,5 +1,7 @@
 fn main(string args) returns int{
     int pi = 40;
+    float a = pi + 0.5;
+    print("%f", a);
     func1(pi);
     return 0;
 }

@@ -13,6 +13,8 @@
 #include "../compilerFrontend/parser.h"
 #include "../compilerFrontend/optimizations.h"
 #include "../MipsTarget/builtInFunction.h"
+#include "../MipsTarget/VaraibleScope.h"
+#include "../MipsTarget/ExpressionTree.h"
 
 namespace fs = std::filesystem;
 
@@ -20,556 +22,14 @@ using namespace std;
 
 #define OFFSET_HEXA 0x10000
 
-
-
-int max_size = 0;
-
 Node::~Node()
 {
     // implementation of the destructor goes here
 }
-struct Scope_dimension
-{
-    map<string, Varaible *> vars;
-    int stack_allocation;
-};
-// int scope_dimension = 1;
-int nextRegister = -1;
-int nextArgRegister = -1;
-string allocateReg()
-{
-    if (nextRegister >= 9)
-    {
-        nextRegister = -1;
-    }
-    nextRegister++;
-    return "$t" + to_string(nextRegister);
-}
-Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
-{
-    for (int i = 0; i < scope.size(); i++)
-    {
-        map<string, Varaible *> b = scope[i]->vars;
-        if (b.find(var->varailbe->buffer) != b.end())
-        {
-            return b[var->varailbe->buffer];
-        }
-    }
-    return nullptr;
-}
 
-void allocate_Scope(vector<Scope_dimension *> &scope)
-{
-    Scope_dimension *a = new Scope_dimension;
-    map<string, Varaible *> b;
-    a->vars = b;
-    scope.push_back(a);
-}
-
-void deallocate_Scope(VaraibleReference *var, vector<Scope_dimension *> &scope)
-{
-    scope.erase(scope.end());
-}
-
-string allocate_argumentRegister()
-{
-    if (nextArgRegister >= 9)
-    {
-        nextArgRegister = -1;
-    }
-    nextArgRegister++;
-    return "$a" + to_string(nextArgRegister);
-}
 string global_string = "";
-void freeReg()
-{
-    nextRegister--;
-    if (nextRegister < 0)
-    {
-        nextRegister = 0;
-    }
-}
-
-float interptObjs(Node *op)
-{
-    return 0.0f;
-}
-
-#pragma region this is for the expression tree
-string gen_string(Node *op, vector<string> &tabs, map<string, Varaible *> &map)
-{
-    if (op == nullptr)
-    {
-        cout << "null \n";
-        return "";
-    }
-
-    if (instanceof <stringNode *>(op))
-    {
-        stringNode *pd = dynamic_cast<stringNode *>(op);
-        // instanceof1<stringNode *>(op);
-        // allocate size
-
-        /*
-          li $v0,9      # allocate syscall code.
-        li $a0,64    # 64 bytes allocated in heap.
-        syscall
-        sw $v0, p   # pointer p to  heap space
-
-        li $t0,'a'      # first byte 'a' char
-        sb $t0,0($v0)
-        li $t0,'b'      # second byte 'b' char
-        sb $t0,1($v0)
-        li $t0, 'c'
-        sb $t0, 2($v0)
-        li $t0, 'd'
-        sb $t0, 3($v0)
-
-        */
-        // and yehs
-    }
-}
-string gen_float_op(Node *op, map<string, Varaible *> &map)
-{
-    if (op == nullptr)
-    {
-        cout << "null \n";
-        return "";
-    }
-    if (instanceof <IntegerNode *>(op))
-    {
-        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
-        cout << "works in num \n";
-        string reg = allocateReg();
-        int num = stoi(pd->num) * OFFSET;
-        global_string += "li " + reg + "," + to_string(num) + "\n";
-        return reg;
-    }
-    if (instanceof <FloatNode *>(op))
-    {
-        FloatNode *pd = dynamic_cast<FloatNode *>(op);
-        string reg = allocateReg();
-        global_string += "li " + reg + "," + pd->num + "\n";
-        return reg;
-    }
-
-    // varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
-    if (instanceof <VaraibleReference *>(op))
-    {
-        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
-        // type a = map[pd1->varailbe->buffer]->varType->id;
-        if (map[pd->varailbe->buffer]->varType->id == type::INT)
-        {
-
-            string reg = allocateReg();
-            string reg2 = allocateReg();
-            string resultReg = allocateReg();
-
-            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-
-            global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
-
-            global_string += "mult " + reg + "," + reg2 + " \n";
-            global_string += "mflo " + resultReg + " \n"; // scaling
-            freeReg();
-            freeReg();
-
-            return resultReg;
-        }
-        else
-        {
-            string reg = allocateReg();
-            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-            return reg;
-        }
-        string reg = allocateReg();
-        global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-        return reg;
-    }
-    if (instanceof <operatorNode *>(op))
-    {
-        cout << "is in op node \n";
-        operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
-        type t = pd->token->id;
-
-        string resultReg = allocateReg();
-        if (t == type::ADDITION)
-        {
-            // return
-            string left = gen_float_op(op->left, map);
-
-            string right = gen_float_op(op->right, map);
-            global_string += "add " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::SUBTRACT)
-        {
-            // return
-            string left = gen_float_op(op->left, map);
-            cout << "sub";
-
-            string right = gen_float_op(op->right, map);
-
-            global_string += "sub " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::MULTIPLY)
-        {
-            // return
-            string left = gen_float_op(op->left, map);
-            string right = gen_float_op(op->right, map);
-            global_string += "mult " + left + ", " + right + " \n";
-            global_string += "mflo " + resultReg + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::DIVISION)
-        {
-            // return
-            string left = gen_float_op(op->left, map);
-            string right = gen_float_op(op->right, map);
-            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::MOD)
-        {
-
-            string left = gen_float_op(op->left, map);
-            string right = gen_float_op(op->right, map);
-            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
-            global_string += "mfhi " + resultReg + "\n";
-            freeReg();
-            freeReg();
-            return resultReg;
-            //           div $t4,$v0, $t3
-            // div $t4, $t3, 10
-            // mfhi $t3
-        }
-    }
-}
-string gen_integer_op(Node *op, map<string, Varaible *> &map)
-{
-
-    if (op == nullptr)
-    {
-        cout << "null \n";
-        return "";
-    }
-
-    if (instanceof <IntegerNode *>(op))
-    {
-        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
-        cout << "works in num \n";
-
-        string reg = allocateReg();
-        global_string += "li " + reg + "," + pd->num + "\n";
-        return reg;
-    }
-    if (instanceof <FloatNode *>(op))
-    {
-        FloatNode *pd = dynamic_cast<FloatNode *>(op);
-        string reg = allocateReg();
-        float fixedpoint = (float)stoi(pd->num) / OFFSET;
-        int fp2 = (int)fixedpoint;
-        string num = to_string(fp2);
-        global_string += "li " + reg + "," + num + "\n";
-        return reg;
-    }
-
-    if (instanceof <VaraibleReference *>(op))
-    {
-        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
-
-        cout << "works in var \n";
-        string reg = allocateReg();
-
-        if (map.find(pd->varailbe->buffer) == map.end())
-        {
-            cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
-
-            return "";
-        }
-        else
-        {
-            cout << "out: " << map[pd->varailbe->buffer] << endl;
-            if (map[pd->varailbe->buffer]->varType->id == type::FLOAT)
-            {
-                string reg = allocateReg();
-                string resultReg = allocateReg();
-
-                global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-                global_string += "div " + reg + "," + reg + ", " + to_string(OFFSET) + " \n"; // scaling. I forgot i worked on this lmao :')
-
-                freeReg();
-                return reg;
-            }
-            else
-            {
-                string reg = allocateReg();
-                global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-                return reg;
-            }
-        }
-    }
-    if (instanceof <operatorNode *>(op))
-    {
-        cout << "is in op node \n";
-        operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
-        type t;
-        if (pd->token != nullptr)
-        {
-            t = pd->token->id;
-            cout << "token op: " + pd->token->buffer << endl;
-        }
-        string resultReg = allocateReg();
-        if (t == type::ADDITION)
-        {
-            // return
-            string left = gen_integer_op(op->left, map);
-            string right = gen_integer_op(op->right, map);
-            global_string += "add " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::SUBTRACT)
-        {
-            // return
-            string left = gen_integer_op(op->left, map);
-            string right = gen_integer_op(op->right, map);
-            global_string += "sub " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::MULTIPLY)
-        {
-            // return
-            string left = gen_integer_op(op->left, map);
-            string right = gen_integer_op(op->right, map);
-            global_string += "mult " + left + ", " + right + " \n";
-            global_string += "mflo " + resultReg + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::DIVISION)
-        {
-            // return
-            string left = gen_integer_op(op->left, map);
-            string right = gen_integer_op(op->right, map);
-            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::MOD)
-        {
-            string left = gen_integer_op(op->left, map);
-            string right = gen_integer_op(op->right, map);
-            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
-            global_string += "mfhi " + resultReg + "\n";
-            freeReg();
-            freeReg();
-            return resultReg;
-            //           div $t4,$v0, $t3
-            // div $t4, $t3, 10
-            // mfhi $t3
-        }
-    }
-    return "";
-    // treat like register machine
-}
-#pragma endregion
-
-int nOfBranch = 0;
-string handle_boolean(Node *op, map<string, Varaible *> map, int isLoop = 0)
-{
-    if (op == nullptr)
-    {
-
-        return "";
-        // c++ moment. casually coding and bam "cout is ambigous " T~T
-    }
-    if (instanceof <IntegerNode *>(op))
-    {
-        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
-        cout << "works in num \n";
-        string reg = allocateReg();
-        int num = stoi(pd->num) * OFFSET;
-        global_string += "li " + reg + "," + to_string(num) + "\n";
-        return reg;
-    }
-    if (instanceof <FloatNode *>(op))
-    {
-        FloatNode *pd = dynamic_cast<FloatNode *>(op);
-        string reg = allocateReg();
-        global_string += "li " + reg + "," + pd->num + "\n";
-        return reg;
-    }
-    if (instanceof <BooleanLiteralNode *>(op))
-    {
-        BooleanLiteralNode *pd = dynamic_cast<BooleanLiteralNode *>(op);
-        string reg = allocateReg();
-        if (pd->value->id == type::TRUE)
-        {
-            global_string += "li " + reg + ", 1 \n";
-        }
-        else
-        {
-            global_string += "li " + reg + ", 0 \n";
-        }
-        // global_string += "li " + reg + "," + pd->num + "\n";
-        return reg;
-    }
-    // varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
-    if (instanceof <VaraibleReference *>(op))
-    {
-
-        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
-        // type a = map[pd1->varailbe->buffer]->varType->id;
-        if (map[pd->varailbe->buffer]->varType->id == type::INT)
-        {
-
-            string reg = allocateReg();
-            string reg2 = allocateReg();
-            string resultReg = allocateReg();
-
-            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-
-            global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
-
-            global_string += "mult " + reg + "," + reg2 + " \n";
-            global_string += "mflo " + resultReg + " \n"; // scaling
-            freeReg();
-            freeReg();
-
-            return resultReg;
-        }
-        else
-        {
-            string reg = allocateReg();
-            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-            return reg;
-        }
-        string reg = allocateReg();
-        global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
-        return reg;
-    }
-    if (instanceof <BoolExpressionNode *>(op))
-    {
-        BoolExpressionNode *pd = dynamic_cast<BoolExpressionNode *>(op);
-        if (pd->op->id == type::BOOL_EQ)
-        {
-            string resultReg = allocateReg();
-            if (isLoop == 1)
-            {
-                global_string += "beq " + handle_boolean(pd->right, map, isLoop) + " ," + handle_boolean(pd->left, map, isLoop) + " , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-            else
-            {
-                global_string += "bne " + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + " , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-
-            return "";
-        }
-        if (pd->op->id == type::GT)
-        {
-            if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
-            {
-                return "";
-            }
-            string resultReg = allocateReg();
-            if (isLoop == 1)
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, isLoop) + " ," + handle_boolean(pd->left, map, isLoop) + "\n";
-                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-            else
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
-                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-
-            return "";
-        }
-        if (pd->op->id == type::LT)
-        {
-            if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
-            {
-                return "";
-            }
-            string resultReg = allocateReg();
-            if (isLoop == 1)
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, isLoop) + " ," + handle_boolean(pd->left, map, isLoop) + "\n";
-                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-            else
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
-                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-
-            return "";
-        }
-        if (pd->op->id == type::LTE)
-        {
-            if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
-            {
-                return "";
-            }
-
-            string resultReg = allocateReg();
-            if (isLoop == 1)
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, map, isLoop) + " ," + handle_boolean(pd->right, map, isLoop) + "\n";
-                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-            else
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, map) + " ," + handle_boolean(pd->right, map) + "\n";
-                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-
-            return "";
-        }
-        if (pd->op->id == type::GTE)
-        {
-
-            string resultReg = allocateReg();
-            if (isLoop == 1)
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, isLoop) + " ," + handle_boolean(pd->left, map, isLoop) + "\n";
-                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-            else
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map) + " ," + handle_boolean(pd->left, map) + "\n";
-                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-
-            return "";
-        }
-    }
-}
+int max_size = 0;
+int stack_number = 0;
 
 /**
  * @brief
@@ -582,11 +42,8 @@ void wf(ofstream &outfile, string word)
     outfile << word << endl;
 }
 
-int stack_number = 0;
-
 void prepare_interptMips(VaraibleDeclaration *var, map<string, Varaible *> &map, int size)
 {
-    // max_size += 4;
     stack_number += size;
     Varaible *a = new Varaible;
     a->constant = var->constant;
@@ -680,16 +137,16 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
             string add = "";
             if (type1->varType->id == type::FLOAT)
             {
-                string reg = gen_float_op(pd->expression, var);
+                string reg = gen_float_op(pd->expression, var, global_string);
                 add += "sw " + reg + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
             }
             else if (type1->varType->id == type::INT)
             {
-                add = "sw " + gen_integer_op(pd->expression, var) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                add = "sw " + gen_integer_op(pd->expression, var, global_string) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
             }
             else
             {
-                add = "sw " + handle_boolean(pd->expression, var) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                add = "sw " + handle_boolean(pd->expression, var, global_string) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
             }
 
             cout << "string: " + global_string << endl;
@@ -764,16 +221,16 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
             string add = "";
             if (type1->varType->id == type::FLOAT)
             {
-                string reg = gen_float_op(pd->expression, var);
+                string reg = gen_float_op(pd->expression, var, global_string);
                 add += "sw " + reg + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
             }
             else if (type1->varType->id == type::INT)
             {
-                add = "sw " + gen_integer_op(pd->expression, var) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                add = "sw " + gen_integer_op(pd->expression, var, global_string) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
             }
             else
             {
-                add = "sw " + handle_boolean(pd->expression, var) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                add = "sw " + handle_boolean(pd->expression, var, global_string) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
             }
 
             cout << "string: " + global_string << endl;
@@ -814,7 +271,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
                     else
                     {
                         global_string = "";
-                        string reg = gen_float_op(para[i], var);
+                        string reg = gen_float_op(para[i], var, global_string);
                         wf(outfile, global_string);
                         string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
                         wf(outfile, a);
@@ -833,7 +290,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
                     else
                     {
                         global_string = "";
-                        string reg = gen_integer_op(para[i], var);
+                        string reg = gen_integer_op(para[i], var, global_string);
                         wf(outfile, global_string);
                         string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
                         wf(outfile, a);
@@ -842,7 +299,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
                     }
                 }
             }
-            nextArgRegister = -1;
+            reset_arg_register();
             global_string += "sw $ra,4($sp) \n";
             global_string += "jal " + pd->funcCall->buffer + "\n";
             global_string += "lw $ra,4($sp) \n";
@@ -858,7 +315,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
         {
             return;
         }
-        handle_boolean(pd->condition, var);
+        handle_boolean(pd->condition, var, global_string);
 
         wf(outfile, global_string);
 
@@ -878,9 +335,9 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
         // handle statements this will be a recursive function later
         if (c == 1)
         {
-            global_string = "L" + to_string(nOfBranch) + ": \n";
+            global_string = "L" + to_string(getnOfBranch()) + ": \n";
             wf(outfile, global_string);
-            nOfBranch++;
+            increase_numofbranch();
         }
         c = 0;
         global_string = "";
@@ -895,17 +352,17 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
         {
             return;
         }
-        nOfBranch++;
-        int b = nOfBranch;
+        increase_numofbranch();
+        int b = getnOfBranch();
         global_string += "b L" + to_string(b) + "\n";
-        nOfBranch++;
-        global_string += "L" + to_string(nOfBranch) + ": \n # loop"; // condition
+        increase_numofbranch();
+        global_string += "L" + to_string(getnOfBranch()) + ": \n # loop"; // condition
         wf(outfile, global_string);
         global_string = "";
 
-        handle_boolean(pd->condition, var, 1);
+        handle_boolean(pd->condition, var, global_string, 1);
         string condition = global_string;
-        nOfBranch++;
+        increase_numofbranch();
         global_string = "";
         for (int i = 0; i < pd->statements.size(); i++)
         {
@@ -976,7 +433,9 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         stack_number = 4;
         map["."] = 0;
         l->vars = map;
+
         allocate_Scope(scope);
+
 // where to iterate on list of vectors
 #pragma region iterate vector of functions sarts here
         string function_name = pd->nameOfFunction->buffer + ": \n";
@@ -1013,7 +472,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
             {
                 add += "sw " + allocate_argumentRegister() + "," + to_string(map[params[i]->varailbe->buffer]->stackNum) + "($sp) \n";
             }
-            nextArgRegister = -1;
+            reset_arg_register();
             wf(outfile, add);
         }
 

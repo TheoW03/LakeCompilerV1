@@ -8,6 +8,7 @@
 #include "../MipsTarget/UtilFunctions.h"
 #include "../compilerFrontend/optimizations.h"
 #include "../MipsTarget/MipsTarget.h"
+#include "../MipsTarget/VaraibleScope.h"
 
 using namespace std;
 
