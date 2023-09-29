@@ -16,15 +16,7 @@ template <typename Base, typename T>
 bool instanceof1(T *ptr);
 #endif
 
-#ifndef VARAIBLE_H
-#define VARAIBLE_H
-struct Varaible
-{
-    Tokens *varType;
-    int stackNum;
-    int constant;
-};
-#endif
+
 
 // #pragma once
 #ifndef TEMPLATEFUNCTION_H

@@ -14,11 +14,9 @@
 
 #include "../compilerFrontend/Lexxer.h"
 #include "../compilerFrontend/parser.h"
-#include "../MipsTarget/MipsTarget.h"
-
+#include "../MipsTarget/UtilFunctions.h"
 using namespace std;
 namespace fs = std::filesystem;
-
 
 int currentRegister = -1;
 string allocate_register()
@@ -51,7 +49,7 @@ string gen_ARM_operators(Node *op)
     {
         string allocateReg = allocate_register();
         IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
-        global_string1 += "MOV " + allocateReg + ", " + pd->num+ "\n";
+        global_string1 += "MOV " + allocateReg + ", " + pd->num + "\n";
 
         return allocateReg;
     }
@@ -117,7 +115,7 @@ void gen_ARM_target(Node *op, string filename = "")
     }
     ofstream outfile(dirname + "/" + filename);
     gen_ARM_operators(op);
-    wfARM(outfile,global_string1);
+    wfARM(outfile, global_string1);
 
     // string word = "section .data \n format  db \"%d\", 10, 0 \n section .text \n extern printf \n \t global main \n main: \n ";
     // wfx86(outfile, word);

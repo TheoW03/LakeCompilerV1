@@ -20,7 +20,15 @@ bool instanceof (T * ptr);
 #endif
 
 
-
+#ifndef VARAIBLE_H
+#define VARAIBLE_H
+struct Varaible
+{
+    Tokens *varType;
+    int stackNum;
+    int constant;
+};
+#endif
 // #ifndef VARAIBLE_H
 // #define VARAIBLE_H
 // struct Varaible
