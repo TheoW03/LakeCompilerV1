@@ -1,8 +1,11 @@
 fn main(string args) returns int{
     float pi = 40;
-    func1(pi);
+    if(pi == 40){
+        int c = 10;
+    }
+    func1(c);
 }
-fn func1(float a) returns int{
+fn func1(int a) returns int{
     int pi1 = 2;
     pi1 = pi + 1;
     print("%f",pi1);
