@@ -22,7 +22,7 @@ void handle_cli(char *argv[], int argc)
     {
         if (strcmp(argv[i], "-d") == 0)
         {
-            vector<Tokens> a = lex(readFile("test.txt"));
+            vector<Tokens> a = lex(readFile("test.lk"));
             printList(a);
             cout << "lexxed" << endl;
             printList(a);
