@@ -4,7 +4,7 @@ a MIPS 32 target Transpiler. from a pythonic, JS, C like syntax
 
 coded by TheoW03, in C++ 
 
-# lang definition
+# Langauge definition
 
 
 ```C++
@@ -47,6 +47,15 @@ fn f(int x) : int -> x + 1; //new feature i been thinking of. for a while >:3
 
 -v : version
 
+# Build Instructions
+
+1. make sure you have g++ installed
+---
+
+2. type "make" in the terminal
+---
+
+3. the final exe is "./output"
 
 # run transpiled code
 
