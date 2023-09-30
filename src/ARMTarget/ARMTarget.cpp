@@ -12,9 +12,9 @@
 #include <filesystem>
 #include <typeinfo>
 
-#include "../compilerFrontend/Lexxer.h"
-#include "../compilerFrontend/parser.h"
-#include "../MipsTarget/UtilFunctions.h"
+#include "../../src/compilerFrontend/Lexxer.h"
+#include "../../src/compilerFrontend/parser.h"
+#include "../../src/MipsTarget/UtilFunctions.h"
 using namespace std;
 namespace fs = std::filesystem;
 
@@ -53,9 +53,9 @@ string gen_ARM_operators(Node *op)
 
         return allocateReg;
     }
-    if (instanceof <operatorNode *>(op))
+    if (instanceof <OperatorNode *>(op))
     {
-        operatorNode *pd = dynamic_cast<operatorNode *>(op);
+        OperatorNode *pd = dynamic_cast<OperatorNode *>(op);
         type t = pd->token->id;
         string resultReg = allocate_register();
         if (t == type::ADDITION)

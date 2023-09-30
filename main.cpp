@@ -2,10 +2,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "MipsTarget/MipsTarget.h"
-#include "ARMTarget/ARMTarget.h"
-#include "compilerFrontend/Lexxer.h"
-#include "compilerFrontend/parser.h" // #define String string
+#include "src/MipsTarget/MipsTarget.h"
+#include "src/ARMTarget/ARMTarget.h"
+#include "src/CompilerFrontend/Lexxer.h"
+#include "src/CompilerFrontend/parser.h" // #define String string
 #include <cmath>
 #include <functional>
 using namespace std;
@@ -65,7 +65,7 @@ void handle_cli(char *argv[], int argc)
 
     gen_mips_target(c, file1);
 
-    cout << "compiled sucessfully" << endl;
+    cout << "compiled successfully" << endl;
 }
 int main(int argc, char *argv[])
 {

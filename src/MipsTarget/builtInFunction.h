@@ -2,12 +2,12 @@
 #include <string>
 #include <vector>
 
-#include "../compilerFrontend/parser.h"
-#include "../compilerFrontend/Lexxer.h"
-#include "../MipsTarget/UtilFunctions.h"
-#include "../compilerFrontend/optimizations.h"
-#include "../MipsTarget/MipsTarget.h"
-#include "../MipsTarget/VaraibleScope.h"
+#include "../../src/CompilerFrontend/parser.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
+#include "../../src/MipsTarget/UtilFunctions.h"
+#include "../../src/CompilerFrontend/optimizations.h"
+#include "../../src/MipsTarget/MipsTarget.h"
+#include "../../src/MipsTarget/VaraibleScope.h"
 
 using namespace std;
 

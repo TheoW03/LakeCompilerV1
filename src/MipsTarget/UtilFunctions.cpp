@@ -8,9 +8,9 @@
 #include <typeinfo>
 #include <filesystem>
 
-#include "../compilerFrontend/Lexxer.h"
-#include "../compilerFrontend/parser.h"
-#include "../MipsTarget/UtilFunctions.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
+#include "../../src/CompilerFrontend/parser.h"
+#include "../../src/MipsTarget/UtilFunctions.h"
 
 using namespace std;
 

@@ -5,9 +5,9 @@
 #include <fstream>
 #include <typeinfo>
 #include <filesystem>
-#include "../compilerFrontend/Lexxer.h"
-#include "../compilerFrontend/parser.h"
-#include "../MipsTarget/UtilFunctions.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
+#include "../../src/CompilerFrontend/parser.h"
+#include "../../src/MipsTarget/UtilFunctions.h"
 // #include "../compilerFrontend/parser.h"
 
 using namespace std;
@@ -38,6 +38,7 @@ int check_if_pureExpression(Node *op)
     {
         check_if_pureExpression(op->right);
     }
+    return 0;
 }
 int constant_prop_boolean(Node *op)
 {
@@ -59,6 +60,7 @@ int constant_prop_boolean(Node *op)
             return 0;
         }
     }
+    return 0;
 }
 float constant_prop_float(Node *op)
 {
@@ -79,9 +81,9 @@ float constant_prop_float(Node *op)
         FloatNode *pd = dynamic_cast<FloatNode *>(op);
         return (float)stof(pd->num) / OFFSET;
     }
-    if (instanceof <operatorNode *>(op))
+    if (instanceof <OperatorNode *>(op))
     {
-        operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
+        OperatorNode *pd = dynamic_cast<OperatorNode *>(op); // downcast
         type t = pd->token->id;
         if (t == type::ADDITION)
         {
@@ -104,6 +106,7 @@ float constant_prop_float(Node *op)
             return ((int)constant_prop_float(op->left) % (int)constant_prop_float(op->right));
         }
     }
+    return 0;
 }
 int constant_prop_integer(Node *op)
 {
@@ -124,9 +127,9 @@ int constant_prop_integer(Node *op)
         return (int)stoi(pd->num) / OFFSET;
     }
 
-    if (instanceof <operatorNode *>(op))
+    if (instanceof <OperatorNode *>(op))
     {
-        operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
+        OperatorNode *pd = dynamic_cast<OperatorNode *>(op); // downcast
         type t = pd->token->id;
         if (t == type::ADDITION)
         {

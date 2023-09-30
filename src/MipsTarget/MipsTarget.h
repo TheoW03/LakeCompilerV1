@@ -6,12 +6,12 @@
 #include <vector>
 #include <map>
 
-#include "../compilerFrontend/Lexxer.h"
-#include "../compilerFrontend/parser.h"
-#include "../compilerFrontend/optimizations.h"
-#include "../MipsTarget/UtilFunctions.h"
-#include "../MipsTarget/VaraibleScope.h"
-#include "../MipsTarget/ExpressionTree.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
+#include "../../src/CompilerFrontend/parser.h"
+#include "../../src/CompilerFrontend/optimizations.h"
+#include "../../src/MipsTarget/UtilFunctions.h"
+#include "../../src/MipsTarget/VaraibleScope.h"
+#include "../../src/MipsTarget/ExpressionTree.h"
 using namespace std;
 
 

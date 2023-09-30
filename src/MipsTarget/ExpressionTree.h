@@ -2,11 +2,11 @@
 #include <string>
 #include <map>
 
-#include "../compilerFrontend/Lexxer.h"
-#include "../compilerFrontend/parser.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
+#include "../../src/CompilerFrontend/parser.h"
 
-#include "../MipsTarget/VaraibleScope.h"
-#include "../MipsTarget/UtilFunctions.h"
+#include "../../src/MipsTarget/VaraibleScope.h"
+#include "../../src/MipsTarget/UtilFunctions.h"
 
 using namespace std;
 string gen_string(Node *op, vector<Scope_dimension *> &scope, string &global_string);

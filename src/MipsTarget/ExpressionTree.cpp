@@ -2,11 +2,11 @@
 #include <string>
 #include <map>
 
-#include "../compilerFrontend/Lexxer.h"
-#include "../compilerFrontend/parser.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
+#include "../../src/CompilerFrontend/parser.h"
 
-#include "../MipsTarget/VaraibleScope.h"
-#include "../MipsTarget/UtilFunctions.h"
+#include "../../src/MipsTarget/VaraibleScope.h"
+#include "../../src/MipsTarget/UtilFunctions.h"
 
 using namespace std;
 
@@ -28,9 +28,9 @@ string gen_string(Node *op, vector<string> &tabs, vector<Scope_dimension *> &sco
         return "";
     }
 
-    if (instanceof <stringNode *>(op))
+    if (instanceof <StringNode *>(op))
     {
-        stringNode *pd = dynamic_cast<stringNode *>(op);
+        StringNode *pd = dynamic_cast<StringNode *>(op);
         // instanceof1<stringNode *>(op);
         // allocate size
 
@@ -52,6 +52,7 @@ string gen_string(Node *op, vector<string> &tabs, vector<Scope_dimension *> &sco
         */
         // and yehs
     }
+    return "";
 }
 
 string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global_string, int isLoop = 0)
@@ -103,7 +104,7 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
         Varaible *var = get_varaible(pd, scope);
         if (var == nullptr)
         {
-            cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
+            cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
             exit(0);
             return "";
         }
@@ -242,6 +243,7 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
             return "";
         }
     }
+    return "";
 }
 
 string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_string)
@@ -277,7 +279,7 @@ string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_s
 
         if (var == nullptr)
         {
-            cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
+            cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
             exit(0);
             return "";
         }
@@ -309,10 +311,10 @@ string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_s
         global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
         return reg;
     }
-    if (instanceof <operatorNode *>(op))
+    if (instanceof <OperatorNode *>(op))
     {
         cout << "is in op node \n";
-        operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
+        OperatorNode *pd = dynamic_cast<OperatorNode *>(op); // downcast
         type t = pd->token->id;
 
         string resultReg = allocateReg();
@@ -376,6 +378,7 @@ string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_s
             // mfhi $t3
         }
     }
+    return "";
 }
 
 string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_string)
@@ -417,7 +420,7 @@ string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global
 
         if (var == nullptr)
         {
-            cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
+            cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
             exit(0);
             return "";
         }
@@ -443,10 +446,10 @@ string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global
             }
         }
     }
-    if (instanceof <operatorNode *>(op))
+    if (instanceof <OperatorNode *>(op))
     {
         cout << "is in op node \n";
-        operatorNode *pd = dynamic_cast<operatorNode *>(op); // downcast
+        OperatorNode *pd = dynamic_cast<OperatorNode *>(op); // downcast
         type t;
         if (pd->token != nullptr)
         {
@@ -509,4 +512,5 @@ string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global
             // mfhi $t3
         }
     }
+    return "";
 }

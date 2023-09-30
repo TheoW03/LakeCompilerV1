@@ -4,8 +4,8 @@
 #include <fstream>
 #include <typeinfo>
 
-#include "../compilerFrontend/Lexxer.h"
-#include "../compilerFrontend/parser.h"
+#include "../../src/compilerFrontend/Lexxer.h"
+#include "../../src/compilerFrontend/parser.h"
 
 using namespace std;
 

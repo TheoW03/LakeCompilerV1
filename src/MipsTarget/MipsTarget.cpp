@@ -7,14 +7,14 @@
 #include <fstream>
 #include <typeinfo>
 #include <filesystem>
-#include "../compilerFrontend/Lexxer.h"
-#include "../MipsTarget/UtilFunctions.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
+#include "../../src/MipsTarget/UtilFunctions.h"
 
-#include "../compilerFrontend/parser.h"
-#include "../compilerFrontend/optimizations.h"
-#include "../MipsTarget/builtInFunction.h"
-#include "../MipsTarget/VaraibleScope.h"
-#include "../MipsTarget/ExpressionTree.h"
+#include "../../src/CompilerFrontend/parser.h"
+#include "../../src/CompilerFrontend/optimizations.h"
+#include "../../src/MipsTarget/builtInFunction.h"
+#include "../../src/MipsTarget/VaraibleScope.h"
+#include "../../src/MipsTarget/ExpressionTree.h"
 
 namespace fs = std::filesystem;
 
@@ -123,7 +123,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
                 string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression)) + " \n";
                 wf(outfile, a);
             }
-            cout << pd->varailbe->buffer << endl;
+            cout << pd->varaible->buffer << endl;
             // cout << to_string(var[pd->varailbe->buffer]->stackNum) << endl;
             cout << "hi \n";
             string add = "sw " + allocr + "," + to_string(type1->stackNum) + "($sp) \n";
@@ -201,7 +201,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
                 string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression)) + " \n";
                 wf(outfile, a);
             }
-            cout << pd->varailbe->buffer << endl;
+            cout << pd->varaible->buffer << endl;
             cout << to_string(type1->stackNum) << endl;
             cout << "hi \n";
             string add = "sw " + allocr + "," + to_string(type1->stackNum) + "($sp) \n";
@@ -212,7 +212,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
             Varaible *type1 = get_varaible(pd, scope);
             if (type1 == nullptr)
             {
-                cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
+                cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
                 exit(0);
                 return;
             }
@@ -409,7 +409,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
     map<string, FunctionNode *> f;
     f["."] = nullptr;
 
-    string dirname = "MipsTarget/MipsTargetASM/";
+    string dirname = "src/MipsTarget/MipsTargetASM/";
     int status = fs::create_directories(dirname);
 
     if (filename == "")
@@ -417,7 +417,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         filename = "out.s";
     }
 
-    ofstream outfile("MipsTarget/MipsTargetASM/" + filename);
+    ofstream outfile(dirname + filename);
     string word = ".data \n .text \n";
 
     wf(outfile, word);

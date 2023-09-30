@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "../compilerFrontend/Lexxer.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
 using namespace std;
 
 #define OFFSET 65536
@@ -30,12 +30,12 @@ struct Node
 struct VaraibleReference : public Node
 {
     Node *expression;
-    Tokens *varailbe;
+    Tokens *varaible;
 };
 struct VaraibleDeclaration : public Node
 {
     Node *expression;
-    Tokens *varailbe;
+    Tokens *varaible;
     Tokens *typeOfVar;
     int size;
     int constant;
@@ -83,11 +83,11 @@ struct IntegerNode : public Node
 {
     string num;
 };
-struct stringNode : public Node
+struct StringNode : public Node
 {
     string stringBuffer;
 };
-struct operatorNode : public Node
+struct OperatorNode : public Node
 {
     struct Tokens *token;
 };

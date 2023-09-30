@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "../compilerFrontend/Lexxer.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
 #include <typeinfo>
 #include <sstream>
 
@@ -36,7 +36,7 @@ struct Node
 struct VaraibleDeclaration : public Node
 {
     Node *expression;
-    Tokens *varailbe;
+    Tokens *varaible;
     Tokens *typeOfVar;
     int size;
     int constant;
@@ -50,7 +50,7 @@ struct IntegerNode : public Node
 {
     string num;
 };
-struct stringNode : public Node
+struct StringNode : public Node
 {
     string stringBuffer;
 };
@@ -83,14 +83,14 @@ struct IfSatementNode : public Node
 struct VaraibleReference : public Node
 {
     Node *expression;
-    Tokens *varailbe;
+    Tokens *varaible;
 };
 
 /**
  * @brief this gives an expression, left, rigt
  *
  */
-struct operatorNode : public Node
+struct OperatorNode : public Node
 {
     struct Tokens *token;
 };
@@ -228,7 +228,7 @@ Node *factor(vector<Tokens> &tokens)
     }
     if (id == type::STRING_LITERAL)
     {
-        stringNode *s = new stringNode;
+        StringNode *s = new StringNode;
         s->stringBuffer = a->buffer;
         return s;
     }
@@ -285,7 +285,7 @@ Node *factor(vector<Tokens> &tokens)
     else if (id == type::WORD)
     {
         VaraibleReference *var = new VaraibleReference;
-        var->varailbe = a;
+        var->varaible = a;
         return var;
     }
     else
@@ -330,7 +330,7 @@ Node *term(vector<Tokens> &tokens)
             }
             Node *right = new Node;
             right = factor(tokens);
-            operatorNode *n = new operatorNode;
+            OperatorNode *n = new OperatorNode;
             n->left = new Node;
             n->left = opNode;
             n->right = new Node;
@@ -378,7 +378,7 @@ Node *expression(vector<Tokens> &tokens)
             }
             Node *right = new Node;
             right = term(tokens);
-            operatorNode *n = new operatorNode;
+            OperatorNode *n = new OperatorNode;
             n->left = new Node;
             n->left = opNode;
             n->right = new Node;
@@ -441,7 +441,7 @@ Node *handleFunctions(vector<Tokens> &tokens)
         matchAndRemove(tokens, type::COMMA, "handlefunctions");
         VaraibleDeclaration *v = new VaraibleDeclaration;
         v->typeOfVar = typeVar;
-        v->varailbe = word;
+        v->varaible = word;
         vars.push_back(v);
     }
     // while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlefunctions") == nullptr)
@@ -482,7 +482,7 @@ void printParams(vector<Tokens *> a)
 Node *parserVarRef(vector<Tokens> &tokens, Tokens *name)
 {
     VaraibleReference *var = new VaraibleReference;
-    var->varailbe = name;
+    var->varaible = name;
     var->expression = expression(tokens);
     return var;
 }
@@ -506,7 +506,7 @@ Node *parseVar(vector<Tokens> &tokens, Tokens *name, Tokens *type, int constant 
     matchAndRemove(tokens, type::EQUALS, "parseVar");
     VaraibleDeclaration *n = new VaraibleDeclaration;
     n->expression = expression(tokens);
-    n->varailbe = name;
+    n->varaible = name;
     n->size = 4;
     n->typeOfVar = type;
     n->constant = constant;
@@ -579,12 +579,12 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
         else if (var->id == type::WORD)
         {
             VaraibleReference *v1 = new VaraibleReference;
-            v1->varailbe = var;
+            v1->varaible = var;
             vars.push_back(v1);
         }
         else if (var->id == type::STRING_LITERAL)
         {
-            stringNode *s = new stringNode;
+            StringNode *s = new StringNode;
             s->stringBuffer = var->buffer;
             vars.push_back(s);
         }

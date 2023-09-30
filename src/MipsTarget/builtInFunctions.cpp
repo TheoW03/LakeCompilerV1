@@ -2,13 +2,13 @@
 #include <string>
 #include <vector>
 
-#include "../MipsTarget/builtInFunction.h"
-#include "../compilerFrontend/parser.h"
-#include "../compilerFrontend/Lexxer.h"
-#include "../MipsTarget/UtilFunctions.h"
-#include "../compilerFrontend/optimizations.h"
-#include "../MipsTarget/MipsTarget.h"
-#include "../MipsTarget/VaraibleScope.h"
+#include "../../src/MipsTarget/builtInFunction.h"
+#include "../../src/CompilerFrontend/parser.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
+#include "../../src/MipsTarget/UtilFunctions.h"
+#include "../../src/CompilerFrontend/optimizations.h"
+#include "../../src/MipsTarget/MipsTarget.h"
+#include "../../src/MipsTarget/VaraibleScope.h"
 
 using namespace std;
 
@@ -33,7 +33,7 @@ Print::Print()
 
 void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope_dimension *> &scope)
 {
-    if (instanceof <stringNode *>(params[0]))
+    if (instanceof <StringNode *>(params[0]))
     {
 
         // change to a parser for the 1st param later
@@ -41,7 +41,7 @@ void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope
         // this is very temporary and will try to add better system once i think of it
         // or once i add support for strings/string concat
 
-        stringNode *a = dynamic_cast<stringNode *>(params[0]);
+        StringNode *a = dynamic_cast<StringNode *>(params[0]);
         if (a->stringBuffer == "%d")
         {
 
@@ -58,7 +58,7 @@ void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope
                 Varaible *a = get_varaible(pd, scope);
                 if (a == nullptr)
                 {
-                    cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
+                    cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
                     exit(0);
                     return;
                 }
@@ -94,7 +94,7 @@ void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope
                 Varaible *a = get_varaible(pd, scope);
                 if (a == nullptr)
                 {
-                    cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
+                    cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
                     exit(0);
                     return;
                 }

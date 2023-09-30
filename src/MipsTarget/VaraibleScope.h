@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
-#include "../compilerFrontend/parser.h"
-#include "../compilerFrontend/Lexxer.h"
-#include "../MipsTarget/UtilFunctions.h"
+#include "../../src/CompilerFrontend/parser.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
+#include "../../src/MipsTarget/UtilFunctions.h"
 using namespace std;
 
 #ifndef VARAIBLE_H

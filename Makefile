@@ -1,36 +1,36 @@
 output:main.o Lexxer.o parse.o UtilFunctions.o MipsTarget.o ARMTarget.o optimizations.o builtInFunctions.o ExpressionTree.o VaraibleScope.o
 		g++ Lexxer.o UtilFunctions.o ARMTarget.o main.o parse.o MipsTarget.o optimizations.o builtInFunctions.o ExpressionTree.o VaraibleScope.o -o output
 
-Lexxer.o: compilerFrontend/Lexxer.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h  
-		g++ -c -g compilerFrontend/Lexxer.cpp
+Lexxer.o: src/CompilerFrontend/Lexxer.cpp src/CompilerFrontend/parser.h src/CompilerFrontend/Lexxer.h  
+		g++ -c -g src/CompilerFrontend/Lexxer.cpp
 
-parse.o: compilerFrontend/parse.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h
-		g++ -c -g compilerFrontend/parse.cpp
+parse.o: src/CompilerFrontend/parse.cpp src/CompilerFrontend/parser.h src/CompilerFrontend/Lexxer.h
+		g++ -c -g src/CompilerFrontend/parse.cpp
 
-UtilFunctions.o: MipsTarget/UtilFunctions.cpp MipsTarget/UtilFunctions.h compilerFrontend/Lexxer.h  compilerFrontend/parser.h
-		g++ -c -g MipsTarget/UtilFunctions.cpp
+UtilFunctions.o: src/MipsTarget/UtilFunctions.cpp src/MipsTarget/UtilFunctions.h src/CompilerFrontend/Lexxer.h  src/CompilerFrontend/parser.h
+		g++ -c -g src/MipsTarget/UtilFunctions.cpp
 
-MipsTarget.o: MipsTarget/MipsTarget.cpp MipsTarget/MipsTarget.h MipsTarget/UtilFunctions.h compilerFrontend/parser.h MipsTarget/builtInFunction.h compilerFrontend/Lexxer.h  compilerFrontend/optimizations.h 
-		g++ -c -g MipsTarget/MipsTarget.cpp
+MipsTarget.o: src/MipsTarget/MipsTarget.cpp src/MipsTarget/MipsTarget.h src/MipsTarget/UtilFunctions.h src/CompilerFrontend/parser.h src/MipsTarget/builtInFunction.h src/CompilerFrontend/Lexxer.h  src/CompilerFrontend/optimizations.h 
+		g++ -c -g src/MipsTarget/MipsTarget.cpp
 
-main.o: main.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h MipsTarget/MipsTarget.h ARMTarget/ARMTarget.h
+main.o: main.cpp src/CompilerFrontend/parser.h src/CompilerFrontend/Lexxer.h src/MipsTarget/MipsTarget.h src/ARMTarget/ARMTarget.h
 		
 		g++ -c -g main.cpp
-ARMTarget.o: ARMTarget/ARMTarget.cpp ARMTarget/ARMTarget.h MipsTarget/UtilFunctions.h compilerFrontend/parser.h compilerFrontend/Lexxer.h compilerFrontend/optimizations.h  
+ARMTarget.o: src/ARMTarget/ARMTarget.cpp src/ARMTarget/ARMTarget.h src/MipsTarget/UtilFunctions.h src/CompilerFrontend/parser.h src/CompilerFrontend/Lexxer.h src/CompilerFrontend/optimizations.h  
 		
-		g++ -c -g ARMTarget/ARMTarget.cpp
-optimizations.o: compilerFrontend/optimizations.cpp compilerFrontend/parser.h compilerFrontend/Lexxer.h MipsTarget/UtilFunctions.h compilerFrontend/optimizations.h MipsTarget/MipsTarget.h  
+		g++ -c -g src/ARMTarget/ARMTarget.cpp
+optimizations.o: src/CompilerFrontend/optimizations.cpp src/CompilerFrontend/parser.h src/CompilerFrontend/Lexxer.h src/MipsTarget/UtilFunctions.h src/CompilerFrontend/optimizations.h src/MipsTarget/MipsTarget.h  
 		
-		g++ -c -g compilerFrontend/optimizations.cpp
-builtInFunctions.o: MipsTarget/builtInFunctions.cpp MipsTarget/builtInFunction.h compilerFrontend/parser.h MipsTarget/UtilFunctions.h compilerFrontend/Lexxer.h MipsTarget/MipsTarget.h compilerFrontend/optimizations.h 
+		g++ -c -g src/CompilerFrontend/optimizations.cpp
+builtInFunctions.o: src/MipsTarget/builtInFunctions.cpp src/MipsTarget/builtInFunction.h src/CompilerFrontend/parser.h src/MipsTarget/UtilFunctions.h src/CompilerFrontend/Lexxer.h src/MipsTarget/MipsTarget.h src/CompilerFrontend/optimizations.h 
 		
-		g++ -c -g MipsTarget/builtInFunctions.cpp
-VaraibleScope.o: MipsTarget/VaraibleScope.cpp MipsTarget/VaraibleScope.h MipsTarget/builtInFunction.h compilerFrontend/parser.h MipsTarget/UtilFunctions.h compilerFrontend/Lexxer.h MipsTarget/MipsTarget.h compilerFrontend/optimizations.h 
+		g++ -c -g src/MipsTarget/builtInFunctions.cpp
+VaraibleScope.o: src/MipsTarget/VaraibleScope.cpp src/MipsTarget/VaraibleScope.h src/MipsTarget/builtInFunction.h src/CompilerFrontend/parser.h src/MipsTarget/UtilFunctions.h src/CompilerFrontend/Lexxer.h src/MipsTarget/MipsTarget.h src/CompilerFrontend/optimizations.h 
 		
-		g++ -c -g MipsTarget/VaraibleScope.cpp
-ExpressionTree.o: MipsTarget/ExpressionTree.cpp  MipsTarget/ExpressionTree.h MipsTarget/VaraibleScope.h MipsTarget/builtInFunction.h compilerFrontend/parser.h MipsTarget/UtilFunctions.h compilerFrontend/Lexxer.h MipsTarget/MipsTarget.h compilerFrontend/optimizations.h 
+		g++ -c -g src/MipsTarget/VaraibleScope.cpp
+ExpressionTree.o: src/MipsTarget/ExpressionTree.cpp  src/MipsTarget/ExpressionTree.h src/MipsTarget/VaraibleScope.h src/MipsTarget/builtInFunction.h src/CompilerFrontend/parser.h src/MipsTarget/UtilFunctions.h src/CompilerFrontend/Lexxer.h src/MipsTarget/MipsTarget.h src/CompilerFrontend/optimizations.h 
 	
-	g++ -c -g MipsTarget/ExpressionTree.cpp
+	g++ -c -g src/MipsTarget/ExpressionTree.cpp
 line_count:
 	./linecount.sh
 x86test:

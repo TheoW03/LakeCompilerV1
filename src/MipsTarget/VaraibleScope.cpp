@@ -1,9 +1,9 @@
 // this will be designed to hold Varaible util functions and scope
 #include <iostream>
 #include <string>
-#include "../compilerFrontend/parser.h"
-#include "../compilerFrontend/Lexxer.h"
-#include "../MipsTarget/UtilFunctions.h"
+#include "../../src/CompilerFrontend/parser.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
+#include "../../src/MipsTarget/UtilFunctions.h"
 
 using namespace std;
 
@@ -69,9 +69,9 @@ Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
     for (int i = 0; i < scope.size(); i++)
     {
         map<string, Varaible *> b = scope[i]->vars;
-        if (b.find(var->varailbe->buffer) != b.end())
+        if (b.find(var->varaible->buffer) != b.end())
         {
-            return b[var->varailbe->buffer];
+            return b[var->varaible->buffer];
         }
     }
     return nullptr;
@@ -83,6 +83,6 @@ Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension *> &scope,
     a->constant = var->constant;
     a->stackNum = stack_number;
     a->varType = var->typeOfVar;
-    scope[scope.size() - 1]->vars[var->varailbe->buffer] = a;
+    scope[scope.size() - 1]->vars[var->varaible->buffer] = a;
     return a;
 }
