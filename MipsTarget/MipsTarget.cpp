@@ -42,15 +42,16 @@ void wf(ofstream &outfile, string word)
     outfile << word << endl;
 }
 
-void prepare_interptMips(VaraibleDeclaration *var, map<string, Varaible *> &map, int size)
-{
-    stack_number += size;
-    Varaible *a = new Varaible;
-    a->constant = var->constant;
-    a->stackNum = stack_number;
-    a->varType = var->typeOfVar;
-    map[var->varailbe->buffer] = a;
-}
+// void prepare_interptMips(VaraibleDeclaration *var, map<string, Varaible *> &map, int size)
+// {
+//     stack_number += size;
+//     Varaible *a = new Varaible;
+//     a->constant = var->constant;
+//     a->stackNum = stack_number;
+//     a->varType = var->typeOfVar;
+//     map[var->varailbe->buffer] = a;
+//     // scope[map]
+// }
 
 void gen_function(vector<Node *> state, int &stackNum)
 {
@@ -79,7 +80,7 @@ void gen_function(vector<Node *> state, int &stackNum)
     }
 }
 
-void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, FunctionNode *> f, ofstream &outfile)
+void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string, FunctionNode *> f, ofstream &outfile)
 {
     map<type, builtInFunction *> functions;
 
@@ -92,12 +93,14 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
     {
         VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(statement);
 
-        prepare_interptMips(pd, var, 4);
-
+        // prepare_interptMips(pd, var, 4);
+        stack_number += 4;
+        Varaible *type1 = add_to_var(pd, scope, stack_number);
         if (check_if_pureExpression(pd->expression) == 0)
         {
 
-            Varaible *type1 = var[pd->varailbe->buffer];
+            // Varaible *type1 = get_varaible(pd, scope);
+
             if (type1 == nullptr)
             {
                 return;
@@ -121,14 +124,15 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
                 wf(outfile, a);
             }
             cout << pd->varailbe->buffer << endl;
-            cout << to_string(var[pd->varailbe->buffer]->stackNum) << endl;
+            // cout << to_string(var[pd->varailbe->buffer]->stackNum) << endl;
             cout << "hi \n";
-            string add = "sw " + allocr + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            string add = "sw " + allocr + "," + to_string(type1->stackNum) + "($sp) \n";
             wf(outfile, add);
         }
         else
         {
-            Varaible *type1 = var[pd->varailbe->buffer];
+            // Varaible *type1 = var[pd->varailbe->buffer];
+
             if (type1 == nullptr)
             {
                 return;
@@ -137,16 +141,16 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
             string add = "";
             if (type1->varType->id == type::FLOAT)
             {
-                string reg = gen_float_op(pd->expression, var, global_string);
-                add += "sw " + reg + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                string reg = gen_float_op(pd->expression, scope, global_string);
+                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
             }
             else if (type1->varType->id == type::INT)
             {
-                add = "sw " + gen_integer_op(pd->expression, var, global_string) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
             }
             else
             {
-                add = "sw " + handle_boolean(pd->expression, var, global_string) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
             }
 
             cout << "string: " + global_string << endl;
@@ -167,7 +171,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
         if (check_if_pureExpression(pd->expression) == 0)
         {
 
-            Varaible *type1 = var[pd->varailbe->buffer];
+            Varaible *type1 = get_varaible(pd, scope);
             if (type1 == nullptr)
             {
                 return;
@@ -198,16 +202,18 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
                 wf(outfile, a);
             }
             cout << pd->varailbe->buffer << endl;
-            cout << to_string(var[pd->varailbe->buffer]->stackNum) << endl;
+            cout << to_string(type1->stackNum) << endl;
             cout << "hi \n";
-            string add = "sw " + allocr + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            string add = "sw " + allocr + "," + to_string(type1->stackNum) + "($sp) \n";
             wf(outfile, add);
         }
         else
         {
-            Varaible *type1 = var[pd->varailbe->buffer];
+            Varaible *type1 = get_varaible(pd, scope);
             if (type1 == nullptr)
             {
+                cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
+                exit(0);
                 return;
             }
             if (type1->constant == 1)
@@ -221,16 +227,16 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
             string add = "";
             if (type1->varType->id == type::FLOAT)
             {
-                string reg = gen_float_op(pd->expression, var, global_string);
-                add += "sw " + reg + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                string reg = gen_float_op(pd->expression, scope, global_string);
+                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
             }
             else if (type1->varType->id == type::INT)
             {
-                add = "sw " + gen_integer_op(pd->expression, var, global_string) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
             }
             else
             {
-                add = "sw " + handle_boolean(pd->expression, var, global_string) + "," + to_string(var[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
             }
 
             cout << "string: " + global_string << endl;
@@ -250,7 +256,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
             if (func != nullptr)
             {
                 string gen_string = "";
-                func->setup_params(para, gen_string, var);
+                func->setup_params(para, gen_string, scope);
                 wf(outfile, gen_string);
             }
         }
@@ -271,7 +277,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
                     else
                     {
                         global_string = "";
-                        string reg = gen_float_op(para[i], var, global_string);
+                        string reg = gen_float_op(para[i], scope, global_string);
                         wf(outfile, global_string);
                         string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
                         wf(outfile, a);
@@ -290,7 +296,7 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
                     else
                     {
                         global_string = "";
-                        string reg = gen_integer_op(para[i], var, global_string);
+                        string reg = gen_integer_op(para[i], scope, global_string);
                         wf(outfile, global_string);
                         string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
                         wf(outfile, a);
@@ -315,23 +321,23 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
         {
             return;
         }
-        handle_boolean(pd->condition, var, global_string);
+        handle_boolean(pd->condition, scope, global_string);
 
         wf(outfile, global_string);
 
         global_string = "";
         int c = 1;
-
+        allocate_Scope(scope);
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen(pd->statements[i], var, f, outfile); // write a new function for this T~T
+            statementsGen(pd->statements[i], scope, f, outfile); // write a new function for this T~T
             if (instanceof <IfSatementNode *>(pd->statements[i]))
             {
                 c = 1;
             }
         }
-
+        deallocate_Scope(scope);
         // handle statements this will be a recursive function later
         if (c == 1)
         {
@@ -360,15 +366,17 @@ void statementsGen(Node *statement, map<string, Varaible *> &var, map<string, Fu
         wf(outfile, global_string);
         global_string = "";
 
-        handle_boolean(pd->condition, var, global_string, 1);
+        handle_boolean(pd->condition, scope, global_string, 1);
         string condition = global_string;
         increase_numofbranch();
         global_string = "";
+        allocate_Scope(scope);
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen(pd->statements[i], var, f, outfile); // write a new function for this T~T
+            statementsGen(pd->statements[i], scope, f, outfile); // write a new function for this T~T
         }
+        deallocate_Scope(scope);
         global_string += "L" + to_string(b) + ": \n # condition";
         wf(outfile, global_string);
         wf(outfile, condition);
@@ -433,7 +441,6 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         stack_number = 4;
         map["."] = 0;
         l->vars = map;
-
         allocate_Scope(scope);
 
 // where to iterate on list of vectors
@@ -463,14 +470,17 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         wf(outfile, setupstack);
         if (pd->nameOfFunction->buffer != "main")
         {
+            vector<Varaible *> var;
             for (int i = 0; i < params.size(); i++)
             {
-                prepare_interptMips(params[i], map, 4);
+                stack_number += 4;
+                var.push_back(add_to_var(params[i], scope, stack_number));
+                // prepare_interptMips(params[i], map, 4);
             }
             string add;
             for (int i = 0; i < params.size(); i++)
             {
-                add += "sw " + allocate_argumentRegister() + "," + to_string(map[params[i]->varailbe->buffer]->stackNum) + "($sp) \n";
+                add += "sw " + allocate_argumentRegister() + "," + to_string(var[i]->stackNum) + "($sp) \n";
             }
             reset_arg_register();
             wf(outfile, add);
@@ -478,7 +488,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
 
         for (int i = 0; i < state.size(); i++)
         {
-            statementsGen(state[i], map, f, outfile);
+            statementsGen(state[i], scope, f, outfile);
         }
         string exitStack = "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
         wf(outfile, exitStack);

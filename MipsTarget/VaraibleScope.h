@@ -29,5 +29,6 @@ void freeReg();
 string allocate_argumentRegister();
 void reset_arg_register();
 void allocate_Scope(vector<Scope_dimension *> &scope);
-void deallocate_Scope(VaraibleReference *var, vector<Scope_dimension *> &scope);
+void deallocate_Scope(vector<Scope_dimension *> &scope);
 Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope);
+Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension *> &scope, int stack_number);

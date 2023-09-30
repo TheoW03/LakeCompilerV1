@@ -20,7 +20,7 @@ void builtInFunction::execute_code_integer(string &gen_string, string registers)
 void builtInFunction::execute_code_float(string &gen_string, string registers)
 {
 }
-void builtInFunction::setup_params(vector<Node *> params, string &gen_string, map<string, Varaible *> map)
+void builtInFunction::setup_params(vector<Node *> params, string &gen_string, vector<Scope_dimension *> &scope)
 {
 }
 #pragma endregion
@@ -31,7 +31,7 @@ Print::Print()
 {
 }
 
-void Print::setup_params(vector<Node *> params, string &gen_string, map<string, Varaible *> map)
+void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope_dimension *> &scope)
 {
     if (instanceof <stringNode *>(params[0]))
     {
@@ -54,9 +54,17 @@ void Print::setup_params(vector<Node *> params, string &gen_string, map<string, 
             else
             {
                 string reg = allocateReg();
-                gen_string += "lw " + reg + ", " + to_string(map[dynamic_cast<VaraibleReference *>(params[1])->varailbe->buffer]->stackNum) + " ($sp) \n";
-
-                if (map[dynamic_cast<VaraibleReference *>(params[1])->varailbe->buffer]->varType->id == type::FLOAT)
+                VaraibleReference *pd = dynamic_cast<VaraibleReference *>(params[1]);
+                Varaible *a = get_varaible(pd, scope);
+                if (a == nullptr)
+                {
+                    cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
+                    exit(0);
+                    return;
+                }
+                // gen_string += "lw " + reg + ", " + to_string(map[dynamic_cast<VaraibleReference *>(params[1])->varailbe->buffer]->stackNum) + " ($sp) \n";
+                gen_string += "lw " + reg + ", " + to_string(a->stackNum) + "($sp) \n";
+                if (a->varType->id == type::FLOAT)
                 {
                     string reg2 = allocateReg();
                     gen_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
@@ -82,8 +90,18 @@ void Print::setup_params(vector<Node *> params, string &gen_string, map<string, 
             else
             {
                 string reg = allocateReg();
-                gen_string += "lw " + reg + ", " + to_string(map[dynamic_cast<VaraibleReference *>(params[1])->varailbe->buffer]->stackNum) + " ($sp) \n";
-                if (map[dynamic_cast<VaraibleReference *>(params[1])->varailbe->buffer]->varType->id == type::INT)
+                VaraibleReference *pd = dynamic_cast<VaraibleReference *>(params[1]);
+                Varaible *a = get_varaible(pd, scope);
+                if (a == nullptr)
+                {
+                    cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
+                    exit(0);
+                    return;
+                }
+                gen_string += "lw " + reg + ", " + to_string(a->stackNum) + "($sp) \n";
+                // gen_string += "lw " + reg + ", " + to_string(map[dynamic_cast<VaraibleReference *>(params[1])->varailbe->buffer]->stackNum) + " ($sp) \n";
+                // if (map[dynamic_cast<VaraibleReference *>(params[1])->varailbe->buffer]->varType->id == type::INT)
+                if (a->varType->id == type::INT)
                 {
                     string reg2 = allocateReg();
                     gen_string += "li " + reg2 + ", " + to_string(OFFSET) + "\n";
@@ -143,7 +161,7 @@ Exit::Exit()
 {
 }
 
-void Exit::setup_params(vector<Node *> params, string &gen_string, map<string, Varaible *> map)
+void Exit::setup_params(vector<Node *> params, string &gen_string, vector<Scope_dimension *> &scope)
 {
     if (params.size() == 0)
     {

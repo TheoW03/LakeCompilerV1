@@ -59,9 +59,10 @@ void allocate_Scope(vector<Scope_dimension *> &scope)
     a->vars = b;
     scope.push_back(a);
 }
-void deallocate_Scope(VaraibleReference *var, vector<Scope_dimension *> &scope)
+void deallocate_Scope(vector<Scope_dimension *> &scope)
 {
-    scope.erase(scope.end());
+    // cout << scope.end() << endl;
+    scope.erase(scope.end() - 1);
 }
 Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
 {
@@ -74,4 +75,14 @@ Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
         }
     }
     return nullptr;
+}
+Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension *> &scope, int stack_number)
+{
+    cout << "add to var" << endl;
+    Varaible *a = new Varaible;
+    a->constant = var->constant;
+    a->stackNum = stack_number;
+    a->varType = var->typeOfVar;
+    scope[scope.size() - 1]->vars[var->varailbe->buffer] = a;
+    return a;
 }

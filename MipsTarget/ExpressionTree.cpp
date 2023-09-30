@@ -20,7 +20,7 @@ int getnOfBranch()
     return nOfBranch;
 }
 
-string gen_string(Node *op, vector<string> &tabs, map<string, Varaible *> &map, string &global_string)
+string gen_string(Node *op, vector<string> &tabs, vector<Scope_dimension *> &scope, string &global_string)
 {
     if (op == nullptr)
     {
@@ -54,7 +54,7 @@ string gen_string(Node *op, vector<string> &tabs, map<string, Varaible *> &map, 
     }
 }
 
-string handle_boolean(Node *op, map<string, Varaible *> map, string &global_string, int isLoop = 0)
+string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global_string, int isLoop = 0)
 {
     if (op == nullptr)
     {
@@ -97,16 +97,25 @@ string handle_boolean(Node *op, map<string, Varaible *> map, string &global_stri
     if (instanceof <VaraibleReference *>(op))
     {
 
+        // VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
         // type a = map[pd1->varailbe->buffer]->varType->id;
-        if (map[pd->varailbe->buffer]->varType->id == type::INT)
+        Varaible *var = get_varaible(pd, scope);
+        if (var == nullptr)
+        {
+            cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
+            exit(0);
+            return "";
+        }
+        // type a = map[pd1->varailbe->buffer]->varType->id;
+        if (var->varType->id == type::INT)
         {
 
             string reg = allocateReg();
             string reg2 = allocateReg();
             string resultReg = allocateReg();
 
-            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
 
             global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
@@ -120,11 +129,11 @@ string handle_boolean(Node *op, map<string, Varaible *> map, string &global_stri
         else
         {
             string reg = allocateReg();
-            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
             return reg;
         }
         string reg = allocateReg();
-        global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+        global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
         return reg;
     }
     if (instanceof <BoolExpressionNode *>(op))
@@ -135,12 +144,12 @@ string handle_boolean(Node *op, map<string, Varaible *> map, string &global_stri
             string resultReg = allocateReg();
             if (isLoop == 1)
             {
-                global_string += "beq " + handle_boolean(pd->right, map, global_string, isLoop) + " ," + handle_boolean(pd->left, map, global_string, isLoop) + " , L" + to_string(nOfBranch) + "\n";
+                global_string += "beq " + handle_boolean(pd->right, scope, global_string, isLoop) + " ," + handle_boolean(pd->left, scope, global_string, isLoop) + " , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
             else
             {
-                global_string += "bne " + handle_boolean(pd->right, map, global_string) + " ," + handle_boolean(pd->left, map, global_string) + " , L" + to_string(nOfBranch) + "\n";
+                global_string += "bne " + handle_boolean(pd->right, scope, global_string) + " ," + handle_boolean(pd->left, scope, global_string) + " , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
 
@@ -155,13 +164,13 @@ string handle_boolean(Node *op, map<string, Varaible *> map, string &global_stri
             string resultReg = allocateReg();
             if (isLoop == 1)
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, global_string, isLoop) + " ," + handle_boolean(pd->left, map, global_string, isLoop) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string, isLoop) + " ," + handle_boolean(pd->left, scope, global_string, isLoop) + "\n";
                 global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
             else
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, global_string) + " ," + handle_boolean(pd->left, map, global_string) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string) + " ," + handle_boolean(pd->left, scope, global_string) + "\n";
                 global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
@@ -177,13 +186,13 @@ string handle_boolean(Node *op, map<string, Varaible *> map, string &global_stri
             string resultReg = allocateReg();
             if (isLoop == 1)
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, global_string, isLoop) + " ," + handle_boolean(pd->left, map, global_string, isLoop) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string, isLoop) + " ," + handle_boolean(pd->left, scope, global_string, isLoop) + "\n";
                 global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
             else
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, global_string) + " ," + handle_boolean(pd->left, map, global_string) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string) + " ," + handle_boolean(pd->left, scope, global_string) + "\n";
                 global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
@@ -200,13 +209,13 @@ string handle_boolean(Node *op, map<string, Varaible *> map, string &global_stri
             string resultReg = allocateReg();
             if (isLoop == 1)
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, map, global_string, isLoop) + " ," + handle_boolean(pd->right, map, global_string, isLoop) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, scope, global_string, isLoop) + " ," + handle_boolean(pd->right, scope, global_string, isLoop) + "\n";
                 global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
             else
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, map, global_string) + " ," + handle_boolean(pd->right, map, global_string) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, scope, global_string) + " ," + handle_boolean(pd->right, scope, global_string) + "\n";
                 global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
@@ -219,13 +228,13 @@ string handle_boolean(Node *op, map<string, Varaible *> map, string &global_stri
             string resultReg = allocateReg();
             if (isLoop == 1)
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, global_string, isLoop) + " ," + handle_boolean(pd->left, map, global_string, isLoop) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string, isLoop) + " ," + handle_boolean(pd->left, scope, global_string, isLoop) + "\n";
                 global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
             else
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, map, global_string) + " ," + handle_boolean(pd->left, map, global_string) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string) + " ," + handle_boolean(pd->left, scope, global_string) + "\n";
                 global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
@@ -235,7 +244,7 @@ string handle_boolean(Node *op, map<string, Varaible *> map, string &global_stri
     }
 }
 
-string gen_float_op(Node *op, map<string, Varaible *> &map, string &global_string)
+string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_string)
 {
     if (op == nullptr)
     {
@@ -264,14 +273,22 @@ string gen_float_op(Node *op, map<string, Varaible *> &map, string &global_strin
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
         // type a = map[pd1->varailbe->buffer]->varType->id;
-        if (map[pd->varailbe->buffer]->varType->id == type::INT)
+        Varaible *var = get_varaible(pd, scope);
+
+        if (var == nullptr)
+        {
+            cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
+            exit(0);
+            return "";
+        }
+        if (var->varType->id == type::INT)
         {
 
             string reg = allocateReg();
             string reg2 = allocateReg();
             string resultReg = allocateReg();
 
-            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
 
             global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
@@ -285,11 +302,11 @@ string gen_float_op(Node *op, map<string, Varaible *> &map, string &global_strin
         else
         {
             string reg = allocateReg();
-            global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
             return reg;
         }
         string reg = allocateReg();
-        global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+        global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
         return reg;
     }
     if (instanceof <operatorNode *>(op))
@@ -302,9 +319,9 @@ string gen_float_op(Node *op, map<string, Varaible *> &map, string &global_strin
         if (t == type::ADDITION)
         {
             // return
-            string left = gen_float_op(op->left, map, global_string);
+            string left = gen_float_op(op->left, scope, global_string);
 
-            string right = gen_float_op(op->right, map, global_string);
+            string right = gen_float_op(op->right, scope, global_string);
             global_string += "add " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
@@ -313,10 +330,10 @@ string gen_float_op(Node *op, map<string, Varaible *> &map, string &global_strin
         if (t == type::SUBTRACT)
         {
             // return
-            string left = gen_float_op(op->left, map, global_string);
+            string left = gen_float_op(op->left, scope, global_string);
             cout << "sub";
 
-            string right = gen_float_op(op->right, map, global_string);
+            string right = gen_float_op(op->right, scope, global_string);
 
             global_string += "sub " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
@@ -326,8 +343,8 @@ string gen_float_op(Node *op, map<string, Varaible *> &map, string &global_strin
         if (t == type::MULTIPLY)
         {
             // return
-            string left = gen_float_op(op->left, map, global_string);
-            string right = gen_float_op(op->right, map, global_string);
+            string left = gen_float_op(op->left, scope, global_string);
+            string right = gen_float_op(op->right, scope, global_string);
             global_string += "mult " + left + ", " + right + " \n";
             global_string += "mflo " + resultReg + " \n";
             freeReg();
@@ -337,8 +354,8 @@ string gen_float_op(Node *op, map<string, Varaible *> &map, string &global_strin
         if (t == type::DIVISION)
         {
             // return
-            string left = gen_float_op(op->left, map, global_string);
-            string right = gen_float_op(op->right, map, global_string);
+            string left = gen_float_op(op->left, scope, global_string);
+            string right = gen_float_op(op->right, scope, global_string);
             global_string += "div " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
@@ -347,8 +364,8 @@ string gen_float_op(Node *op, map<string, Varaible *> &map, string &global_strin
         if (t == type::MOD)
         {
 
-            string left = gen_float_op(op->left, map, global_string);
-            string right = gen_float_op(op->right, map, global_string);
+            string left = gen_float_op(op->left, scope, global_string);
+            string right = gen_float_op(op->right, scope, global_string);
             global_string += "div " + resultReg + "," + left + ", " + right + " \n";
             global_string += "mfhi " + resultReg + "\n";
             freeReg();
@@ -361,7 +378,7 @@ string gen_float_op(Node *op, map<string, Varaible *> &map, string &global_strin
     }
 }
 
-string gen_integer_op(Node *op, map<string, Varaible *> &map, string &global_string)
+string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_string)
 {
 
     if (op == nullptr)
@@ -396,22 +413,24 @@ string gen_integer_op(Node *op, map<string, Varaible *> &map, string &global_str
 
         cout << "works in var \n";
         string reg = allocateReg();
+        Varaible *var = get_varaible(pd, scope);
 
-        if (map.find(pd->varailbe->buffer) == map.end())
+        if (var == nullptr)
         {
             cerr << pd->varailbe->buffer + " doesnt exist as a var" << endl;
-
+            exit(0);
             return "";
         }
         else
         {
-            cout << "out: " << map[pd->varailbe->buffer] << endl;
-            if (map[pd->varailbe->buffer]->varType->id == type::FLOAT)
+            // cout << "out: " << map[pd->varailbe->buffer] << endl;
+
+            if (var->varType->id == type::FLOAT)
             {
                 string reg = allocateReg();
                 string resultReg = allocateReg();
 
-                global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
                 global_string += "div " + reg + "," + reg + ", " + to_string(OFFSET) + " \n"; // scaling. I forgot i worked on this lmao :')
                 freeReg();
                 return reg;
@@ -419,7 +438,7 @@ string gen_integer_op(Node *op, map<string, Varaible *> &map, string &global_str
             else
             {
                 string reg = allocateReg();
-                global_string += "lw " + reg + "," + to_string(map[pd->varailbe->buffer]->stackNum) + "($sp) \n";
+                global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
                 return reg;
             }
         }
@@ -438,8 +457,8 @@ string gen_integer_op(Node *op, map<string, Varaible *> &map, string &global_str
         if (t == type::ADDITION)
         {
             // return
-            string left = gen_integer_op(op->left, map, global_string);
-            string right = gen_integer_op(op->right, map, global_string);
+            string left = gen_integer_op(op->left, scope, global_string);
+            string right = gen_integer_op(op->right, scope, global_string);
             global_string += "add " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
@@ -448,8 +467,8 @@ string gen_integer_op(Node *op, map<string, Varaible *> &map, string &global_str
         if (t == type::SUBTRACT)
         {
             // return
-            string left = gen_integer_op(op->left, map, global_string);
-            string right = gen_integer_op(op->right, map, global_string);
+            string left = gen_integer_op(op->left, scope, global_string);
+            string right = gen_integer_op(op->right, scope, global_string);
             global_string += "sub " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
@@ -458,8 +477,8 @@ string gen_integer_op(Node *op, map<string, Varaible *> &map, string &global_str
         if (t == type::MULTIPLY)
         {
             // return
-            string left = gen_integer_op(op->left, map, global_string);
-            string right = gen_integer_op(op->right, map, global_string);
+            string left = gen_integer_op(op->left, scope, global_string);
+            string right = gen_integer_op(op->right, scope, global_string);
             global_string += "mult " + left + ", " + right + " \n";
             global_string += "mflo " + resultReg + " \n";
             freeReg();
@@ -469,8 +488,8 @@ string gen_integer_op(Node *op, map<string, Varaible *> &map, string &global_str
         if (t == type::DIVISION)
         {
             // return
-            string left = gen_integer_op(op->left, map, global_string);
-            string right = gen_integer_op(op->right, map, global_string);
+            string left = gen_integer_op(op->left, scope, global_string);
+            string right = gen_integer_op(op->right, scope, global_string);
             global_string += "div " + resultReg + "," + left + ", " + right + " \n";
             freeReg();
             freeReg();
@@ -478,8 +497,8 @@ string gen_integer_op(Node *op, map<string, Varaible *> &map, string &global_str
         }
         if (t == type::MOD)
         {
-            string left = gen_integer_op(op->left, map, global_string);
-            string right = gen_integer_op(op->right, map, global_string);
+            string left = gen_integer_op(op->left, scope, global_string);
+            string right = gen_integer_op(op->right, scope, global_string);
             global_string += "div " + resultReg + "," + left + ", " + right + " \n";
             global_string += "mfhi " + resultReg + "\n";
             freeReg();
