@@ -635,6 +635,28 @@ Node *handleIfStatements(vector<Tokens> &tokens)
         RemoveEOLS(tokens);
     }
     ifStatement->statements = states;
+    if (matchAndRemove(tokens, type::ELSE, "a") != nullptr)
+    {
+        ElseNode *elseNode = new ElseNode;
+        vector<Node *> states;
+
+        if (matchAndRemove(tokens, type::IF, "a") != nullptr)
+        {
+            states.push_back(handleIfStatements(tokens));
+        }
+        else if (matchAndRemove(tokens, type::BEGIN, "a") != nullptr)
+        {
+            while (matchAndRemove(tokens, type::END, "j") == nullptr)
+            {
+                RemoveEOLS(tokens);
+                states.push_back(handleSatements(tokens));
+                RemoveEOLS(tokens);
+            }
+        }
+        elseNode->statements = states;
+        ifStatement->Else = elseNode;
+    }
+
     return ifStatement;
 }
 

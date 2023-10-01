@@ -53,7 +53,8 @@ enum class type
     BOOL,
     CONSTANT,
     RETURNS,
-    SEMI_COLON
+    SEMI_COLON,
+    ELSE
 
 };
 #endif // TYPE

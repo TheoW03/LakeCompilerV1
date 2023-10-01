@@ -49,7 +49,8 @@ enum class type
     BOOL,
     CONSTANT,
     RETURNS,
-    SEMI_COLON
+    SEMI_COLON,
+    ELSE
 };
 struct Tokens
 {
@@ -135,6 +136,7 @@ vector<Tokens> lex(vector<string> lines)
     dictionary[type::RETURNS] = "RETURNS";
 
     dictionary[type::SEMI_COLON] = "SEMI_COLON";
+    dictionary[type::ELSE] = "ELSE";
 
     map<string, type> typeOfOP;
     typeOfOP["+"] = type::ADDITION;
@@ -152,6 +154,7 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["or"] = type::OR;
     typeOfOP["while"] = type::LOOP;
     typeOfOP["for"] = type::LOOP;
+    typeOfOP["else"] = type::ELSE;
     typeOfOP["var"] = type::VAR;
     typeOfOP["let"] = type::VAR;
     typeOfOP["print"] = type::PRINT;

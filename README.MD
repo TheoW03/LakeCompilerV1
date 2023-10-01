@@ -22,6 +22,12 @@ fn main(string args) returns int { //this is how you call the main method (this 
     //if statemnets
     if(random_var == 100){
         print("%d", random_var);
+    }else if(random_var == 200){
+        random_var = random_var + 1;
+        print("%d", random_var);
+    }else{
+        random_var = 0;
+        print("%d", random_var);
     }
     //loops 
     while(random_var < 1000){

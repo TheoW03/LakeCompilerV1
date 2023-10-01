@@ -321,10 +321,33 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
 
             statementsGen(pd->statements[i], scope, f, outfile); // write a new function for this T~T
         }
+        increase_numofbranch();
+        int elseBranch = getnOfBranch();
+        increase_numofbranch();
         deallocate_Scope(scope);
+        if (pd->Else != nullptr)
+        {
+            allocate_Scope(scope);
+            global_string = "j L" + to_string(elseBranch) + " \n";
+            wf(outfile, global_string);
+            global_string = "";
+        }
         global_string = "L" + to_string(ifBranch) + ": \n";
         wf(outfile, global_string);
         global_string = "";
+        if (pd->Else != nullptr)
+        {
+            vector<Node *> statementsElse = pd->Else->statements;
+            for (int i = 0; i < statementsElse.size(); i++)
+            {
+                statementsGen(statementsElse[i], scope, f, outfile);
+            }
+            // go through statements
+            global_string = "L" + to_string(elseBranch) + ": \n";
+            wf(outfile, global_string);
+            global_string = "";
+            deallocate_Scope(scope);
+        }
     }
     else if (instanceof <LoopNode *>(statement))
     {
