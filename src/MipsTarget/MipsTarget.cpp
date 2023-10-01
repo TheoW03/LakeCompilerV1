@@ -321,7 +321,6 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
     }
     else if (instanceof <IfSatementNode *>(statement))
     {
-        cout << "if" << endl;
         global_string = "";
         IfSatementNode *pd = dynamic_cast<IfSatementNode *>(statement);
         if (pd->statements.size() == 0)
@@ -334,25 +333,21 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
 
         global_string = "";
         int c = 1;
+        int a = getnOfBranch();
+        increase_numofbranch();
+
         allocate_Scope(scope);
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
             statementsGen(pd->statements[i], scope, f, outfile); // write a new function for this T~T
-            if (instanceof <IfSatementNode *>(pd->statements[i]))
-            {
-                c = 1;
-            }
         }
-        cout << "should dellocate" << endl;
         deallocate_Scope(scope);
+        global_string = "L" + to_string(a) + ": \n";
+        wf(outfile, global_string);
+
         // handle statements this will be a recursive function later
-        if (c == 1)
-        {
-            global_string = "L" + to_string(getnOfBranch()) + ": \n";
-            wf(outfile, global_string);
-            increase_numofbranch();
-        }
+
         c = 0;
         global_string = "";
     }
