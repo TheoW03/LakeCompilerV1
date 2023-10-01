@@ -196,6 +196,10 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
  * @param tokens
  * @return Node*
  */
+
+
+
+//todo: #3 REWRITE
 Node *factor(vector<Tokens> &tokens)
 {
     Tokens *a = new Tokens;
@@ -213,9 +217,12 @@ Node *factor(vector<Tokens> &tokens)
         a = matchAndRemove(tokens, type::TRUE, "factor")    ? current
             : matchAndRemove(tokens, type::FALSE, "factor") ? current
                                                             : nullptr;
-        BooleanLiteralNode *boolean = new BooleanLiteralNode;
-        boolean->value = a;
-        return boolean;
+        if (a != nullptr)
+        {
+            BooleanLiteralNode *boolean = new BooleanLiteralNode;
+            boolean->value = a;
+            return boolean;
+        }
     }
     type id;
     if (a != nullptr)

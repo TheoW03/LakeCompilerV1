@@ -140,6 +140,14 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
     if (instanceof <BoolExpressionNode *>(op))
     {
         BoolExpressionNode *pd = dynamic_cast<BoolExpressionNode *>(op);
+        if (pd->op == nullptr)
+        {
+            if (isLoop == 1)
+            {
+                global_string += "j L" + to_string(nOfBranch) + "\n";
+            }
+            return "";
+        }
         if (pd->op->id == type::BOOL_EQ)
         {
             string resultReg = allocateReg();
@@ -417,7 +425,7 @@ string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global
         cout << "works in var \n";
         string reg = allocateReg();
         Varaible *var = get_varaible(pd, scope);
-        
+
         if (var == nullptr)
         {
             cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
