@@ -81,9 +81,19 @@ Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
 Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension *> &scope, int stack_number)
 {
     Varaible *a = new Varaible;
+
     a->constant = var->constant;
     a->stackNum = stack_number;
     a->varType = var->typeOfVar;
-    scope[scope.size() - 1]->vars[var->varaible->buffer] = a;
+    if (scope[scope.size() - 1]->vars.find(var->varaible->buffer) == scope[scope.size() - 1]->vars.end())
+    {
+        scope[scope.size() - 1]->vars[var->varaible->buffer] = a;
+    }
+    else
+    {
+        cerr << var->varaible->buffer << " has been declared twice" << endl;
+        exit(1);
+        return nullptr;
+    }
     return a;
 }

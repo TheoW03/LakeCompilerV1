@@ -458,7 +458,7 @@ string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global
         if (pd->token != nullptr)
         {
             t = pd->token->id;
-            cout << "token op: " + pd->token->buffer << endl;
+            // cout << "token op: " + pd->token->buffer << endl;
         }
         string resultReg = allocateReg();
         if (t == type::ADDITION)

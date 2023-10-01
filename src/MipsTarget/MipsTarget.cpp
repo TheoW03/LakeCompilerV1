@@ -42,17 +42,6 @@ void wf(ofstream &outfile, string word)
     outfile << word << endl;
 }
 
-// void prepare_interptMips(VaraibleDeclaration *var, map<string, Varaible *> &map, int size)
-// {
-//     stack_number += size;
-//     Varaible *a = new Varaible;
-//     a->constant = var->constant;
-//     a->stackNum = stack_number;
-//     a->varType = var->typeOfVar;
-//     map[var->varailbe->buffer] = a;
-//     // scope[map]
-// }
-
 void gen_function(vector<Node *> state, int &stackNum)
 {
     if (state.size() == 0)
@@ -86,9 +75,6 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
 
     functions[type::PRINT] = new Print();
     functions[type::EXIT] = new Exit();
-
-    cout << "a" << endl;
-
     if (instanceof <VaraibleDeclaration *>(statement))
     {
         VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(statement);
@@ -153,7 +139,6 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
                 add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
             }
 
-            cout << "string: " + global_string << endl;
             wf(outfile, global_string);
             global_string = "";
             wf(outfile, add);
@@ -176,14 +161,13 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
             if (type1 == nullptr)
             {
                 cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
-                exit(0);
+                exit(1);
                 return;
             }
             if (type1->constant == 1)
             {
                 cout << "is constant";
                 exit(1);
-
                 return;
             }
             string allocr = allocateReg();
@@ -204,9 +188,6 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
                 string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression)) + " \n";
                 wf(outfile, a);
             }
-            cout << pd->varaible->buffer << endl;
-            cout << to_string(type1->stackNum) << endl;
-            cout << "hi \n";
             string add = "sw " + allocr + "," + to_string(type1->stackNum) + "($sp) \n";
             wf(outfile, add);
         }
@@ -217,7 +198,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
             if (type1 == nullptr)
             {
                 cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
-                exit(0);
+                exit(1);
                 return;
             }
             if (type1->constant == 1)
@@ -332,10 +313,8 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         wf(outfile, global_string);
 
         global_string = "";
-        int c = 1;
-        int a = getnOfBranch();
+        int ifBranch = getnOfBranch();
         increase_numofbranch();
-
         allocate_Scope(scope);
         for (int i = 0; i < pd->statements.size(); i++)
         {
@@ -343,12 +322,8 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
             statementsGen(pd->statements[i], scope, f, outfile); // write a new function for this T~T
         }
         deallocate_Scope(scope);
-        global_string = "L" + to_string(a) + ": \n";
+        global_string = "L" + to_string(ifBranch) + ": \n";
         wf(outfile, global_string);
-
-        // handle statements this will be a recursive function later
-
-        c = 0;
         global_string = "";
     }
     else if (instanceof <LoopNode *>(statement))
