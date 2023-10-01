@@ -417,7 +417,7 @@ string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global
         cout << "works in var \n";
         string reg = allocateReg();
         Varaible *var = get_varaible(pd, scope);
-
+        
         if (var == nullptr)
         {
             cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
@@ -434,12 +434,16 @@ string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global
                 string resultReg = allocateReg();
 
                 global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+
                 global_string += "div " + reg + "," + reg + ", " + to_string(OFFSET) + " \n"; // scaling. I forgot i worked on this lmao :')
+                cout << "" << endl;
+                cout << global_string << endl;
                 freeReg();
                 return reg;
             }
             else
             {
+
                 string reg = allocateReg();
                 global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
                 return reg;

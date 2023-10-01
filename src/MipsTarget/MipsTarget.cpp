@@ -170,10 +170,13 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         // }
         if (check_if_pureExpression(pd->expression) == 0)
         {
+            cout << "boolean" << endl;
 
             Varaible *type1 = get_varaible(pd, scope);
             if (type1 == nullptr)
             {
+                cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
+                exit(0);
                 return;
             }
             if (type1->constant == 1)
@@ -210,6 +213,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         else
         {
             Varaible *type1 = get_varaible(pd, scope);
+
             if (type1 == nullptr)
             {
                 cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
@@ -232,10 +236,12 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
             }
             else if (type1->varType->id == type::INT)
             {
+                cout << "integer" << endl;
                 add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
             }
             else
             {
+
                 add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
             }
 
@@ -315,6 +321,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
     }
     else if (instanceof <IfSatementNode *>(statement))
     {
+        cout << "if" << endl;
         global_string = "";
         IfSatementNode *pd = dynamic_cast<IfSatementNode *>(statement);
         if (pd->statements.size() == 0)
@@ -337,6 +344,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
                 c = 1;
             }
         }
+        cout << "should dellocate" << endl;
         deallocate_Scope(scope);
         // handle statements this will be a recursive function later
         if (c == 1)

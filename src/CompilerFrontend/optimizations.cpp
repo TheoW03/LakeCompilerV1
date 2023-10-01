@@ -38,7 +38,7 @@ int check_if_pureExpression(Node *op)
     {
         check_if_pureExpression(op->right);
     }
-    return 0;
+    return 1;
 }
 int constant_prop_boolean(Node *op)
 {

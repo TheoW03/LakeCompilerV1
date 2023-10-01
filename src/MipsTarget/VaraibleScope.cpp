@@ -54,6 +54,7 @@ void reset_arg_register()
 }
 void allocate_Scope(vector<Scope_dimension *> &scope)
 {
+
     Scope_dimension *a = new Scope_dimension;
     map<string, Varaible *> b;
     a->vars = b;
@@ -61,7 +62,6 @@ void allocate_Scope(vector<Scope_dimension *> &scope)
 }
 void deallocate_Scope(vector<Scope_dimension *> &scope)
 {
-    // cout << scope.end() << endl;
     scope.erase(scope.end() - 1);
 }
 Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
@@ -69,8 +69,10 @@ Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
     for (int i = 0; i < scope.size(); i++)
     {
         map<string, Varaible *> b = scope[i]->vars;
+
         if (b.find(var->varaible->buffer) != b.end())
         {
+
             return b[var->varaible->buffer];
         }
     }
@@ -78,7 +80,6 @@ Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
 }
 Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension *> &scope, int stack_number)
 {
-    cout << "add to var" << endl;
     Varaible *a = new Varaible;
     a->constant = var->constant;
     a->stackNum = stack_number;
