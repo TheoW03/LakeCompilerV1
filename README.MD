@@ -76,6 +76,8 @@ fn f(int x) : int -> x + 1; //new feature i been thinking of. for a while >:3
 
 <b>MIPS target</b>
 
+if you dont have a MIPS CPU on hand just do this
+
 1. install QTSpim
 https://spimsimulator.sourceforge.net/
 
