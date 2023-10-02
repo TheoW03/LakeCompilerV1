@@ -67,7 +67,10 @@ fn f(int x) : int -> x + 1; //new feature i been thinking of. for a while >:3
 2. type "make" in the terminal
 ---
 
-3. the final exe is "./output {to any file with .lk extension}"
+3. the final exe is "./output {to any file with .lk extension or CLI arg}"
+
+---
+4. if you see "compiled successfully" your code should work. 
 
 # run transpiled code
 
