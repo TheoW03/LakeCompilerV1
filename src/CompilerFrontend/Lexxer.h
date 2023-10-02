@@ -55,7 +55,6 @@ enum class type
     RETURNS,
     SEMI_COLON,
     ELSE
-
 };
 #endif // TYPE
 

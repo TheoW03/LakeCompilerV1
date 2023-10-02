@@ -155,6 +155,7 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["while"] = type::LOOP;
     typeOfOP["for"] = type::LOOP;
     typeOfOP["else"] = type::ELSE;
+
     typeOfOP["var"] = type::VAR;
     typeOfOP["let"] = type::VAR;
     typeOfOP["print"] = type::PRINT;

@@ -197,9 +197,7 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
  * @return Node*
  */
 
-
-
-//todo: #3 REWRITE
+// todo: #3 REWRITE
 Node *factor(vector<Tokens> &tokens)
 {
     Tokens *a = new Tokens;
@@ -646,7 +644,6 @@ Node *handleIfStatements(vector<Tokens> &tokens)
     {
         ElseNode *elseNode = new ElseNode;
         vector<Node *> states;
-
         if (matchAndRemove(tokens, type::IF, "a") != nullptr)
         {
             states.push_back(handleIfStatements(tokens));
