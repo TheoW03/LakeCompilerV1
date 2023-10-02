@@ -70,9 +70,18 @@ void handle_cli(char *argv[], int argc)
 int main(int argc, char *argv[])
 {
 
-    handle_cli(argv, argc);
+    // handle_cli(argv, argc);
+    for (int i = 0; i < 10; i++)
+    {
+        cout << i << endl;
+    }
+    int i = 0;
+    while(i < 10){
+        cout << i << endl;
+        i++;
+    }
 
-    // vector<Tokens> a = lex(readFile("test.txt"));
+    // vector<Tokens> a = lex(readFile("test.lk"));
     // printList(a);
     // vector<FunctionNode *> b = functionParse(a);
     // gen_mips_target(b);

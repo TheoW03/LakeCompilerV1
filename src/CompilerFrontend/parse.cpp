@@ -85,6 +85,12 @@ struct VaraibleReference : public Node
     Node *expression;
     Tokens *varaible;
 };
+struct ForLoopNode : public Node
+{
+    Node *incrimentorVar;
+    BoolExpressionNode *condition;
+    vector<Node *> statements;
+};
 
 /**
  * @brief this gives an expression, left, rigt
@@ -360,9 +366,9 @@ Node *expression(vector<Tokens> &tokens)
     Node *n = new Node;
     // Node* opNode = new Node;
     Node *opNode = term(tokens);
-    Tokens *op = (matchAndRemove(tokens, type::ADDITION, "expressiion") != nullptr) ? current : (matchAndRemove(tokens, type::SUBTRACT, "expressiion") != nullptr) ? current
-                                                                                                                                                                   : nullptr; // n.value = 0;
-
+    Tokens *op = (matchAndRemove(tokens, type::ADDITION, "expressiion") != nullptr)   ? current
+                 : (matchAndRemove(tokens, type::SUBTRACT, "expressiion") != nullptr) ? current
+                                                                                      : nullptr; // n.value = 0;
     if (op != nullptr)
     {
         Node *node = nullptr;
@@ -487,8 +493,26 @@ void printParams(vector<Tokens *> a)
 Node *parserVarRef(vector<Tokens> &tokens, Tokens *name)
 {
     VaraibleReference *var = new VaraibleReference;
+    Tokens *DecOp = (matchAndRemove(tokens, type::ADDITION, "a") != nullptr)   ? current
+                    : (matchAndRemove(tokens, type::SUBTRACT, "a") != nullptr) ? current
+                                                                               : nullptr;
     var->varaible = name;
-    var->expression = expression(tokens);
+    if (DecOp != nullptr)
+    {
+        OperatorNode *n = new OperatorNode;
+        IntegerNode *num = new IntegerNode;
+        num->num = "1";
+        VaraibleReference *vars = new VaraibleReference;
+        vars->varaible = name;
+        n->left = num;
+        n->right = vars;
+        n->token = DecOp;
+        var->expression = n;
+    }
+    else
+    {
+        var->expression = expression(tokens);
+    }
     return var;
 }
 /**
@@ -670,6 +694,36 @@ Node *handleReturn(vector<Tokens> &tokens)
     returns->expression = expression(tokens);
     return returns;
 }
+Node *handleFor(vector<Tokens> &tokens)
+{
+    ForLoopNode *forLoop = new ForLoopNode;
+    matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
+    // Tokens *a = (matchAndRemove(tokens, type::VAR, "parsefunctions") != nullptr)     ? current
+    //             : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr) ? current
+    //             : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)   ? current
+    //             : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)  ? current
+    //                                                                                  : nullptr;
+    forLoop->incrimentorVar = handleSatements(tokens);
+    RemoveEOLS(tokens);
+    forLoop->condition = handleBooleanExpression(tokens);
+    RemoveEOLS(tokens);
+    vector<Node *> statements;
+    Node *b = handleSatements(tokens);
+    RemoveEOLS(tokens);
+    matchAndRemove(tokens, type::CL_PARENTHISIS, "a");
+    matchAndRemove(tokens, type::BEGIN, "a");
+    while (matchAndRemove(tokens, type::END, "a") == nullptr)
+    {
+        RemoveEOLS(tokens);
+        statements.push_back(handleSatements(tokens));
+        RemoveEOLS(tokens);
+    }
+    statements.push_back(b);
+
+    forLoop->statements = statements;
+    // forLoop->
+    return forLoop;
+}
 /**
  * @brief function stuff
  *
@@ -703,6 +757,7 @@ Node *handleSatements(vector<Tokens> &tokens)
                 : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr)   ? current
                 : (matchAndRemove(tokens, type::IF, "k") != nullptr)                    ? current
                 : (matchAndRemove(tokens, type::LOOP, "k") != nullptr)                  ? current
+                : (matchAndRemove(tokens, type::FOR_LOOP, "k") != nullptr)              ? current
                 : (matchAndRemove(tokens, type::RETURN, "k") != nullptr)                ? current
                                                                                         : nullptr;
 
@@ -716,6 +771,10 @@ Node *handleSatements(vector<Tokens> &tokens)
         {
             return handleLoops(tokens);
         }
+        if (a->id == type::FOR_LOOP)
+        {
+            return handleFor(tokens);
+        }
         if (a->id == type::RETURN)
         {
             return handleReturn(tokens);
@@ -724,7 +783,7 @@ Node *handleSatements(vector<Tokens> &tokens)
         Node *var;
         if (a->id == type::WORD)
         {
-            if (matchAndRemove(tokens, type::EQUALS, "state") == nullptr)
+            if (matchAndRemove(tokens, type::EQUALS, "state") == nullptr && matchAndRemove(tokens, type::ADDITION, "state") == nullptr && matchAndRemove(tokens, type::SUBTRACT, "state") == nullptr)
             {
                 return handleCalls(tokens, a);
             }

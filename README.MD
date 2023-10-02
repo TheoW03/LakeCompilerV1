@@ -33,6 +33,12 @@ fn main(string args) returns int { //this is how you call the main method (this 
     while(random_var < 1000){
         random_var = random_var + 1;
     }
+    for(int i = 0; i < 10; i++){
+        print("%d",i); // for loops (with incrementor)
+    }
+    for(int i = 10; i > 0; i--){
+        print("%d",i); // for loops (with decrementor)
+    }
     print("%f",random_var); // %f -> float %d -> integer. this is a temp system until I add something better :3
     exit(1); //exit
     return 0;

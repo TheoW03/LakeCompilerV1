@@ -85,15 +85,31 @@ Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension *> &scope,
     a->constant = var->constant;
     a->stackNum = stack_number;
     a->varType = var->typeOfVar;
-    if (scope[scope.size() - 1]->vars.find(var->varaible->buffer) == scope[scope.size() - 1]->vars.end())
+    for (int i = 0; i < scope.size(); i++)
     {
-        scope[scope.size() - 1]->vars[var->varaible->buffer] = a;
+        map<string, Varaible *> b = scope[i]->vars;
+        if (b.find(var->varaible->buffer) != b.end())
+        {
+
+            cerr << var->varaible->buffer << " has been declared twice" << endl;
+            exit(1);
+            return nullptr;
+        }
     }
-    else
-    {
-        cerr << var->varaible->buffer << " has been declared twice" << endl;
-        exit(1);
-        return nullptr;
-    }
+    scope[scope.size() - 1]->vars[var->varaible->buffer] = a;
     return a;
+
+    // if (scope[scope.size() - 1]->vars.find(var->varaible->buffer) == scope[scope.size() - 1]->vars.end())
+    // {
+    //     if (var->varaible->buffer == "i")
+    //     {
+    //         cout << "i declared" << endl;
+    //     }
+    // }
+    // else
+    // {
+    //     cerr << var->varaible->buffer << " has been declared twice" << endl;
+    //     exit(1);
+    //     return nullptr;
+    // }
 }

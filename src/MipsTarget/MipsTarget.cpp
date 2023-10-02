@@ -386,6 +386,41 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
 
         // wf(outfile, global_string);
     }
+    else if (instanceof <ForLoopNode *>(statement))
+    {
+        global_string = "";
+        ForLoopNode *pd = dynamic_cast<ForLoopNode *>(statement);
+        allocate_Scope(scope);
+        cout << "size: " << scope.size() << endl;
+
+        statementsGen(pd->incrimentorVar, scope, f, outfile); // write a new function for this T~T
+        allocate_Scope(scope);
+        increase_numofbranch();
+        int b = getnOfBranch();
+        global_string += "b L" + to_string(b) + "\n";
+        increase_numofbranch();
+        global_string += "L" + to_string(getnOfBranch()) + ": \n # loop"; // condition
+        wf(outfile, global_string);
+        global_string = "";
+
+        handle_boolean(pd->condition, scope, global_string, 1);
+        string condition = global_string;
+        increase_numofbranch();
+        global_string = "";
+        for (int i = 0; i < pd->statements.size(); i++)
+        {
+
+            statementsGen(pd->statements[i], scope, f, outfile); // write a new function for this T~T
+        }
+
+        global_string += "L" + to_string(b) + ": \n # condition";
+        wf(outfile, global_string);
+        wf(outfile, condition);
+
+        global_string = "";
+        deallocate_Scope(scope);
+        deallocate_Scope(scope);
+    }
 }
 /**
  * @brief

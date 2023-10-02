@@ -6,7 +6,6 @@ using namespace std;
 
 #define OFFSET 65536
 
-
 #ifndef STAT_H
 #define STAT_H
 enum status
@@ -112,7 +111,13 @@ struct FunctionNode : public Node
     struct Tokens *nameOfFunction;
     vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
-    Tokens* returnType;
+    Tokens *returnType;
+};
+struct ForLoopNode : public Node
+{
+    Node *incrimentorVar;
+    BoolExpressionNode *condition;
+    vector<Node *> statements;
 };
 #endif // NODE_H
 

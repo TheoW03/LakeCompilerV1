@@ -54,7 +54,8 @@ enum class type
     CONSTANT,
     RETURNS,
     SEMI_COLON,
-    ELSE
+    ELSE,
+    FOR_LOOP
 };
 #endif // TYPE
 

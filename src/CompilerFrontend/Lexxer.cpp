@@ -50,7 +50,8 @@ enum class type
     CONSTANT,
     RETURNS,
     SEMI_COLON,
-    ELSE
+    ELSE,
+    FOR_LOOP
 };
 struct Tokens
 {
@@ -153,7 +154,7 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["and"] = type::AND;
     typeOfOP["or"] = type::OR;
     typeOfOP["while"] = type::LOOP;
-    typeOfOP["for"] = type::LOOP;
+    typeOfOP["for"] = type::FOR_LOOP;
     typeOfOP["else"] = type::ELSE;
 
     typeOfOP["var"] = type::VAR;
