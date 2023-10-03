@@ -304,8 +304,6 @@ string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_s
 
             global_string += "mult " + reg + "," + reg2 + " \n";
             global_string += "mflo " + resultReg + " \n"; // scaling
-            freeReg();
-            freeReg();
 
             return resultReg;
         }
@@ -315,9 +313,9 @@ string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_s
             global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
             return reg;
         }
-        string reg = allocateReg();
-        global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
-        return reg;
+        // string reg = allocateReg();
+        // global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+        // return reg;
     }
     if (instanceof <OperatorNode *>(op))
     {

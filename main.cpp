@@ -70,16 +70,7 @@ void handle_cli(char *argv[], int argc)
 int main(int argc, char *argv[])
 {
 
-    // handle_cli(argv, argc);
-    for (int i = 0; i < 10; i++)
-    {
-        cout << i << endl;
-    }
-    int i = 0;
-    while(i < 10){
-        cout << i << endl;
-        i++;
-    }
+    handle_cli(argv, argc);
 
     // vector<Tokens> a = lex(readFile("test.lk"));
     // printList(a);

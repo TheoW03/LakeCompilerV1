@@ -206,103 +206,152 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
 // todo: #3 REWRITE
 Node *factor(vector<Tokens> &tokens)
 {
-    Tokens *a = new Tokens;
-    a = (matchAndRemove(tokens, type::NUMBER, "factor") != nullptr)           ? current
-        : (matchAndRemove(tokens, type::OP_PARENTHISIS, "factor") != nullptr) ? current
-        : (matchAndRemove(tokens, type::WORD, "factor") != nullptr)           ? current
-                                                                              : nullptr;
 
-    if (a == nullptr)
+    // Tokens *parsedToken = (matchAndRemove(tokens, type::NUMBER, "factor") != nullptr)           ? current
+    //                       : (matchAndRemove(tokens, type::OP_PARENTHISIS, "factor") != nullptr) ? current
+    //                       : (matchAndRemove(tokens, type::WORD, "factor") != nullptr)           ? current
+    //                                                                                             : nullptr;
+
+    if (matchAndRemove(tokens, type::NUMBER, "factor") != nullptr)
     {
-        a = matchAndRemove(tokens, type::STRING_LITERAL, "factor");
-    }
-    if (a == nullptr)
-    {
-        a = matchAndRemove(tokens, type::TRUE, "factor")    ? current
-            : matchAndRemove(tokens, type::FALSE, "factor") ? current
-                                                            : nullptr;
-        if (a != nullptr)
+        string myString = current->buffer;
+        if (myString.find(".") == string::npos)
         {
-            BooleanLiteralNode *boolean = new BooleanLiteralNode;
-            boolean->value = a;
-            return boolean;
+            IntegerNode *intNode = new IntegerNode;
+            intNode->num = current->buffer;
+            return intNode;
         }
+        int fPoint = (int)(stof(myString) * OFFSET);
+        FloatNode *floatNode = new FloatNode;
+        floatNode->num = to_string(fPoint);
+        return floatNode;
     }
-    type id;
-    if (a != nullptr)
+    else if (matchAndRemove(tokens, type::OP_PARENTHISIS, "factor") != nullptr)
     {
-        id = a->id;
+        Node *exp = expression(tokens);
+        matchAndRemove(tokens, type::CL_PARENTHISIS, "factor");
+        return exp;
+    }
+    else if (matchAndRemove(tokens, type::STRING_LITERAL, "factor") != nullptr)
+    {
+        StringNode *s = new StringNode;
+        s->stringBuffer = current->buffer;
+        return s;
+    }
+    else if (matchAndRemove(tokens, type::WORD, "factor") != nullptr)
+    {
+        VaraibleReference *var = new VaraibleReference;
+        var->varaible = current;
+        return var;
+    }
+    else if (matchAndRemove(tokens, type::TRUE, "factor") != nullptr || matchAndRemove(tokens, type::FALSE, "factor") != nullptr)
+    {
+        BooleanLiteralNode *boolean = new BooleanLiteralNode;
+        boolean->value = current;
+        return boolean;
     }
     else
     {
         return nullptr;
     }
-    if (id == type::STRING_LITERAL)
-    {
-        StringNode *s = new StringNode;
-        s->stringBuffer = a->buffer;
-        return s;
-    }
-    if (id == type::NUMBER)
-    {
-        string myString = a->buffer;
-        if (myString.find(".") == string::npos)
-        {
-            IntegerNode *intNode = new IntegerNode;
-            intNode->num = a->buffer;
-            cout << "is int" << endl;
-            delete a;
-            return intNode;
-        }
-        int fPoint = (int)(stof(myString) * OFFSET);
-        cout << fPoint << endl;
-        cout << "hi \n";
-        myString = to_string(fPoint); // whoses idea was it to give me a C++ compiler >:3
-        cout << myString << endl;
-        int myInt;
-        FloatNode *floatNode = new FloatNode;
-        floatNode->num = to_string(fPoint);
-        delete a;
-        return floatNode;
-        // NumNode *numN = new NumNode;
-        // string b = a->buffer;
-        // // cout << "b: " + b << endl;
-        // numN->num = b;
-        // cout << "numN: " + numN->num << endl;
-        // delete a;
-        // return numN;
-    }
-    else if (id == type::OP_PARENTHISIS)
-    {
-        Node *exp = expression(tokens);
-        matchAndRemove(tokens, type::CL_PARENTHISIS, "factor");
-        cout << "op \n";
 
-        return exp;
-    }
-    // else if (id == type::WORD)
+    // Tokens *a = new Tokens;
+    // a = (matchAndRemove(tokens, type::NUMBER, "factor") != nullptr)           ? current
+    //     : (matchAndRemove(tokens, type::OP_PARENTHISIS, "factor") != nullptr) ? current
+    //     : (matchAndRemove(tokens, type::WORD, "factor") != nullptr)           ? current
+    //                                                                           : nullptr;
+
+    // if (a == nullptr)
     // {
-    //     varaibleNode *var = new varaibleNode;
-    //     var->varailbe = a;
-    //     cout << "has been based var \n";
+    //     a = matchAndRemove(tokens, type::STRING_LITERAL, "factor");
+    // }
+    // if (a == nullptr)
+    // {
+    //     a = matchAndRemove(tokens, type::TRUE, "factor")    ? current
+    //         : matchAndRemove(tokens, type::FALSE, "factor") ? current
+    //                                                         : nullptr;
+    //     if (a != nullptr)
+    //     {
+    //         BooleanLiteralNode *boolean = new BooleanLiteralNode;
+    //         boolean->value = a;
+    //         return boolean;
+    //     }
+    // }
+    // type id;
+    // if (a != nullptr)
+    // {
+    //     id = a->id;
+    // }
+    // else
+    // {
+    //     return nullptr;
+    // }
+    // if (id == type::STRING_LITERAL)
+    // {
+    //     StringNode *s = new StringNode;
+    //     s->stringBuffer = a->buffer;
+    //     return s;
+    // }
+    // if (id == type::NUMBER)
+    // {
+    //     string myString = a->buffer;
+    //     if (myString.find(".") == string::npos)
+    //     {
+    //         IntegerNode *intNode = new IntegerNode;
+    //         intNode->num = a->buffer;
+    //         cout << "is int" << endl;
+    //         delete a;
+    //         return intNode;
+    //     }
+    //     int fPoint = (int)(stof(myString) * OFFSET);
+    //     cout << fPoint << endl;
+    //     cout << "hi \n";
+    //     myString = to_string(fPoint); // whoses idea was it to give me a C++ compiler >:3
+    //     cout << myString << endl;
+    //     int myInt;
+    //     FloatNode *floatNode = new FloatNode;
+    //     floatNode->num = to_string(fPoint);
+    //     delete a;
+    //     return floatNode;
     //     // NumNode *numN = new NumNode;
     //     // string b = a->buffer;
     //     // // cout << "b: " + b << endl;
     //     // numN->num = b;
-    //     // // cout << "numN: "+numN->num << endl;
+    //     // cout << "numN: " + numN->num << endl;
+    //     // delete a;
     //     // return numN;
+    // }
+    // else if (id == type::OP_PARENTHISIS)
+    // {
+    //     Node *exp = expression(tokens);
+    //     matchAndRemove(tokens, type::CL_PARENTHISIS, "factor");
+    //     cout << "op \n";
+
+    //     return exp;
+    // }
+    // // else if (id == type::WORD)
+    // // {
+    // //     varaibleNode *var = new varaibleNode;
+    // //     var->varailbe = a;
+    // //     cout << "has been based var \n";
+    // //     // NumNode *numN = new NumNode;
+    // //     // string b = a->buffer;
+    // //     // // cout << "b: " + b << endl;
+    // //     // numN->num = b;
+    // //     // // cout << "numN: "+numN->num << endl;
+    // //     // return numN;
+    // //     return var;
+    // // }
+    // else if (id == type::WORD)
+    // {
+    //     VaraibleReference *var = new VaraibleReference;
+    //     var->varaible = a;
     //     return var;
     // }
-    else if (id == type::WORD)
-    {
-        VaraibleReference *var = new VaraibleReference;
-        var->varaible = a;
-        return var;
-    }
-    else
-    {
-        return nullptr;
-    }
+    // else
+    // {
+    //     return nullptr;
+    // }
 
     // do stuff
 }

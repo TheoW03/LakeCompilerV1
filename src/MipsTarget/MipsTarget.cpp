@@ -78,13 +78,15 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
     if (instanceof <VaraibleDeclaration *>(statement))
     {
         VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(statement);
+        cout << "var: " << pd->varaible->buffer << endl;
 
         // prepare_interptMips(pd, var, 4);
         stack_number += 4;
         Varaible *type1 = add_to_var(pd, scope, stack_number);
+        cout << "var: " << pd->varaible->buffer << " " << check_if_pureExpression(pd->expression) << endl;
         if (check_if_pureExpression(pd->expression) == 0)
         {
-
+            cout << "is constant" << endl;
             // Varaible *type1 = get_varaible(pd, scope);
 
             if (type1 == nullptr)
@@ -117,6 +119,8 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         }
         else
         {
+            cout << "isnt constant" << endl;
+
             // Varaible *type1 = var[pd->varailbe->buffer];
 
             if (type1 == nullptr)
@@ -147,6 +151,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
     else if (instanceof <VaraibleReference *>(statement))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(statement);
+        cout << "var: " << pd->varaible->buffer << "   " << check_if_pureExpression(pd->expression) << endl;
 
         // else
         // {
@@ -155,6 +160,8 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         // }
         if (check_if_pureExpression(pd->expression) == 0)
         {
+            cout << "is constant" << endl;
+
             cout << "boolean" << endl;
 
             Varaible *type1 = get_varaible(pd, scope);
@@ -193,6 +200,8 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         }
         else
         {
+            cout << "no constant" << endl;
+
             Varaible *type1 = get_varaible(pd, scope);
 
             if (type1 == nullptr)

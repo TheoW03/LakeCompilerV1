@@ -27,17 +27,13 @@ int check_if_pureExpression(Node *op)
     {
         return 0;
     }
+    check_if_pureExpression(op->left);
     if (instanceof <VaraibleReference *>(op))
     {
-
         cout << "var \n";
         return 1;
     }
-    int a = check_if_pureExpression(op->left);
-    if (a == 0)
-    {
-        check_if_pureExpression(op->right);
-    }
+    check_if_pureExpression(op->right);
     return 1;
 }
 int constant_prop_boolean(Node *op)
@@ -64,10 +60,12 @@ int constant_prop_boolean(Node *op)
 }
 float constant_prop_float(Node *op)
 {
+
     if (op == nullptr)
     {
         return 1;
     }
+
     // FloatNode *pd2 = dynamic_cast<FloatNode *>(op);
 
     if (instanceof <IntegerNode *>(op))
@@ -110,6 +108,7 @@ float constant_prop_float(Node *op)
 }
 int constant_prop_integer(Node *op)
 {
+    cout << "constant prop" << endl;
     if (op == nullptr)
     {
         return 1;
