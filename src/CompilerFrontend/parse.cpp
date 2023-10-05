@@ -54,6 +54,11 @@ struct StringNode : public Node
 {
     string stringBuffer;
 };
+struct CharNode : public Node
+{
+    string character;
+};
+
 struct BooleanLiteralNode : public Node
 {
     Tokens *value;
@@ -189,9 +194,15 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
         Tokens *t = new Tokens(tokens[0]);
         current = t;
         tokens.erase(tokens.begin());
+        // cout << "matched" << endl;
+        // cout << "=" << endl;
+        // cout << "=" << endl;
         return t;
     }
     // cout << "unmatched \n";
+    // cout << "=" << endl;
+    // cout << "=" << endl;
+
     return nullptr;
 }
 #pragma region Expression term and factor (for equations)
@@ -249,6 +260,15 @@ Node *factor(vector<Tokens> &tokens)
         BooleanLiteralNode *boolean = new BooleanLiteralNode;
         boolean->value = current;
         return boolean;
+    }
+    else if (matchAndRemove(tokens, type::CHAR_LITERAL, "factor") != nullptr)
+    {
+        CharNode *integer = new CharNode;
+
+        string s = current->buffer;
+        char myChar = s[0]; // This gets the first character (index 0)
+        integer->character = to_string((int)myChar);
+        return integer;
     }
     else
     {
@@ -493,6 +513,7 @@ Node *handleFunctions(vector<Tokens> &tokens)
                           : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)  ? current
                           : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
                           : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
+                          : (matchAndRemove(tokens, type::CHAR, "parseFunctions") != nullptr)   ? current
                           : (matchAndRemove(tokens, type::BOOL, "parseFunctions") != nullptr)   ? current
 
                                                                                               : nullptr;
@@ -624,48 +645,54 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
     vector<Node *> vars;
     while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlecalls") == nullptr)
     {
-        // Node *var = expression(tokens);
-        Tokens *var = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)             ? current
-                      : (matchAndRemove(tokens, type::NUMBER, "parsefunctions") != nullptr)         ? current
-                      : (matchAndRemove(tokens, type::STRING_LITERAL, "parseFunctions") != nullptr) ? current
-                                                                                                    : nullptr;
+        vars.push_back(factor(tokens));
         matchAndRemove(tokens, type::COMMA, "handlefunctions");
-        VaraibleReference *v = new VaraibleReference;
-        if (var->id == type::NUMBER)
-        {
-            string myString = var->buffer;
-            if (myString.find(".") == string::npos)
-            {
-                IntegerNode *intNode = new IntegerNode;
-                intNode->num = var->buffer;
-                cout << "is int" << endl;
-                vars.push_back(intNode);
-            }
-            else
-            {
-                int fPoint = (int)(stof(myString) * OFFSET);
-                cout << fPoint << endl;
-                cout << "hi \n";
-                myString = to_string(fPoint); // whoses idea was it to give me a C++ compiler >:3
-                cout << myString << endl;
-                int myInt;
-                FloatNode *floatNode = new FloatNode;
-                floatNode->num = to_string(fPoint);
-                vars.push_back(floatNode);
-            }
-        }
-        else if (var->id == type::WORD)
-        {
-            VaraibleReference *v1 = new VaraibleReference;
-            v1->varaible = var;
-            vars.push_back(v1);
-        }
-        else if (var->id == type::STRING_LITERAL)
-        {
-            StringNode *s = new StringNode;
-            s->stringBuffer = var->buffer;
-            vars.push_back(s);
-        }
+        // Node *var = expression(tokens);
+        // Tokens *var = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)             ? current
+        //               : (matchAndRemove(tokens, type::NUMBER, "parsefunctions") != nullptr)         ? current
+        //               : (matchAndRemove(tokens, type::STRING_LITERAL, "parseFunctions") != nullptr) ? current
+        //               : (matchAndRemove(tokens, type::CHAR_LITERAL, "parseFunctions") != nullptr)   ? current
+        //               : (matchAndRemove(tokens, type::TRUE, "parseFunctions") != nullptr)           ? current
+        //               : (matchAndRemove(tokens, type::FALSE, "parseFunctions") != nullptr)          ? current
+
+        //                                                                                    : nullptr;
+        // matchAndRemove(tokens, type::COMMA, "handlefunctions");
+        // VaraibleReference *v = new VaraibleReference;
+        // if (var->id == type::NUMBER)
+        // {
+        //     string myString = var->buffer;
+        //     if (myString.find(".") == string::npos)
+        //     {
+        //         IntegerNode *intNode = new IntegerNode;
+        //         intNode->num = var->buffer;
+        //         cout << "is int" << endl;
+        //         vars.push_back(intNode);
+        //     }
+        //     else
+        //     {
+        //         int fPoint = (int)(stof(myString) * OFFSET);
+        //         cout << fPoint << endl;
+        //         cout << "hi \n";
+        //         myString = to_string(fPoint); // whoses idea was it to give me a C++ compiler >:3
+        //         cout << myString << endl;
+        //         int myInt;
+        //         FloatNode *floatNode = new FloatNode;
+        //         floatNode->num = to_string(fPoint);
+        //         vars.push_back(floatNode);
+        //     }
+        // }
+        // else if (var->id == type::WORD)
+        // {
+        //     VaraibleReference *v1 = new VaraibleReference;
+        //     v1->varaible = var;
+        //     vars.push_back(v1);
+        // }
+        // else if (var->id == type::STRING_LITERAL)
+        // {
+        //     StringNode *s = new StringNode;
+        //     s->stringBuffer = var->buffer;
+        //     vars.push_back(s);
+        // }
     }
     f1->params = vars;
     return f1;
@@ -804,11 +831,13 @@ Node *handleSatements(vector<Tokens> &tokens)
                 : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)      ? current
                 : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)     ? current
                 : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr)   ? current
-                : (matchAndRemove(tokens, type::IF, "k") != nullptr)                    ? current
-                : (matchAndRemove(tokens, type::LOOP, "k") != nullptr)                  ? current
-                : (matchAndRemove(tokens, type::FOR_LOOP, "k") != nullptr)              ? current
-                : (matchAndRemove(tokens, type::RETURN, "k") != nullptr)                ? current
-                                                                                        : nullptr;
+                : (matchAndRemove(tokens, type::CHAR, "parseFunctions") != nullptr)     ? current
+
+                : (matchAndRemove(tokens, type::IF, "k") != nullptr)       ? current
+                : (matchAndRemove(tokens, type::LOOP, "k") != nullptr)     ? current
+                : (matchAndRemove(tokens, type::FOR_LOOP, "k") != nullptr) ? current
+                : (matchAndRemove(tokens, type::RETURN, "k") != nullptr)   ? current
+                                                                           : nullptr;
 
     if (a != nullptr)
     {
@@ -839,8 +868,9 @@ Node *handleSatements(vector<Tokens> &tokens)
             // var = parseVar(tokens, a, nullptr);
             var = parserVarRef(tokens, a);
         }
-        else if (a->id == type::VAR || a->id == type::INT || a->id == type::FLOAT || a->id == type::STRING || a->id == type::BOOL)
+        else if (a->id == type::VAR || a->id == type::INT || a->id == type::FLOAT || a->id == type::STRING || a->id == type::BOOL || a->id == type::CHAR)
         {
+            cout << "a" << endl;
             var = parseVar(tokens, nullptr, a);
         }
         else if (a->id == type::CONSTANT)
@@ -877,7 +907,9 @@ Node *handleSatements(vector<Tokens> &tokens)
  */
 vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
 {
+
     vector<FunctionNode *> functionNodes;
+    printList(tokens);
     while (matchAndRemove(tokens, type::FUNCTION, "functioon parse") != nullptr)
     {
 
@@ -888,9 +920,9 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
         // {
         Node *func = handleFunctions(tokens);
         FunctionNode *pd = dynamic_cast<FunctionNode *>(func);
-
-        if (matchAndRemove(tokens, type::RETURNS, "parsefunctions") != nullptr)
+        if (matchAndRemove(tokens, type::RETURNS, "search for return") != nullptr)
         {
+
             Tokens *f1 = (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)    ? current
                          : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
                          : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)   ? current
@@ -899,25 +931,28 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
 
             pd->returnType = f1;
         }
-        else if (matchAndRemove(tokens, type::SEMI_COLON, "parsefunctions") != nullptr)
+        else if (matchAndRemove(tokens, type::SEMI_COLON, "search for semi") != nullptr)
         {
-            Tokens *f1 = (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)    ? current
-                         : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
-                         : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)   ? current
-                         : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
-                                                                                               : nullptr;
+            Tokens *f1 = (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)     ? current
+                         : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)     ? current
+                         : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)    ? current
+                         : (matchAndRemove(tokens, type::STRING, "parseFunctionsa") != nullptr) ? current
+                                                                                                : nullptr;
             pd->returnType = f1;
             if (matchAndRemove(tokens, type::SUBTRACT, "parsefunctions") != nullptr && matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)
             {
                 states.push_back(handleReturn(tokens));
             }
         }
-
+        // cout << "parser" << endl;
+        // printList(tokens);
         if (matchAndRemove(tokens, type::BEGIN, "parsefunctions") != nullptr)
         {
+
             while (matchAndRemove(tokens, type::END, "parsefunctions") == nullptr)
             {
                 RemoveEOLS(tokens);
+
                 states.push_back(handleSatements(tokens));
                 RemoveEOLS(tokens);
             }

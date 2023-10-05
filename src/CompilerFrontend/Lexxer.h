@@ -39,7 +39,6 @@ enum class type
     INT,
     FLOAT,
     STRING,
-    CHAR,
     MACRO,
     RETURN,
     STRING_LITERAL,
@@ -55,7 +54,9 @@ enum class type
     RETURNS,
     SEMI_COLON,
     ELSE,
-    FOR_LOOP
+    FOR_LOOP,
+    CHAR,
+    CHAR_LITERAL
 };
 #endif // TYPE
 

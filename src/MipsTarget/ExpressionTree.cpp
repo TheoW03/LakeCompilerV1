@@ -72,6 +72,15 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
         global_string += "li " + reg + "," + to_string(num) + "\n";
         return reg;
     }
+    if (instanceof <CharNode *>(op))
+    {
+        CharNode *pd = dynamic_cast<CharNode *>(op);
+        cout << "works in num \n";
+        string reg = allocateReg();
+        int num = (int)stoi(pd->character) * OFFSET;
+        global_string += "li " + reg + "," + to_string(num) + "\n";
+        return reg;
+    }
     if (instanceof <FloatNode *>(op))
     {
         FloatNode *pd = dynamic_cast<FloatNode *>(op);
@@ -270,6 +279,15 @@ string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_s
         global_string += "li " + reg + "," + to_string(num) + "\n";
         return reg;
     }
+    if (instanceof <CharNode *>(op))
+    {
+        CharNode *pd = dynamic_cast<CharNode *>(op);
+        string reg = allocateReg();
+        int ch = stoi(pd->character);
+        int num = (int)ch * OFFSET;
+        global_string += "li " + reg + "," + to_string(num) + "\n";
+        return reg;
+    }
     if (instanceof <FloatNode *>(op))
     {
         FloatNode *pd = dynamic_cast<FloatNode *>(op);
@@ -277,7 +295,6 @@ string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_s
         global_string += "li " + reg + "," + pd->num + "\n";
         return reg;
     }
-
     // varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
     if (instanceof <VaraibleReference *>(op))
     {
@@ -387,6 +404,59 @@ string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_s
     return "";
 }
 
+string gen_char_op(Node *op, vector<Scope_dimension *> &scope, string &global_string)
+{
+    if (op == nullptr)
+    {
+        cout << "null \n";
+        return "";
+    }
+    if (instanceof <CharNode *>(op))
+    {
+        CharNode *pd = dynamic_cast<CharNode *>(op);
+        string reg = allocateReg();
+        global_string += "li " + reg + "," + pd->character + "\n";
+        return reg;
+    }
+    else if (instanceof <IntegerNode *>(op))
+    {
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+        string reg = allocateReg();
+        if (stoi(pd->num) > 255)
+        {
+            cerr << "char only accepts an 8 bit number" << endl;
+            exit(0);
+            return "";
+        }
+        global_string += "li " + reg + "," + pd->num + "\n";
+        return reg;
+    }
+    if (instanceof <VaraibleReference *>(op))
+    {
+        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
+
+        cout << "works in var \n";
+        string reg = allocateReg();
+        Varaible *var = get_varaible(pd, scope);
+
+        if (var == nullptr)
+        {
+            cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
+            exit(0);
+            return "";
+        }
+        if (var->varType->id == type::FLOAT)
+        {
+            cerr << pd->varaible->buffer + " must be an integer" << endl;
+            exit(0);
+            return "";
+        }
+        global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+
+        return reg;
+    }
+    return "";
+}
 string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_string)
 {
 
@@ -399,12 +469,18 @@ string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global
     if (instanceof <IntegerNode *>(op))
     {
         IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
-        cout << "works in num \n";
-
         string reg = allocateReg();
         global_string += "li " + reg + "," + pd->num + "\n";
         return reg;
     }
+    if (instanceof <CharNode *>(op))
+    {
+        CharNode *pd = dynamic_cast<CharNode *>(op);
+        string reg = allocateReg();
+        global_string += "li " + reg + "," + pd->character + "\n";
+        return reg;
+    }
+
     if (instanceof <FloatNode *>(op))
     {
         FloatNode *pd = dynamic_cast<FloatNode *>(op);

@@ -31,6 +31,7 @@ struct VaraibleReference : public Node
     Node *expression;
     Tokens *varaible;
 };
+
 struct VaraibleDeclaration : public Node
 {
     Node *expression;
@@ -59,6 +60,10 @@ struct ElseNode : public Node
 {
 
     vector<Node *> statements;
+};
+struct CharNode : public Node
+{
+    string character;
 };
 struct IfSatementNode : public Node
 {

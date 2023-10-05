@@ -46,6 +46,7 @@ void gen_function(vector<Node *> state, int &stackNum)
 {
     if (state.size() == 0)
     {
+        cout << "0" << endl;
         return;
     }
 
@@ -60,6 +61,17 @@ void gen_function(vector<Node *> state, int &stackNum)
         {
             LoopNode *pd = dynamic_cast<LoopNode *>(state[i]);
             gen_function(pd->statements, stackNum);
+        }
+        else if (instanceof <ForLoopNode *>(state[i]))
+        {
+
+            ForLoopNode *pd = dynamic_cast<ForLoopNode *>(state[i]);
+            cout << "for" << endl;
+            stackNum += 4;
+            cout << stackNum << endl;
+
+            gen_function(pd->statements, stackNum);
+            cout << stackNum << endl;
         }
         else if (instanceof <VaraibleDeclaration *>(state[i]))
         {
@@ -106,9 +118,14 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
                 string a = "li " + allocr + "," + to_string(constant_prop_integer(pd->expression)) + "\n";
                 wf(outfile, a);
             }
-            else
+            else if (type1->varType->id == type::BOOL)
             {
                 string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression)) + " \n";
+                wf(outfile, a);
+            }
+            else if (type1->varType->id == type::CHAR)
+            {
+                string a = "li " + allocr + "," + to_string(constant_prop_char(pd->expression)) + " \n";
                 wf(outfile, a);
             }
             cout << pd->varaible->buffer << endl;
@@ -138,9 +155,13 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
             {
                 add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
             }
-            else
+            else if (type1->varType->id == type::BOOL)
             {
                 add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+            }
+            else if (type1->varType->id == type::CHAR)
+            {
+                add = "sw " + gen_char_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
             }
 
             wf(outfile, global_string);
@@ -190,9 +211,14 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
                 string a = "li " + allocr + "," + to_string(constant_prop_integer(pd->expression)) + "\n";
                 wf(outfile, a);
             }
-            else
+            else if (type1->varType->id == type::BOOL)
             {
                 string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression)) + " \n";
+                wf(outfile, a);
+            }
+            else if ((type1->varType->id == type::CHAR))
+            {
+                string a = "li " + allocr + "," + to_string(constant_prop_char(pd->expression)) + " \n";
                 wf(outfile, a);
             }
             string add = "sw " + allocr + "," + to_string(type1->stackNum) + "($sp) \n";
@@ -226,13 +252,15 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
             }
             else if (type1->varType->id == type::INT)
             {
-                cout << "integer" << endl;
                 add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
             }
-            else
+            else if (type1->varType->id == type::BOOL)
             {
-
                 add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+            }
+            else if (type1->varType->id == type::CHAR)
+            {
+                add = "sw " + gen_char_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
             }
 
             cout << "string: " + global_string << endl;

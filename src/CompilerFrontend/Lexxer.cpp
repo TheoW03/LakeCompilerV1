@@ -35,7 +35,6 @@ enum class type
     INT,
     FLOAT,
     STRING,
-    CHAR,
     MACRO,
     RETURN,
     STRING_LITERAL,
@@ -51,7 +50,9 @@ enum class type
     RETURNS,
     SEMI_COLON,
     ELSE,
-    FOR_LOOP
+    FOR_LOOP,
+    CHAR,
+    CHAR_LITERAL
 };
 struct Tokens
 {
@@ -165,6 +166,8 @@ vector<Tokens> lex(vector<string> lines)
     typeOfOP["int"] = type::INT;
     typeOfOP["float"] = type::FLOAT;
     typeOfOP["string"] = type::STRING;
+    typeOfOP["char"] = type::CHAR;
+
     typeOfOP["#define"] = type::MACRO;
     typeOfOP["return"] = type::RETURN;
     typeOfOP["equals"] = type::BOOL_EQ;
@@ -201,6 +204,7 @@ vector<Tokens> lex(vector<string> lines)
         string buffer = "";
         int isComment = 0;
         int isString = 0;
+        int isChar = 0;
         string wordBuffer = "";
         string stringBuffer = "";
         for (int i2 = 0; i2 < line.length(); i2++)
@@ -225,7 +229,14 @@ vector<Tokens> lex(vector<string> lines)
                 else
                 {
                     isString = 0;
-                    modifyStruct(token, type::STRING_LITERAL, dictionary, stringBuffer);
+                    if (current == '\'')
+                    {
+                        modifyStruct(token, type::CHAR_LITERAL, dictionary, stringBuffer);
+                    }
+                    else
+                    {
+                        modifyStruct(token, type::STRING_LITERAL, dictionary, stringBuffer);
+                    }
                     stringBuffer = "";
                     a.push_back(token);
                     continue;
@@ -487,11 +498,12 @@ vector<Tokens> lex(vector<string> lines)
                         {
                             if (wordBuffer != "")
                             {
-
+                                
                                 modifyStruct(token, (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer] : type::WORD, dictionary, wordBuffer);
                                 a.push_back(token);
                                 wordBuffer = "";
                             }
+
                             wordBuffer += str;
                             modifyStruct(token, (wordBuffer == ",") ? type::COMMA : (wordBuffer == "{")                         ? type::BEGIN
                                                                                 : (wordBuffer == "}")                           ? type::END

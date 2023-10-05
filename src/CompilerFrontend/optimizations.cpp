@@ -23,18 +23,22 @@ using namespace std;
  */
 int check_if_pureExpression(Node *op)
 {
-    if (op == nullptr)
-    {
-        return 0;
-    }
-    check_if_pureExpression(op->left);
-    if (instanceof <VaraibleReference *>(op))
-    {
-        cout << "var \n";
-        return 1;
-    }
-    check_if_pureExpression(op->right);
-    return 1;
+    // if (op == nullptr)
+    // {
+    //     return 0;
+    // }
+    // int a = check_if_pureExpression(op->left);
+    // if (a == 1)
+    // {
+    //     return 1;
+    // }
+    // if (instanceof <VaraibleReference *>(op))
+    // {
+    //     cout << "var \n";
+    //     return 1;
+    // }
+    // check_if_pureExpression(op->right);
+    return 1;   ///needs some work
 }
 int constant_prop_boolean(Node *op)
 {
@@ -57,6 +61,30 @@ int constant_prop_boolean(Node *op)
         }
     }
     return 0;
+}
+int constant_prop_char(Node *op)
+{
+    if (op == nullptr)
+    {
+        return 1;
+    }
+    if (instanceof <CharNode *>(op))
+    {
+        CharNode *pd = dynamic_cast<CharNode *>(op);
+        cout << "a" << endl;
+        return stoi(pd->character);
+    }
+    if (instanceof <IntegerNode *>(op))
+    {
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+        int a = (int)stoi(pd->num);
+        if (a > 255 && a < 0)
+        {
+            cout << "out of range" << endl;
+            exit(0);
+        }
+        return a;
+    }
 }
 float constant_prop_float(Node *op)
 {
@@ -108,7 +136,6 @@ float constant_prop_float(Node *op)
 }
 int constant_prop_integer(Node *op)
 {
-    cout << "constant prop" << endl;
     if (op == nullptr)
     {
         return 1;
@@ -119,6 +146,11 @@ int constant_prop_integer(Node *op)
         IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
 
         return (int)stoi(pd->num);
+    }
+    if (instanceof <CharNode *>(op))
+    {
+        CharNode *pd = dynamic_cast<CharNode *>(op);
+        return (int)stoi(pd->character);
     }
     if (instanceof <FloatNode *>(op))
     {

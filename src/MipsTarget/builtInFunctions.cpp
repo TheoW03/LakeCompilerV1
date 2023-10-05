@@ -20,6 +20,9 @@ void builtInFunction::execute_code_integer(string &gen_string, string registers)
 void builtInFunction::execute_code_float(string &gen_string, string registers)
 {
 }
+void builtInFunction::execute_code_char(string &gen_string, string registers)
+{
+}
 void builtInFunction::setup_params(vector<Node *> params, string &gen_string, vector<Scope_dimension *> &scope)
 {
 }
@@ -113,7 +116,41 @@ void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope
                 freeReg();
             }
         }
+        else if (a->stringBuffer == "%c")
+        {
+            if (check_if_pureExpression(params[1]) == 0)
+            {
+                string reg = allocateReg();
+                gen_string += "li " + reg + "," + to_string(constant_prop_char(params[1])) + "\n";
+                execute_code_char(gen_string, reg);
+            }
+            else
+            {
+                string reg = allocateReg();
+                VaraibleReference *pd = dynamic_cast<VaraibleReference *>(params[1]);
+
+                Varaible *a = get_varaible(pd, scope);
+                if (a == nullptr)
+                {
+                    cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
+                    exit(0);
+                    return;
+                }
+                if (a->varType->id != type::CHAR && a->varType->id != type::INT)
+                {
+                    cout << "print char only works wih integers (0-255) or Chars" << endl;
+                    exit(1);
+                    return;
+                }
+                gen_string += "lw " + reg + ", " + to_string(a->stackNum) + "($sp) \n";
+                execute_code_char(gen_string, reg);
+            }
+        }
     }
+}
+void Print::execute_code_char(string &gen_string, string registers)
+{
+    gen_string += "move $a0," + registers + "\n li $v0, 11 \n syscall \n"; // new line
 }
 void Print::execute_code_integer(string &gen_string, string registers)
 {
@@ -173,6 +210,10 @@ void Exit::execute_code_integer(string &gen_string, string registers)
     gen_string += "li $v0, 10 \n syscall";
 }
 void Exit::execute_code_float(string &gen_string, string registers)
+{
+    gen_string += "li $v0, 10 \n syscall";
+}
+void Exit::execute_code_char(string &gen_string, string registers)
 {
     gen_string += "li $v0, 10 \n syscall";
 }
