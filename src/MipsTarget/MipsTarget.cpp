@@ -11,7 +11,7 @@
 #include "../../src/MipsTarget/UtilFunctions.h"
 
 #include "../../src/CompilerFrontend/parser.h"
-#include "../../src/CompilerFrontend/optimizations.h"
+// #include "../../src/CompilerFrontend/optimizations.h"
 #include "../../src/MipsTarget/builtInFunction.h"
 #include "../../src/MipsTarget/VaraibleScope.h"
 #include "../../src/MipsTarget/ExpressionTree.h"
@@ -211,7 +211,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         // prepare_interptMips(pd, var, 4);
         stack_number += 4;
         Varaible *type1 = add_to_var(pd, scope, stack_number);
-        cout << "var: " << pd->varaible->buffer << " " << check_if_pureExpression(pd->expression) << endl;
+        // cout << "var: " << pd->varaible->buffer << " " << check_if_pureExpression(pd->expression) << endl;
         // if (check_if_pureExpression(pd->expression) == 0)
         // {
         // cout << "is constant" << endl;
@@ -310,7 +310,6 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
     else if (instanceof <VaraibleReference *>(statement))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(statement);
-        cout << "var: " << pd->varaible->buffer << "   " << check_if_pureExpression(pd->expression) << endl;
         // if (check_if_pureExpression(pd->expression) == 0)
         // {
         // cout << "is constant" << endl;

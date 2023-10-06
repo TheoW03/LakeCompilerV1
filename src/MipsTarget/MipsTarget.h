@@ -8,7 +8,7 @@
 
 #include "../../src/CompilerFrontend/Lexxer.h"
 #include "../../src/CompilerFrontend/parser.h"
-#include "../../src/CompilerFrontend/optimizations.h"
+// #include "../../src/CompilerFrontend/optimizations.h"
 #include "../../src/MipsTarget/UtilFunctions.h"
 #include "../../src/MipsTarget/VaraibleScope.h"
 #include "../../src/MipsTarget/ExpressionTree.h"

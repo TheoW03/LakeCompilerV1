@@ -6,7 +6,6 @@
 
 #include "../../src/CompilerFrontend/Lexxer.h"
 #include "../../src/CompilerFrontend/parser.h"
-#include "../../src/CompilerFrontend/optimizations.h"
 
 using namespace std;
 
