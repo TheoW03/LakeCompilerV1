@@ -96,3 +96,6 @@ https://spimsimulator.sourceforge.net/
 <br>
 
 
+<a href=https://github.com/TheoW03/Lake/tree/master/TestPrograms>Test programs</a>
+
+Try some test programs.
