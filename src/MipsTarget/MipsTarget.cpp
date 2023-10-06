@@ -129,13 +129,11 @@ int gen_Expression(Node *op, string &gen_string, string &registerResult)
                 {
                     registers = allocateReg();
                     gen_string += "li " + registers + ", " + to_string(a) + "\n";
-                    registerResult = allocateReg();
                 }
                 else if (registers2 == "")
                 {
                     registers2 = allocateReg();
                     gen_string += "li " + registers2 + ", " + to_string(b) + "\n";
-                    registerResult = allocateReg();
                     /* code */
                 }
                 registerResult = allocateReg();
@@ -271,7 +269,19 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         }
         else if (type1->varType->id == type::INT)
         {
-            add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+            string reg = "";
+            int b = gen_integer_op(pd->expression, scope, global_string, reg);
+            if (reg != "")
+            {
+                add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+            }
+            else
+            {
+                reg = allocateReg();
+                add += "li" + reg + ", " + to_string(b) + " \n";
+                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+            }
+            // add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
         }
         else if (type1->varType->id == type::BOOL)
         {
@@ -363,7 +373,18 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         }
         else if (type1->varType->id == type::INT)
         {
-            add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+            string reg = "";
+            int b = gen_integer_op(pd->expression, scope, global_string, reg);
+            if (reg != "")
+            {
+                add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+            }
+            else
+            {
+                reg = allocateReg();
+                add += "li" + reg + ", " + to_string(b) + "\n";
+                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+            }
         }
         else if (type1->varType->id == type::BOOL)
         {
@@ -399,6 +420,20 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         {
             vector<Node *> para = pd->params;
             vector<VaraibleDeclaration *> param = f[pd->funcCall->buffer]->params;
+            for (int i = 0; i < param.size(); i++)
+            {
+                if (param[i]->typeOfVar->id == type::INT)
+                {
+                    global_string = "";
+                    string reg = "";
+                    gen_integer_op(para[i], scope, global_string, reg);
+                    wf(outfile, global_string);
+                    string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+                    wf(outfile, a);
+                    global_string = "";
+                    a = "";
+                }
+            }
             // for (int i = 0; i < param.size(); i++)
             // {
             //     if (param[i]->typeOfVar->id == type::FLOAT)

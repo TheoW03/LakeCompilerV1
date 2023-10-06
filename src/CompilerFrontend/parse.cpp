@@ -545,7 +545,7 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
     vector<Node *> vars;
     while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlecalls") == nullptr)
     {
-        vars.push_back(factor(tokens));
+        vars.push_back(expression(tokens));
         matchAndRemove(tokens, type::COMMA, "handlefunctions");
     }
     f1->params = vars;

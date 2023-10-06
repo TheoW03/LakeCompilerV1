@@ -45,8 +45,17 @@ void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope
         // or once i add support for strings/string concat
 
         StringNode *a = dynamic_cast<StringNode *>(params[0]);
-        // if (a->stringBuffer == "%d")
-        // {
+        if (a->stringBuffer == "%d")
+        {
+            string reg = "";
+            int b = gen_integer_op(params[1], scope, gen_string, reg);
+            if (reg == "")
+            {
+                string reg = allocateReg();
+                gen_string += "li " + reg + ", " + to_string(b) + " \n";
+            }
+            execute_code_integer(gen_string, reg);
+        }
 
         //     if (check_if_pureExpression(params[1]) == 0)
         //     {
