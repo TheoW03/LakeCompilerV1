@@ -98,18 +98,4 @@ Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension *> &scope,
     }
     scope[scope.size() - 1]->vars[var->varaible->buffer] = a;
     return a;
-
-    // if (scope[scope.size() - 1]->vars.find(var->varaible->buffer) == scope[scope.size() - 1]->vars.end())
-    // {
-    //     if (var->varaible->buffer == "i")
-    //     {
-    //         cout << "i declared" << endl;
-    //     }
-    // }
-    // else
-    // {
-    //     cerr << var->varaible->buffer << " has been declared twice" << endl;
-    //     exit(1);
-    //     return nullptr;
-    // }
 }
