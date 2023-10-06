@@ -96,178 +96,171 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         stack_number += 4;
         Varaible *type1 = add_to_var(pd, scope, stack_number);
         cout << "var: " << pd->varaible->buffer << " " << check_if_pureExpression(pd->expression) << endl;
-        if (check_if_pureExpression(pd->expression) == 0)
+        // if (check_if_pureExpression(pd->expression) == 0)
+        // {
+        // cout << "is constant" << endl;
+        // Varaible *type1 = get_varaible(pd, scope);
+
+        // if (type1 == nullptr)
+        // {
+        //     return;
+        // }
+        // string allocr = allocateReg();
+        // if (type1->varType->id == type::FLOAT)
+        // {
+        //     float constantF = (constant_prop_float(pd->expression));
+        //     int work1 = (int)(constantF * OFFSET);
+        //     string a = "li " + allocr + "," + to_string(work1) + "\n";
+        //     wf(outfile, a);
+        // }
+        // else if (type1->varType->id == type::INT)
+        // {
+        //     string a = "li " + allocr + "," + to_string(constant_prop_integer(pd->expression)) + "\n";
+        //     wf(outfile, a);
+        // }
+        // else if (type1->varType->id == type::BOOL)
+        // {
+        //     string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression)) + " \n";
+        //     wf(outfile, a);
+        // }
+        // else if (type1->varType->id == type::CHAR)
+        // {
+        //     string a = "li " + allocr + "," + to_string(constant_prop_char(pd->expression)) + " \n";
+        //     wf(outfile, a);
+        // }
+        // cout << pd->varaible->buffer << endl;
+        // // cout << to_string(var[pd->varailbe->buffer]->stackNum) << endl;
+        // cout << "hi \n";
+        // string add = "sw " + allocr + "," + to_string(type1->stackNum) + "($sp) \n";
+        // wf(outfile, add);
+        // }
+        // else
+        // {
+        cout << "isnt constant" << endl;
+
+        // Varaible *type1 = var[pd->varailbe->buffer];
+
+        if (type1 == nullptr)
         {
-            cout << "is constant" << endl;
-            // Varaible *type1 = get_varaible(pd, scope);
-
-            if (type1 == nullptr)
-            {
-                return;
-            }
-            string allocr = allocateReg();
-            if (type1->varType->id == type::FLOAT)
-            {
-                float constantF = (constant_prop_float(pd->expression));
-                int work1 = (int)(constantF * OFFSET);
-                string a = "li " + allocr + "," + to_string(work1) + "\n";
-                wf(outfile, a);
-            }
-            else if (type1->varType->id == type::INT)
-            {
-                string a = "li " + allocr + "," + to_string(constant_prop_integer(pd->expression)) + "\n";
-                wf(outfile, a);
-            }
-            else if (type1->varType->id == type::BOOL)
-            {
-                string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression)) + " \n";
-                wf(outfile, a);
-            }
-            else if (type1->varType->id == type::CHAR)
-            {
-                string a = "li " + allocr + "," + to_string(constant_prop_char(pd->expression)) + " \n";
-                wf(outfile, a);
-            }
-            cout << pd->varaible->buffer << endl;
-            // cout << to_string(var[pd->varailbe->buffer]->stackNum) << endl;
-            cout << "hi \n";
-            string add = "sw " + allocr + "," + to_string(type1->stackNum) + "($sp) \n";
-            wf(outfile, add);
+            return;
         }
-        else
+        cout << "else \n";
+        string add = "";
+        if (type1->varType->id == type::FLOAT)
         {
-            cout << "isnt constant" << endl;
-
-            // Varaible *type1 = var[pd->varailbe->buffer];
-
-            if (type1 == nullptr)
-            {
-                return;
-            }
-            cout << "else \n";
-            string add = "";
-            if (type1->varType->id == type::FLOAT)
-            {
-                string reg = gen_float_op(pd->expression, scope, global_string);
-                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-            else if (type1->varType->id == type::INT)
-            {
-                add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-            else if (type1->varType->id == type::BOOL)
-            {
-                add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-            else if (type1->varType->id == type::CHAR)
-            {
-                add = "sw " + gen_char_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-
-            wf(outfile, global_string);
-            global_string = "";
-            wf(outfile, add);
+            string reg = gen_float_op(pd->expression, scope, global_string);
+            add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
         }
+        else if (type1->varType->id == type::INT)
+        {
+            add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+        }
+        else if (type1->varType->id == type::BOOL)
+        {
+            add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+        }
+        else if (type1->varType->id == type::CHAR)
+        {
+            add = "sw " + gen_char_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+        }
+
+        wf(outfile, global_string);
+        global_string = "";
+        wf(outfile, add);
+        // }
     }
     else if (instanceof <VaraibleReference *>(statement))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(statement);
         cout << "var: " << pd->varaible->buffer << "   " << check_if_pureExpression(pd->expression) << endl;
+        // if (check_if_pureExpression(pd->expression) == 0)
+        // {
+        // cout << "is constant" << endl;
 
+        // cout << "boolean" << endl;
+
+        // Varaible *type1 = get_varaible(pd, scope);
+        // if (type1 == nullptr)
+        // {
+        //     cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
+        //     exit(1);
+        //     return;
+        // }
+        // if (type1->constant == 1)
+        // {
+        //     cout << "is constant";
+        //     exit(1);
+        //     return;
+        // }
+        // string allocr = allocateReg();
+        // if (type1->varType->id == type::FLOAT)
+        // {
+        //     float constantF = (constant_prop_float(pd->expression));
+        //     int work1 = (int)(constantF * OFFSET);
+        //     string a = "li " + allocr + "," + to_string(work1) + "\n";
+        //     wf(outfile, a);
+        // }
+        // else if (type1->varType->id == type::INT)
+        // {
+        //     string a = "li " + allocr + "," + to_string(constant_prop_integer(pd->expression)) + "\n";
+        //     wf(outfile, a);
+        // }
+        // else if (type1->varType->id == type::BOOL)
+        // {
+        //     string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression)) + " \n";
+        //     wf(outfile, a);
+        // }
+        // else if ((type1->varType->id == type::CHAR))
+        // {
+        //     string a = "li " + allocr + "," + to_string(constant_prop_char(pd->expression)) + " \n";
+        //     wf(outfile, a);
+        // }
+        // string add = "sw " + allocr + "," + to_string(type1->stackNum) + "($sp) \n";
+        // wf(outfile, add);
+        // }
         // else
         // {
-        //     *pd = dynamic_cast<VaraibleReference *>(statement);
-        //     expression = pd->expression;
+        cout << "no constant" << endl;
+
+        Varaible *type1 = get_varaible(pd, scope);
+
+        if (type1 == nullptr)
+        {
+            cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
+            exit(1);
+            return;
+        }
+        if (type1->constant == 1)
+        {
+            cout << "err: is constant" << endl;
+            exit(1);
+
+            return;
+        }
+        string add = "";
+        if (type1->varType->id == type::FLOAT)
+        {
+            string reg = gen_float_op(pd->expression, scope, global_string);
+            add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+        }
+        else if (type1->varType->id == type::INT)
+        {
+            add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+        }
+        else if (type1->varType->id == type::BOOL)
+        {
+            add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+        }
+        else if (type1->varType->id == type::CHAR)
+        {
+            add = "sw " + gen_char_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+        }
+
+        cout << "string: " + global_string << endl;
+        wf(outfile, global_string);
+        global_string = "";
+        wf(outfile, add);
         // }
-        if (check_if_pureExpression(pd->expression) == 0)
-        {
-            cout << "is constant" << endl;
-
-            cout << "boolean" << endl;
-
-            Varaible *type1 = get_varaible(pd, scope);
-            if (type1 == nullptr)
-            {
-                cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
-                exit(1);
-                return;
-            }
-            if (type1->constant == 1)
-            {
-                cout << "is constant";
-                exit(1);
-                return;
-            }
-            string allocr = allocateReg();
-            if (type1->varType->id == type::FLOAT)
-            {
-                float constantF = (constant_prop_float(pd->expression));
-                int work1 = (int)(constantF * OFFSET);
-                string a = "li " + allocr + "," + to_string(work1) + "\n";
-                wf(outfile, a);
-            }
-            else if (type1->varType->id == type::INT)
-            {
-                string a = "li " + allocr + "," + to_string(constant_prop_integer(pd->expression)) + "\n";
-                wf(outfile, a);
-            }
-            else if (type1->varType->id == type::BOOL)
-            {
-                string a = "li " + allocr + "," + to_string(constant_prop_boolean(pd->expression)) + " \n";
-                wf(outfile, a);
-            }
-            else if ((type1->varType->id == type::CHAR))
-            {
-                string a = "li " + allocr + "," + to_string(constant_prop_char(pd->expression)) + " \n";
-                wf(outfile, a);
-            }
-            string add = "sw " + allocr + "," + to_string(type1->stackNum) + "($sp) \n";
-            wf(outfile, add);
-        }
-        else
-        {
-            cout << "no constant" << endl;
-
-            Varaible *type1 = get_varaible(pd, scope);
-
-            if (type1 == nullptr)
-            {
-                cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
-                exit(1);
-                return;
-            }
-            if (type1->constant == 1)
-            {
-                cout << "err: is constant" << endl;
-                exit(1);
-
-                return;
-            }
-            cout << "else \n";
-            string add = "";
-            if (type1->varType->id == type::FLOAT)
-            {
-                string reg = gen_float_op(pd->expression, scope, global_string);
-                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-            else if (type1->varType->id == type::INT)
-            {
-                add = "sw " + gen_integer_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-            else if (type1->varType->id == type::BOOL)
-            {
-                add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-            else if (type1->varType->id == type::CHAR)
-            {
-                add = "sw " + gen_char_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-
-            cout << "string: " + global_string << endl;
-            wf(outfile, global_string);
-            global_string = "";
-            wf(outfile, add);
-        }
         freeReg();
     }
     else if (instanceof <funcCallNode *>(statement))
@@ -288,51 +281,51 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         {
             vector<Node *> para = pd->params;
             vector<VaraibleDeclaration *> param = f[pd->funcCall->buffer]->params;
-            for (int i = 0; i < param.size(); i++)
-            {
-                if (param[i]->typeOfVar->id == type::FLOAT)
-                {
-                    if (check_if_pureExpression(para[i]) == 0)
-                    {
-                        string a = "li " + allocate_argumentRegister() + "," + to_string(constant_prop_float(para[i])) + "\n";
-                        wf(outfile, a);
-                        a = "";
-                    }
-                    else
-                    {
-                        global_string = "";
-                        string reg = gen_float_op(para[i], scope, global_string);
-                        wf(outfile, global_string);
-                        string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
-                        wf(outfile, a);
-                        global_string = "";
-                        a = "";
-                    }
-                }
-                else if (param[i]->typeOfVar->id == type::INT)
-                {
-                    if (check_if_pureExpression(para[i]) == 0)
-                    {
-                        string a = "li " + allocate_argumentRegister() + "," + to_string(constant_prop_integer(para[i])) + "\n";
-                        wf(outfile, a);
-                        a = "";
-                    }
-                    else
-                    {
-                        global_string = "";
-                        string reg = gen_integer_op(para[i], scope, global_string);
-                        wf(outfile, global_string);
-                        string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
-                        wf(outfile, a);
-                        global_string = "";
-                        a = "";
-                    }
-                }
-            }
-            reset_arg_register();
-            global_string += "sw $ra,4($sp) \n";
-            global_string += "jal " + pd->funcCall->buffer + "\n";
-            global_string += "lw $ra,4($sp) \n";
+            // for (int i = 0; i < param.size(); i++)
+            // {
+            //     if (param[i]->typeOfVar->id == type::FLOAT)
+            //     {
+            //         if (check_if_pureExpression(para[i]) == 0)
+            //         {
+            //             string a = "li " + allocate_argumentRegister() + "," + to_string(constant_prop_float(para[i])) + "\n";
+            //             wf(outfile, a);
+            //             a = "";
+            //         }
+            //         else
+            //         {
+            //             global_string = "";
+            //             string reg = gen_float_op(para[i], scope, global_string);
+            //             wf(outfile, global_string);
+            //             string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+            //             wf(outfile, a);
+            //             global_string = "";
+            //             a = "";
+            //         }
+            //     }
+            //     else if (param[i]->typeOfVar->id == type::INT)
+            //     {
+            //         if (check_if_pureExpression(para[i]) == 0)
+            //         {
+            //             string a = "li " + allocate_argumentRegister() + "," + to_string(constant_prop_integer(para[i])) + "\n";
+            //             wf(outfile, a);
+            //             a = "";
+            //         }
+            //         else
+            //         {
+            //             global_string = "";
+            //             string reg = gen_integer_op(para[i], scope, global_string);
+            //             wf(outfile, global_string);
+            //             string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+            //             wf(outfile, a);
+            //             global_string = "";
+            //             a = "";
+            //         }
+            //     }
+            // }
+            // reset_arg_register();
+            // global_string += "sw $ra,4($sp) \n";
+            // global_string += "jal " + pd->funcCall->buffer + "\n";
+            // global_string += "lw $ra,4($sp) \n";
             wf(outfile, global_string);
             global_string = "";
         }
