@@ -337,6 +337,12 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         else
         {
             vector<Node *> para = pd->params;
+            if (f.find(pd->funcCall->buffer) == f.end())
+            {
+                cerr << pd->funcCall->buffer + " is not a function" << endl;
+                exit(EXIT_FAILURE);
+                return;
+            }
             vector<VaraibleDeclaration *> param = f[pd->funcCall->buffer]->params;
             for (int i = 0; i < param.size(); i++)
             {
