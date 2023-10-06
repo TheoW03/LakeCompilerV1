@@ -260,24 +260,32 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
             return "";
         }
     }
-    return "";
 }
 
-string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_string)
+float gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_string, string &register_result)
 {
+
     if (op == nullptr)
     {
-        cout << "null \n";
-        return "";
+        return 0.0f;
+    }
+    if (instanceof <BooleanLiteralNode *>(op))
+    {
+        cout << "boolean literal not accepted in integer, use 1 or 0" << endl;
+        exit(EXIT_FAILURE);
     }
     if (instanceof <IntegerNode *>(op))
     {
         IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
-        cout << "works in num \n";
-        string reg = allocateReg();
+        register_result = "";
         int num = stoi(pd->num) * OFFSET;
-        global_string += "li " + reg + "," + to_string(num) + "\n";
-        return reg;
+        return num;
+    }
+    if (instanceof <FloatNode *>(op))
+    {
+        FloatNode *pd = dynamic_cast<FloatNode *>(op);
+        register_result = "";
+        return stoi(pd->num);
     }
     if (instanceof <CharNode *>(op))
     {
@@ -285,123 +293,257 @@ string gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_s
         string reg = allocateReg();
         int ch = stoi(pd->character);
         int num = (int)ch * OFFSET;
-        global_string += "li " + reg + "," + to_string(num) + "\n";
-        return reg;
+        register_result = "";
+        return num;
     }
-    if (instanceof <FloatNode *>(op))
-    {
-        FloatNode *pd = dynamic_cast<FloatNode *>(op);
-        string reg = allocateReg();
-        global_string += "li " + reg + "," + pd->num + "\n";
-        return reg;
-    }
-    // varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
     if (instanceof <VaraibleReference *>(op))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
-        // type a = map[pd1->varailbe->buffer]->varType->id;
         Varaible *var = get_varaible(pd, scope);
-
         if (var == nullptr)
         {
             cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
             exit(0);
-            return "";
+            return -1;
         }
         if (var->varType->id == type::INT)
         {
-
+            register_result = allocateReg();
             string reg = allocateReg();
             string reg2 = allocateReg();
-            string resultReg = allocateReg();
-
             global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
 
             global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
             global_string += "mult " + reg + "," + reg2 + " \n";
-            global_string += "mflo " + resultReg + " \n"; // scaling
-
-            return resultReg;
+            global_string += "mflo " + register_result + " \n"; // scaling
+            freeReg();
+            freeReg();
         }
         else
         {
-            string reg = allocateReg();
-            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
-            return reg;
+            register_result = allocateReg();
+            global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($sp) \n";
         }
-        // string reg = allocateReg();
-        // global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
-        // return reg;
+
+        return 0;
     }
     if (instanceof <OperatorNode *>(op))
     {
-        cout << "is in op node \n";
-        OperatorNode *pd = dynamic_cast<OperatorNode *>(op); // downcast
-        type t = pd->token->id;
-
-        string resultReg = allocateReg();
-        if (t == type::ADDITION)
+        OperatorNode *pd = dynamic_cast<OperatorNode *>(op);
+        map<type, string> operations;
+        operations[type::ADDITION] = "add ";
+        operations[type::SUBTRACT] = "sub ";
+        operations[type::DIVISION] = "div ";
+        operations[type::MOD] = "div ";
+        operations[type::MULTIPLY] = "mult ";
+        string registers = "";
+        int a = gen_float_op(op->left, scope, global_string, registers);
+        string registers2 = "";
+        int b = gen_float_op(op->right, scope, global_string, registers2);
+        if (registers2 == "" && registers == "")
         {
-            // return
-            string left = gen_float_op(op->left, scope, global_string);
-
-            string right = gen_float_op(op->right, scope, global_string);
-            global_string += "add " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
+            if (pd->token->id == type::ADDITION)
+            {
+                int n = a + b;
+                return n;
+            }
+            if (pd->token->id == type::SUBTRACT)
+            {
+                int n = a - b;
+                return n;
+            }
+            if (pd->token->id == type::DIVISION)
+            {
+                if (b == 0)
+                {
+                    return a;
+                }
+                int n = a / b;
+                return n;
+            }
+            if (pd->token->id == type::MOD)
+            {
+                int n = a % b;
+                return n;
+            }
+            if (pd->token->id == type::MULTIPLY)
+            {
+                int n = a * b;
+                return n;
+            }
         }
-        if (t == type::SUBTRACT)
+        else
         {
-            // return
-            string left = gen_float_op(op->left, scope, global_string);
-            cout << "sub";
-
-            string right = gen_float_op(op->right, scope, global_string);
-
-            global_string += "sub " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::MULTIPLY)
-        {
-            // return
-            string left = gen_float_op(op->left, scope, global_string);
-            string right = gen_float_op(op->right, scope, global_string);
-            global_string += "mult " + left + ", " + right + " \n";
-            global_string += "mflo " + resultReg + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::DIVISION)
-        {
-            // return
-            string left = gen_float_op(op->left, scope, global_string);
-            string right = gen_float_op(op->right, scope, global_string);
-            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::MOD)
-        {
-
-            string left = gen_float_op(op->left, scope, global_string);
-            string right = gen_float_op(op->right, scope, global_string);
-            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
-            global_string += "mfhi " + resultReg + "\n";
-            freeReg();
-            freeReg();
-            return resultReg;
-            //           div $t4,$v0, $t3
-            // div $t4, $t3, 10
-            // mfhi $t3
+            if (registers == "")
+            {
+                registers = allocateReg();
+                global_string += "li " + registers + ", " + to_string(a) + "\n";
+                register_result = registers;
+            }
+            else if (registers2 == "")
+            {
+                registers2 = allocateReg();
+                global_string += "li " + registers2 + ", " + to_string(b) + "\n";
+                register_result = registers2;
+            }
+            if (operations.find(pd->token->id) != operations.end())
+            {
+                register_result = allocateReg();
+                if (pd->token->id == type::MULTIPLY)
+                {
+                    global_string += operations[pd->token->id] + " " + registers + ", " + registers2 + "\n";
+                    global_string += "mflo " + register_result + "\n";
+                }
+                else
+                {
+                    global_string += operations[pd->token->id] + " " + register_result + ", " + registers + ", " + registers2 + "\n";
+                    if (pd->token->id == type::MOD)
+                    {
+                        global_string += "mfhi " + register_result + "\n";
+                    }
+                }
+                return 0;
+            }
         }
     }
-    return "";
+    // if (op == nullptr)
+    // {
+    //     cout << "null \n";
+    //     return "";
+    // }
+    // if (instanceof <IntegerNode *>(op))
+    // {
+    //     IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+    //     cout << "works in num \n";
+    //     string reg = allocateReg();
+    //     int num = stoi(pd->num) * OFFSET;
+    //     global_string += "li " + reg + "," + to_string(num) + "\n";
+    //     return reg;
+    // }
+    // if (instanceof <CharNode *>(op))
+    // {
+    //     CharNode *pd = dynamic_cast<CharNode *>(op);
+    //     string reg = allocateReg();
+    //     int ch = stoi(pd->character);
+    //     int num = (int)ch * OFFSET;
+    //     global_string += "li " + reg + "," + to_string(num) + "\n";
+    //     return reg;
+    // }
+    // if (instanceof <FloatNode *>(op))
+    // {
+    //     FloatNode *pd = dynamic_cast<FloatNode *>(op);
+    //     string reg = allocateReg();
+    //     global_string += "li " + reg + "," + pd->num + "\n";
+    //     return reg;
+    // }
+    // // varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
+    // if (instanceof <VaraibleReference *>(op))
+    // {
+    //     VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
+    //     // type a = map[pd1->varailbe->buffer]->varType->id;
+    //     Varaible *var = get_varaible(pd, scope);
+
+    //     if (var == nullptr)
+    //     {
+    //         cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
+    //         exit(0);
+    //         return "";
+    //     }
+    //     if (var->varType->id == type::INT)
+    //     {
+
+    //         string reg = allocateReg();
+    //         string reg2 = allocateReg();
+    //         string resultReg = allocateReg();
+
+    //         global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+
+    //         global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
+
+    //         global_string += "mult " + reg + "," + reg2 + " \n";
+    //         global_string += "mflo " + resultReg + " \n"; // scaling
+
+    //         return resultReg;
+    //     }
+    //     else
+    //     {
+    //         string reg = allocateReg();
+    //         global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+    //         return reg;
+    //     }
+    //     // string reg = allocateReg();
+    //     // global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+    //     // return reg;
+    // }
+    // if (instanceof <OperatorNode *>(op))
+    // {
+    //     cout << "is in op node \n";
+    //     OperatorNode *pd = dynamic_cast<OperatorNode *>(op); // downcast
+    //     type t = pd->token->id;
+
+    //     string resultReg = allocateReg();
+    //     if (t == type::ADDITION)
+    //     {
+    //         // return
+    //         string left = gen_float_op(op->left, scope, global_string);
+
+    //         string right = gen_float_op(op->right, scope, global_string);
+    //         global_string += "add " + resultReg + "," + left + ", " + right + " \n";
+    //         freeReg();
+    //         freeReg();
+    //         return resultReg;
+    //     }
+    //     if (t == type::SUBTRACT)
+    //     {
+    //         // return
+    //         string left = gen_float_op(op->left, scope, global_string);
+    //         cout << "sub";
+
+    //         string right = gen_float_op(op->right, scope, global_string);
+
+    //         global_string += "sub " + resultReg + "," + left + ", " + right + " \n";
+    //         freeReg();
+    //         freeReg();
+    //         return resultReg;
+    //     }
+    //     if (t == type::MULTIPLY)
+    //     {
+    //         // return
+    //         string left = gen_float_op(op->left, scope, global_string);
+    //         string right = gen_float_op(op->right, scope, global_string);
+    //         global_string += "mult " + left + ", " + right + " \n";
+    //         global_string += "mflo " + resultReg + " \n";
+    //         freeReg();
+    //         freeReg();
+    //         return resultReg;
+    //     }
+    //     if (t == type::DIVISION)
+    //     {
+    //         // return
+    //         string left = gen_float_op(op->left, scope, global_string);
+    //         string right = gen_float_op(op->right, scope, global_string);
+    //         global_string += "div " + resultReg + "," + left + ", " + right + " \n";
+    //         freeReg();
+    //         freeReg();
+    //         return resultReg;
+    //     }
+    //     if (t == type::MOD)
+    //     {
+
+    //         string left = gen_float_op(op->left, scope, global_string);
+    //         string right = gen_float_op(op->right, scope, global_string);
+    //         global_string += "div " + resultReg + "," + left + ", " + right + " \n";
+    //         global_string += "mfhi " + resultReg + "\n";
+    //         freeReg();
+    //         freeReg();
+    //         return resultReg;
+    //         //           div $t4,$v0, $t3
+    //         // div $t4, $t3, 10
+    //         // mfhi $t3
+    //     }
+    // }
+    // return "";
 }
 
 string gen_char_op(Node *op, vector<Scope_dimension *> &scope, string &global_string)
@@ -411,6 +553,11 @@ string gen_char_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
         cout << "null \n";
         return "";
     }
+    if (instanceof <BooleanLiteralNode *>(op))
+    {
+        cout << "boolean literal not accepted in integer, use 1 or 0" << endl;
+        exit(EXIT_FAILURE);
+    }
     if (instanceof <CharNode *>(op))
     {
         CharNode *pd = dynamic_cast<CharNode *>(op);
@@ -418,7 +565,7 @@ string gen_char_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
         global_string += "li " + reg + "," + pd->character + "\n";
         return reg;
     }
-    else if (instanceof <IntegerNode *>(op))
+    if (instanceof <IntegerNode *>(op))
     {
         IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
         string reg = allocateReg();
@@ -430,6 +577,12 @@ string gen_char_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
         }
         global_string += "li " + reg + "," + pd->num + "\n";
         return reg;
+    }
+    if (instanceof <FloatNode *>(op))
+    {
+        cerr << "char only accepts an 8 bit unsigned integer or letter not floats" << endl;
+        exit(1);
+        return "";
     }
     if (instanceof <VaraibleReference *>(op))
     {
@@ -457,146 +610,286 @@ string gen_char_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
     }
     return "";
 }
-string gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_string)
+
+int gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_string, string &register_result)
 {
 
     if (op == nullptr)
     {
         cout << "null \n";
-        return "";
+        return 0;
     }
-
+    if (instanceof <BooleanLiteralNode *>(op))
+    {
+        cout << "boolean literal not accepted in integer, use 1 or 0" << endl;
+        exit(EXIT_FAILURE);
+    }
     if (instanceof <IntegerNode *>(op))
     {
         IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
-        string reg = allocateReg();
-        global_string += "li " + reg + "," + pd->num + "\n";
-        return reg;
+        register_result = "";
+        return stoi(pd->num);
     }
     if (instanceof <CharNode *>(op))
     {
         CharNode *pd = dynamic_cast<CharNode *>(op);
-        string reg = allocateReg();
-        global_string += "li " + reg + "," + pd->character + "\n";
-        return reg;
+        register_result = "";
+        return (int)stoi(pd->character);
     }
-
     if (instanceof <FloatNode *>(op))
     {
         FloatNode *pd = dynamic_cast<FloatNode *>(op);
-        string reg = allocateReg();
-        float fixedpoint = (float)stoi(pd->num) / OFFSET;
-        int fp2 = (int)fixedpoint;
-        string num = to_string(fp2);
-        global_string += "li " + reg + "," + num + "\n";
-        return reg;
+        register_result = "";
+        return (int)stoi(pd->num) / OFFSET;
     }
-
     if (instanceof <VaraibleReference *>(op))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
-
-        cout << "works in var \n";
-        string reg = allocateReg();
         Varaible *var = get_varaible(pd, scope);
-
         if (var == nullptr)
         {
             cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
             exit(0);
-            return "";
+            return -1;
+        }
+        if (var->varType->id == type::FLOAT)
+        {
+            string reg = allocateReg();
+            register_result = allocateReg();
+            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+            global_string += "div " + register_result + "," + reg + ", " + to_string(OFFSET) + " \n"; // scaling. I forgot i worked on this lmao :')
+            freeReg();
         }
         else
         {
-            // cout << "out: " << map[pd->varailbe->buffer] << endl;
-
-            if (var->varType->id == type::FLOAT)
-            {
-                string reg = allocateReg();
-                string resultReg = allocateReg();
-
-                global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
-
-                global_string += "div " + reg + "," + reg + ", " + to_string(OFFSET) + " \n"; // scaling. I forgot i worked on this lmao :')
-                cout << "" << endl;
-                cout << global_string << endl;
-                freeReg();
-                return reg;
-            }
-            else
-            {
-
-                string reg = allocateReg();
-                global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
-                return reg;
-            }
+            register_result = allocateReg();
+            global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($sp) \n";
         }
+
+        return 0;
     }
     if (instanceof <OperatorNode *>(op))
     {
-        cout << "is in op node \n";
-        OperatorNode *pd = dynamic_cast<OperatorNode *>(op); // downcast
-        type t;
-        if (pd->token != nullptr)
+        OperatorNode *pd = dynamic_cast<OperatorNode *>(op);
+        map<type, string> operations;
+        operations[type::ADDITION] = "add ";
+        operations[type::SUBTRACT] = "sub ";
+        operations[type::DIVISION] = "div ";
+        operations[type::MOD] = "div ";
+        operations[type::MULTIPLY] = "mult ";
+
+        string registers = "";
+        int a = gen_integer_op(op->left, scope, global_string, registers);
+        string registers2 = "";
+        int b = gen_integer_op(op->right, scope, global_string, registers2);
+
+        if (registers2 == "" && registers == "")
         {
-            t = pd->token->id;
-            // cout << "token op: " + pd->token->buffer << endl;
+
+            // register_result = allocateReg();
+            string num = "";
+            if (pd->token->id == type::ADDITION)
+            {
+                int n = a + b;
+                return n;
+            }
+            if (pd->token->id == type::SUBTRACT)
+            {
+                int n = a - b;
+                return n;
+            }
+            if (pd->token->id == type::DIVISION)
+            {
+                if (b == 0)
+                {
+                    return a;
+                }
+                else
+                {
+                    int n = a / b;
+                    return n;
+                }
+            }
+            if (pd->token->id == type::MOD)
+            {
+                int n = a % b;
+                return n;
+            }
+            if (pd->token->id == type::MULTIPLY)
+            {
+                int n = a * b;
+                return n;
+            }
         }
-        string resultReg = allocateReg();
-        if (t == type::ADDITION)
+        else
         {
-            // return
-            string left = gen_integer_op(op->left, scope, global_string);
-            string right = gen_integer_op(op->right, scope, global_string);
-            global_string += "add " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
+            if (registers == "")
+            {
+                registers = allocateReg();
+                global_string += "li " + registers + ", " + to_string(a) + "\n";
+                register_result = registers;
+            }
+            else if (registers2 == "")
+            {
+                registers2 = allocateReg();
+                global_string += "li " + registers2 + ", " + to_string(b) + "\n";
+                register_result = registers2;
+            }
+            if (operations.find(pd->token->id) != operations.end())
+            {
+                register_result = allocateReg();
+                if (pd->token->id == type::MULTIPLY)
+                {
+                    global_string += operations[pd->token->id] + " " + registers + ", " + registers2 + "\n";
+                    global_string += "mflo " + register_result + "\n";
+                }
+                else
+                {
+                    global_string += operations[pd->token->id] + " " + register_result + ", " + registers + ", " + registers2 + "\n";
+                    if (pd->token->id == type::MOD)
+                    {
+                        global_string += "mfhi " + register_result + "\n";
+                    }
+                }
+                return 0;
+            }
         }
-        if (t == type::SUBTRACT)
-        {
-            // return
-            string left = gen_integer_op(op->left, scope, global_string);
-            string right = gen_integer_op(op->right, scope, global_string);
-            global_string += "sub " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::MULTIPLY)
-        {
-            // return
-            string left = gen_integer_op(op->left, scope, global_string);
-            string right = gen_integer_op(op->right, scope, global_string);
-            global_string += "mult " + left + ", " + right + " \n";
-            global_string += "mflo " + resultReg + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::DIVISION)
-        {
-            // return
-            string left = gen_integer_op(op->left, scope, global_string);
-            string right = gen_integer_op(op->right, scope, global_string);
-            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
-            freeReg();
-            freeReg();
-            return resultReg;
-        }
-        if (t == type::MOD)
-        {
-            string left = gen_integer_op(op->left, scope, global_string);
-            string right = gen_integer_op(op->right, scope, global_string);
-            global_string += "div " + resultReg + "," + left + ", " + right + " \n";
-            global_string += "mfhi " + resultReg + "\n";
-            freeReg();
-            freeReg();
-            return resultReg;
-            //           div $t4,$v0, $t3
-            // div $t4, $t3, 10
-            // mfhi $t3
-        }
+
+        return 0;
     }
-    return "";
+    return 0;
+
+    // if (instanceof <IntegerNode *>(op))
+    // {
+    //     IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+    //     string reg = allocateReg();
+    //     global_string += "li " + reg + "," + pd->num + "\n";
+    //     return reg;
+    // }
+    // if (instanceof <CharNode *>(op))
+    // {
+    //     CharNode *pd = dynamic_cast<CharNode *>(op);
+    //     string reg = allocateReg();
+    //     global_string += "li " + reg + "," + pd->character + "\n";
+    //     return reg;
+    // }
+
+    // if (instanceof <FloatNode *>(op))
+    // {
+    //     FloatNode *pd = dynamic_cast<FloatNode *>(op);
+    //     string reg = allocateReg();
+    //     float fixedpoint = (float)stoi(pd->num) / OFFSET;
+    //     int fp2 = (int)fixedpoint;
+    //     string num = to_string(fp2);
+    //     global_string += "li " + reg + "," + num + "\n";
+    //     return reg;
+    // }
+
+    // if (instanceof <VaraibleReference *>(op))
+    // {
+    //     VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
+
+    //     cout << "works in var \n";
+    //     string reg = allocateReg();
+    //     Varaible *var = get_varaible(pd, scope);
+
+    //     if (var == nullptr)
+    //     {
+    //         cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
+    //         exit(0);
+    //         return "";
+    //     }
+    //     else
+    //     {
+    //         // cout << "out: " << map[pd->varailbe->buffer] << endl;
+
+    //         if (var->varType->id == type::FLOAT)
+    //         {
+    //             string reg = allocateReg();
+    //             string resultReg = allocateReg();
+
+    //             global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+
+    //             global_string += "div " + reg + "," + reg + ", " + to_string(OFFSET) + " \n"; // scaling. I forgot i worked on this lmao :')
+    //             cout << "" << endl;
+    //             cout << global_string << endl;
+    //             freeReg();
+    //             return reg;
+    //         }
+    //         else
+    //         {
+
+    //             string reg = allocateReg();
+    //             global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+    //             return reg;
+    //         }
+    //     }
+    // }
+    // if (instanceof <OperatorNode *>(op))
+    // {
+    //     cout << "is in op node \n";
+    //     OperatorNode *pd = dynamic_cast<OperatorNode *>(op); // downcast
+    //     type t;
+    //     if (pd->token != nullptr)
+    //     {
+    //         t = pd->token->id;
+    //         // cout << "token op: " + pd->token->buffer << endl;
+    //     }
+    //     string resultReg = allocateReg();
+    //     if (t == type::ADDITION)
+    //     {
+    //         // return
+    //         string left = gen_integer_op(op->left, scope, global_string);
+    //         string right = gen_integer_op(op->right, scope, global_string);
+    //         global_string += "add " + resultReg + "," + left + ", " + right + " \n";
+    //         freeReg();
+    //         freeReg();
+    //         return resultReg;
+    //     }
+    //     if (t == type::SUBTRACT)
+    //     {
+    //         // return
+    //         string left = gen_integer_op(op->left, scope, global_string);
+    //         string right = gen_integer_op(op->right, scope, global_string);
+    //         global_string += "sub " + resultReg + "," + left + ", " + right + " \n";
+    //         freeReg();
+    //         freeReg();
+    //         return resultReg;
+    //     }
+    //     if (t == type::MULTIPLY)
+    //     {
+    //         // return
+    //         string left = gen_integer_op(op->left, scope, global_string);
+    //         string right = gen_integer_op(op->right, scope, global_string);
+    //         global_string += "mult " + left + ", " + right + " \n";
+    //         global_string += "mflo " + resultReg + " \n";
+    //         freeReg();
+    //         freeReg();
+    //         return resultReg;
+    //     }
+    //     if (t == type::DIVISION)
+    //     {
+    //         // return
+    //         string left = gen_integer_op(op->left, scope, global_string);
+    //         string right = gen_integer_op(op->right, scope, global_string);
+    //         global_string += "div " + resultReg + "," + left + ", " + right + " \n";
+    //         freeReg();
+    //         freeReg();
+    //         return resultReg;
+    //     }
+    //     if (t == type::MOD)
+    //     {
+    //         string left = gen_integer_op(op->left, scope, global_string);
+    //         string right = gen_integer_op(op->right, scope, global_string);
+    //         global_string += "div " + resultReg + "," + left + ", " + right + " \n";
+    //         global_string += "mfhi " + resultReg + "\n";
+    //         freeReg();
+    //         freeReg();
+    //         return resultReg;
+    //         //           div $t4,$v0, $t3
+    //         // div $t4, $t3, 10
+    //         // mfhi $t3
+    //     }
+    // }
+    // return "";
 }

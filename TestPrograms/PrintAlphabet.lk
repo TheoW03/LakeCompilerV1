@@ -1,0 +1,12 @@
+//output: abcdefhijklmnopqrstuvwxyz
+fn main(string args) returns int{
+    char starting_character = 'a'; // if you change it to A you can get the uppercase alphabet
+    print_alpha(starting_character); //change it to uppercase for uppercase alphabet
+}
+
+fn print_alpha(char character) returns int{
+    for(int i = 0; i < 26; i++){
+        int a = character + i; //automatically casts
+        print("%c", a);
+    }
+}

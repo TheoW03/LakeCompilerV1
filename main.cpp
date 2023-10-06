@@ -73,6 +73,9 @@ int main(int argc, char *argv[])
     handle_cli(argv, argc);
 
     // vector<Tokens> a = lex(readFile("test.lk"));
+    // Node *c = testExpressionParse(a);
+    // rewrite_vars(c);
+    // cout << "compiled" << endl;
     // printList(a);
     // vector<FunctionNode *> b = functionParse(a);
     // gen_mips_target(b);
