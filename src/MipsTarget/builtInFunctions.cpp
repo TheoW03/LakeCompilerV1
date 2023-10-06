@@ -51,8 +51,8 @@ void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope
             int b = gen_integer_op(params[1], scope, gen_string, reg);
             if (reg == "")
             {
-                string reg = allocateReg();
-                gen_string += "li " + reg + ", " + to_string(b) + " \n";
+                reg = allocateReg();
+                gen_string += "li " + reg + ", " + to_string(b) + " #0 \n";
             }
             execute_code_integer(gen_string, reg);
         }
@@ -62,7 +62,7 @@ void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope
             int b = gen_float_op(params[1], scope, gen_string, reg);
             if (reg == "")
             {
-                string reg = allocateReg();
+                reg = allocateReg();
                 gen_string += "li " + reg + ", " + to_string(b) + " \n";
             }
             execute_code_float(gen_string, reg);

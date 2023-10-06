@@ -1,0 +1,23 @@
+
+//output: 0,2,4,6,..,48
+fn main(string args) returns int{
+    int i = 0;
+    while(i < 50){
+      int mod =  i % 2;
+      if(mod == 0){
+        print("%c",'F');
+        print("%c",'I');
+        print("%c",'Z');
+        print("%c",'Z');
+      }else{
+        print("%c",'B');
+        print("%c",'U');
+        print("%c",'Z');
+        print("%c",'Z');
+      }
+      print("%c"m ' ');
+      print("%d", i);
+      i++;
+      
+    }
+}

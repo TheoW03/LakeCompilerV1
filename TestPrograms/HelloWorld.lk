@@ -1,0 +1,15 @@
+//output: HELLO WORLD
+fn main(string args) returns int{
+    print("%c", 'H');
+    print("%c", 'E');
+    print("%c", 'L');
+    print("%c", 'L');
+    print("%c", 'O');
+    print("%c", ' ');
+    print("%c", 'W');
+    print("%c", 'O');
+    print("%c", 'R');
+    print("%c", 'L');
+    print("%c", 'D');
+
+}

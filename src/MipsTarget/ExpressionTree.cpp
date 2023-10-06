@@ -343,43 +343,35 @@ float gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
         int b = gen_float_op(op->right, scope, global_string, registers2);
         if (registers2 == "" && registers == "")
         {
-
-            register_result = allocateReg();
-            string num = "";
             if (pd->token->id == type::ADDITION)
             {
                 int n = a + b;
-                num = to_string(n);
+                return n;
             }
             if (pd->token->id == type::SUBTRACT)
             {
                 int n = a - b;
-                num = to_string(n);
+                return n;
             }
             if (pd->token->id == type::DIVISION)
             {
                 if (b == 0)
                 {
-                    num = to_string(a);
+                    return a;
                 }
-                else
-                {
-                    int n = a / b;
-                    num = to_string(n);
-                }
+                int n = a / b;
+                return n;
             }
             if (pd->token->id == type::MOD)
             {
                 int n = a % b;
-                num = to_string(n);
+                return n;
             }
             if (pd->token->id == type::MULTIPLY)
             {
                 int n = a * b;
-                num = to_string(n);
+                return n;
             }
-            global_string += "li " + register_result + ", " + num + "\n";
-            return 0;
         }
         else
         {
@@ -635,7 +627,6 @@ int gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
     if (instanceof <IntegerNode *>(op))
     {
         IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
-        cout << "op node" << endl;
         register_result = "";
         return stoi(pd->num);
     }
@@ -695,42 +686,40 @@ int gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
         if (registers2 == "" && registers == "")
         {
 
-            register_result = allocateReg();
+            // register_result = allocateReg();
             string num = "";
             if (pd->token->id == type::ADDITION)
             {
                 int n = a + b;
-                num = to_string(n);
+                return n;
             }
             if (pd->token->id == type::SUBTRACT)
             {
                 int n = a - b;
-                num = to_string(n);
+                return n;
             }
             if (pd->token->id == type::DIVISION)
             {
                 if (b == 0)
                 {
-                    num = to_string(a);
+                    return a;
                 }
                 else
                 {
                     int n = a / b;
-                    num = to_string(n);
+                    return n;
                 }
             }
             if (pd->token->id == type::MOD)
             {
                 int n = a % b;
-                num = to_string(n);
+                return n;
             }
             if (pd->token->id == type::MULTIPLY)
             {
                 int n = a * b;
-                num = to_string(n);
+                return n;
             }
-            global_string += "li " + register_result + ", " + num + "\n";
-            return 0;
         }
         else
         {
