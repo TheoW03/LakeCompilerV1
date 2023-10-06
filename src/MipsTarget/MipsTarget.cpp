@@ -264,8 +264,18 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         string add = "";
         if (type1->varType->id == type::FLOAT)
         {
-            string reg = gen_float_op(pd->expression, scope, global_string);
-            add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+            string reg = "";
+            int b = gen_float_op(pd->expression, scope, global_string, reg);
+            if (reg != "")
+            {
+                add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+            }
+            else
+            {
+                reg = allocateReg();
+                add += "li" + reg + ", " + to_string(b) + " \n";
+                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+            }
         }
         else if (type1->varType->id == type::INT)
         {
@@ -368,8 +378,18 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         string add = "";
         if (type1->varType->id == type::FLOAT)
         {
-            string reg = gen_float_op(pd->expression, scope, global_string);
-            add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+            string reg = "";
+            int b = gen_float_op(pd->expression, scope, global_string, reg);
+            if (reg != "")
+            {
+                add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+            }
+            else
+            {
+                reg = allocateReg();
+                add += "li" + reg + ", " + to_string(b) + " \n";
+                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+            }
         }
         else if (type1->varType->id == type::INT)
         {
@@ -426,7 +446,39 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
                 {
                     global_string = "";
                     string reg = "";
-                    gen_integer_op(para[i], scope, global_string, reg);
+                    int c = gen_integer_op(para[i], scope, global_string, reg);
+                    wf(outfile, global_string);
+                    string a = "";
+                    if (reg == "")
+                    {
+                        reg = allocateReg();
+                        a += "li " + reg + ", " + to_string(c) + " \n";
+                    }
+                    a += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+                    wf(outfile, a);
+                    global_string = "";
+                    a = "";
+                }
+                else if (param[i]->typeOfVar->id == type::FLOAT)
+                {
+                    global_string = "";
+                    string reg = "";
+                    int c = gen_float_op(para[i], scope, global_string, reg);
+                    wf(outfile, global_string);
+                    string a = "";
+                    if (reg == "")
+                    {
+                        reg = allocateReg();
+                        a += "li " + reg + ", " + to_string(c) + " \n";
+                    }
+                    a += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+                    wf(outfile, a);
+                    global_string = "";
+                    a = "";
+                }
+                else if (param[i]->typeOfVar->id == type::CHAR)
+                {
+                    string reg = gen_char_op(para[i], scope, global_string);
                     wf(outfile, global_string);
                     string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
                     wf(outfile, a);
@@ -475,10 +527,10 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
             //         }
             //     }
             // }
-            // reset_arg_register();
-            // global_string += "sw $ra,4($sp) \n";
-            // global_string += "jal " + pd->funcCall->buffer + "\n";
-            // global_string += "lw $ra,4($sp) \n";
+            reset_arg_register();
+            global_string += "sw $ra,4($sp) \n";
+            global_string += "jal " + pd->funcCall->buffer + "\n";
+            global_string += "lw $ra,4($sp) \n";
             wf(outfile, global_string);
             global_string = "";
         }

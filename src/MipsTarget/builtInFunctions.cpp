@@ -56,7 +56,22 @@ void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope
             }
             execute_code_integer(gen_string, reg);
         }
-
+        else if (a->stringBuffer == "%f")
+        {
+            string reg = "";
+            int b = gen_float_op(params[1], scope, gen_string, reg);
+            if (reg == "")
+            {
+                string reg = allocateReg();
+                gen_string += "li " + reg + ", " + to_string(b) + " \n";
+            }
+            execute_code_float(gen_string, reg);
+        }
+        else if (a->stringBuffer == "%c")
+        {
+            string reg = gen_char_op(params[1], scope, gen_string);
+            execute_code_char(gen_string, reg);
+        }
         //     if (check_if_pureExpression(params[1]) == 0)
         //     {
         //         string reg = allocateReg();
