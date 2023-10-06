@@ -44,6 +44,7 @@ using namespace std;
 // void prepare_interptMips(VaraibleDeclaration *var, map<string, Varaible *> &map, int size);
 #pragma once
 void gen_mips_target(vector<FunctionNode *> op, string filename = "");
+void rewrite_vars(Node *op);
 
 // void gen_mips_target(vector<FunctionNode *> op, string filename = "");
 // void gen_x86_target(Node *op, string filename = "");
