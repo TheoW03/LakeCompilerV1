@@ -23,7 +23,14 @@ struct Scope_dimension
     int stack_allocation;
 };
 #endif
-
+#ifndef SCOPE_MONITOR_H
+#define SCOPE_MONITOR_H
+struct Scope_Monitor
+{
+    vector<Scope_dimension *> &scope;
+    map<string, FunctionNode *> f;
+};
+#endif
 string allocateReg();
 void freeReg();
 string allocate_argumentRegister();

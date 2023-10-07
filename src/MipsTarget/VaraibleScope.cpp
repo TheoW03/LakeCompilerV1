@@ -19,6 +19,11 @@ struct Scope_dimension
     map<string, Varaible *> vars;
     int stack_allocation;
 };
+struct Scope_Monitor
+{
+    vector<Scope_dimension *> &scope;
+    map<string, FunctionNode *> f;
+};
 
 int nextRegister = -1;
 int nextArgRegister = -1;

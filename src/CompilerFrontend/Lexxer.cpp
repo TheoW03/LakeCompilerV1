@@ -498,7 +498,7 @@ vector<Tokens> lex(vector<string> lines)
                         {
                             if (wordBuffer != "")
                             {
-                                
+
                                 modifyStruct(token, (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer] : type::WORD, dictionary, wordBuffer);
                                 a.push_back(token);
                                 wordBuffer = "";
@@ -578,7 +578,7 @@ vector<Tokens> lex(vector<string> lines)
                             // wordBuffer = "";
                             // a.push_back(token);
                             wordstate = 1;
-                            stateIsNum = 1;
+                            // stateIsNum = 1;
                             state = 1;
                         }
 
@@ -613,7 +613,7 @@ vector<Tokens> lex(vector<string> lines)
                     a.push_back(token);
                     wordBuffer = "";
                 }
-                // stateIsNum = 1;
+                stateIsNum = 1;
             }
         }
         if (buffer != "")

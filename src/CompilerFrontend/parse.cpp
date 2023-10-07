@@ -23,6 +23,7 @@ enum status
  * @brief C++ OOP is icky so
  *
  */
+
 struct Node
 {
     virtual ~Node();
@@ -166,6 +167,7 @@ void setNull(Node *n)
 // }
 Tokens *current = new Tokens;
 Node *handleSatements(vector<Tokens> &tokens);
+Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct);
 
 /**
  * @brief I could use a stack, but a stack coesnt have peek lol
@@ -251,9 +253,14 @@ Node *factor(vector<Tokens> &tokens)
     }
     else if (matchAndRemove(tokens, type::WORD, "factor") != nullptr)
     {
-        VaraibleReference *var = new VaraibleReference;
-        var->varaible = current;
-        return var;
+        Node *a = handleCalls(tokens, current);
+        if (a == nullptr)
+        {
+            VaraibleReference *var = new VaraibleReference;
+            var->varaible = current;
+            return var;
+        }
+        return a;
     }
     else if (matchAndRemove(tokens, type::TRUE, "factor") != nullptr || matchAndRemove(tokens, type::FALSE, "factor") != nullptr)
     {
@@ -541,7 +548,10 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
 {
     funcCallNode *f1 = new funcCallNode;
     f1->funcCall = checkIfFunct;
-    matchAndRemove(tokens, type::OP_PARENTHISIS, "handlecalls");
+    if (matchAndRemove(tokens, type::OP_PARENTHISIS, "h") == nullptr)
+    {
+        return nullptr;
+    }
     vector<Node *> vars;
     while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlecalls") == nullptr)
     {
@@ -781,22 +791,28 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
                          : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
                          : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)   ? current
                          : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
+                         : (matchAndRemove(tokens, type::CHAR, "parseFunctions") != nullptr)   ? current
                                                                                                : nullptr;
 
             pd->returnType = f1;
         }
         else if (matchAndRemove(tokens, type::SEMI_COLON, "search for semi") != nullptr)
         {
-            Tokens *f1 = (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)     ? current
-                         : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)     ? current
-                         : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)    ? current
-                         : (matchAndRemove(tokens, type::STRING, "parseFunctionsa") != nullptr) ? current
-                                                                                                : nullptr;
+            Tokens *f1 = (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)    ? current
+                         : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
+                         : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)   ? current
+                         : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
+                         : (matchAndRemove(tokens, type::CHAR, "parseFunctions") != nullptr)   ? current
+                                                                                               : nullptr;
             pd->returnType = f1;
             if (matchAndRemove(tokens, type::SUBTRACT, "parsefunctions") != nullptr && matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)
             {
                 states.push_back(handleReturn(tokens));
             }
+        }
+        else
+        {
+            pd->returnType = nullptr;
         }
         // cout << "parser" << endl;
         // printList(tokens);

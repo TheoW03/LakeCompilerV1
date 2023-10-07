@@ -197,12 +197,13 @@ void gen_function(vector<Node *> state, int &stackNum)
     }
 }
 
-void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string, FunctionNode *> f, ofstream &outfile)
+void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimension *> &scope, map<string, FunctionNode *> f, ofstream &outfile)
 {
     map<type, builtInFunction *> functions;
 
     functions[type::PRINT] = new Print();
     functions[type::EXIT] = new Exit();
+
     if (instanceof <VaraibleDeclaration *>(statement))
     {
         VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(statement);
@@ -417,7 +418,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen(pd->statements[i], scope, f, outfile); // write a new function for this T~T
+            statementsGen(pd->statements[i], function, scope, f, outfile); // write a new function for this T~T
         }
         increase_numofbranch();
         int elseBranch = getnOfBranch();
@@ -438,7 +439,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
             vector<Node *> statementsElse = pd->Else->statements;
             for (int i = 0; i < statementsElse.size(); i++)
             {
-                statementsGen(statementsElse[i], scope, f, outfile);
+                statementsGen(statementsElse[i], function, scope, f, outfile);
             }
             // go through statements
             global_string = "L" + to_string(elseBranch) + ": \n";
@@ -473,7 +474,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen(pd->statements[i], scope, f, outfile); // write a new function for this T~T
+            statementsGen(pd->statements[i], function, scope, f, outfile); // write a new function for this T~T
         }
         deallocate_Scope(scope);
         global_string += "L" + to_string(b) + ": \n # condition";
@@ -491,7 +492,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         allocate_Scope(scope);
         cout << "size: " << scope.size() << endl;
 
-        statementsGen(pd->incrimentorVar, scope, f, outfile); // write a new function for this T~T
+        statementsGen(pd->incrimentorVar, function, scope, f, outfile); // write a new function for this T~T
         allocate_Scope(scope);
         increase_numofbranch();
         int b = getnOfBranch();
@@ -508,7 +509,7 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen(pd->statements[i], scope, f, outfile); // write a new function for this T~T
+            statementsGen(pd->statements[i], function, scope, f, outfile); // write a new function for this T~T
         }
 
         global_string += "L" + to_string(b) + ": \n # condition";
@@ -518,6 +519,48 @@ void statementsGen(Node *statement, vector<Scope_dimension *> &scope, map<string
         global_string = "";
         deallocate_Scope(scope);
         deallocate_Scope(scope);
+    }
+    else if (instanceof <ReturnStatment *>(statement))
+    {
+        Tokens *returnType = function->returnType;
+        ReturnStatment *pd = dynamic_cast<ReturnStatment *>(statement);
+
+        string reg = "";
+        if (returnType == nullptr)
+        {
+            cout << "no return type" << endl;
+            exit(1);
+        }
+        if (returnType->id == type::INT)
+        {
+            int c = gen_integer_op(pd->expression, scope, global_string, reg);
+
+            string a = "";
+            if (reg == "")
+            {
+                reg = allocateReg();
+                global_string += "li " + reg + ", " + to_string(c) + " \n";
+            }
+            global_string += "move $v0 ," + reg + "#f \n";
+        }
+        else if (returnType->id == type::FLOAT)
+        {
+            int c = gen_float_op(pd->expression, scope, global_string, reg);
+            string a = "";
+            if (reg == "")
+            {
+                reg = allocateReg();
+                global_string += "li " + reg + ", " + to_string(c) + " \n";
+            }
+            global_string += "move $v0 ," + reg + "# return \n";
+        }
+        else if (returnType->id == type::CHAR)
+        {
+            string reg = gen_char_op(pd->expression, scope, global_string);
+            global_string += "move  $v0," + reg + "#f \n";
+        }
+        global_string += "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
+        wf(outfile, global_string);
     }
 }
 
@@ -649,10 +692,14 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
 
         for (int i = 0; i < state.size(); i++)
         {
-            statementsGen(state[i], scope, f, outfile);
+            statementsGen(state[i], pd, scope, f, outfile);
         }
-        string exitStack = "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
-        wf(outfile, exitStack);
+        if (pd->returnType == nullptr)
+        {
+            string exitStack = "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
+            wf(outfile, exitStack);
+        }
+
         if (pd->nameOfFunction->buffer == "main")
         {
             string exitStuff = "li $v0, 10 \n syscall # exited program pop into QtSpim and it should work";

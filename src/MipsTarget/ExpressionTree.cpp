@@ -19,7 +19,39 @@ int getnOfBranch()
 {
     return nOfBranch;
 }
-
+void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector<Node *> params, vector<Scope_dimension *> scope, string &global_string)
+{
+    for (int i = 0; i < function_params.size(); i++)
+    {
+        if (function_params[i]->typeOfVar->id == type::INT)
+        {
+            string reg = "";
+            int c = gen_integer_op(params[i], scope, global_string, reg);
+            if (reg == "")
+            {
+                reg = allocateReg();
+                global_string += "li " + reg + ", " + to_string(c) + " \n";
+            }
+            global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+        }
+        else if (function_params[i]->typeOfVar->id == type::FLOAT)
+        {
+            string reg = "";
+            int c = gen_float_op(params[i], scope, global_string, reg);
+            if (reg == "")
+            {
+                reg = allocateReg();
+                global_string += "li " + reg + ", " + to_string(c) + " \n";
+            }
+            global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+        }
+        else if (function_params[i]->typeOfVar->id == type::CHAR)
+        {
+            string reg = gen_char_op(params[i], scope, global_string);
+            global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+        }
+    }
+}
 string gen_string(Node *op, vector<string> &tabs, vector<Scope_dimension *> &scope, string &global_string)
 {
     if (op == nullptr)
@@ -486,6 +518,13 @@ int gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
     {
         cout << "boolean literal not accepted in integer, use 1 or 0" << endl;
         exit(EXIT_FAILURE);
+    }
+    if (instanceof <funcCallNode *>(op))
+    {
+        funcCallNode *pd = dynamic_cast<funcCallNode *>(op);
+        register_result = "$v0";
+        return 0;
+        // handle_function_calls(pd->funcCall, pd->);
     }
     if (instanceof <IntegerNode *>(op))
     {
