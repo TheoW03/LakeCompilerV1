@@ -23,7 +23,7 @@ void builtInFunction::execute_code_float(string &gen_string, string registers)
 void builtInFunction::execute_code_char(string &gen_string, string registers)
 {
 }
-void builtInFunction::setup_params(vector<Node *> params, string &gen_string, vector<Scope_dimension *> &scope)
+void builtInFunction::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor* &scope_monitor)
 {
 }
 #pragma endregion
@@ -34,7 +34,7 @@ Print::Print()
 {
 }
 
-void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope_dimension *> &scope)
+void Print::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor* &scope_monitor)
 {
     if (instanceof <StringNode *>(params[0]))
     {
@@ -48,7 +48,7 @@ void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope
         if (a->stringBuffer == "%d")
         {
             string reg = "";
-            int b = gen_integer_op(params[1], scope, gen_string, reg);
+            int b = gen_integer_op(params[1], scope_monitor, gen_string, reg);
             if (reg == "")
             {
                 reg = allocateReg();
@@ -59,7 +59,7 @@ void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope
         else if (a->stringBuffer == "%f")
         {
             string reg = "";
-            int b = gen_float_op(params[1], scope, gen_string, reg);
+            int b = gen_float_op(params[1], scope_monitor, gen_string, reg);
             if (reg == "")
             {
                 reg = allocateReg();
@@ -69,7 +69,7 @@ void Print::setup_params(vector<Node *> params, string &gen_string, vector<Scope
         }
         else if (a->stringBuffer == "%c")
         {
-            string reg = gen_char_op(params[1], scope, gen_string);
+            string reg = gen_char_op(params[1], scope_monitor, gen_string);
             execute_code_char(gen_string, reg);
         }
         //     if (check_if_pureExpression(params[1]) == 0)
@@ -222,7 +222,7 @@ Exit::Exit()
 {
 }
 
-void Exit::setup_params(vector<Node *> params, string &gen_string, vector<Scope_dimension *> &scope)
+void Exit::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor *&scope_monitor)
 {
     if (params.size() == 0)
     {

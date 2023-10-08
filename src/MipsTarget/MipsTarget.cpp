@@ -197,7 +197,7 @@ void gen_function(vector<Node *> state, int &stackNum)
     }
 }
 
-void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimension *> &scope, map<string, FunctionNode *> f, ofstream &outfile)
+void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scope_monitor, ofstream &outfile)
 {
     map<type, builtInFunction *> functions;
 
@@ -208,7 +208,8 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
     {
         VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(statement);
         stack_number += 4;
-        Varaible *type1 = add_to_var(pd, scope, stack_number);
+
+        Varaible *type1 = add_to_var(pd, scope_monitor->scope, stack_number);
         if (type1 == nullptr)
         {
             return;
@@ -217,7 +218,7 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         if (type1->varType->id == type::FLOAT)
         {
             string reg = "";
-            int b = gen_float_op(pd->expression, scope, global_string, reg);
+            int b = gen_float_op(pd->expression, scope_monitor, global_string, reg);
             if (reg != "")
             {
                 add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
@@ -232,7 +233,7 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         else if (type1->varType->id == type::INT)
         {
             string reg = "";
-            int b = gen_integer_op(pd->expression, scope, global_string, reg);
+            int b = gen_integer_op(pd->expression, scope_monitor, global_string, reg);
             if (reg != "")
             {
                 add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
@@ -246,11 +247,11 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         }
         else if (type1->varType->id == type::BOOL)
         {
-            add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+            add = "sw " + handle_boolean(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
         }
         else if (type1->varType->id == type::CHAR)
         {
-            add = "sw " + gen_char_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+            add = "sw " + gen_char_op(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
         }
 
         wf(outfile, global_string);
@@ -260,7 +261,9 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
     else if (instanceof <VaraibleReference *>(statement))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(statement);
-        Varaible *type1 = get_varaible(pd, scope);
+        vector<Scope_dimension *> Scope_dimension = scope_monitor->scope;
+
+        Varaible *type1 = get_varaible(pd, Scope_dimension);
 
         if (type1 == nullptr)
         {
@@ -279,7 +282,7 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         if (type1->varType->id == type::FLOAT)
         {
             string reg = "";
-            int b = gen_float_op(pd->expression, scope, global_string, reg);
+            int b = gen_float_op(pd->expression, scope_monitor, global_string, reg);
             if (reg != "")
             {
                 add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
@@ -294,7 +297,7 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         else if (type1->varType->id == type::INT)
         {
             string reg = "";
-            int b = gen_integer_op(pd->expression, scope, global_string, reg);
+            int b = gen_integer_op(pd->expression, scope_monitor, global_string, reg);
             if (reg != "")
             {
                 add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
@@ -308,11 +311,11 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         }
         else if (type1->varType->id == type::BOOL)
         {
-            add = "sw " + handle_boolean(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+            add = "sw " + handle_boolean(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
         }
         else if (type1->varType->id == type::CHAR)
         {
-            add = "sw " + gen_char_op(pd->expression, scope, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+            add = "sw " + gen_char_op(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
         }
 
         cout << "string: " + global_string << endl;
@@ -331,27 +334,29 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
             if (func != nullptr)
             {
                 string gen_string = "";
-                func->setup_params(para, gen_string, scope);
+                func->setup_params(para, gen_string, scope_monitor);
                 wf(outfile, gen_string);
             }
         }
         else
         {
             vector<Node *> para = pd->params;
-            if (f.find(pd->funcCall->buffer) == f.end())
+
+            if (scope_monitor->f.find(pd->funcCall->buffer) == scope_monitor->f.end())
             {
                 cerr << pd->funcCall->buffer + " is not a function" << endl;
                 exit(EXIT_FAILURE);
                 return;
             }
-            vector<VaraibleDeclaration *> param = f[pd->funcCall->buffer]->params;
+
+            vector<VaraibleDeclaration *> param = scope_monitor->f[pd->funcCall->buffer]->params;
             for (int i = 0; i < param.size(); i++)
             {
                 if (param[i]->typeOfVar->id == type::INT)
                 {
                     global_string = "";
                     string reg = "";
-                    int c = gen_integer_op(para[i], scope, global_string, reg);
+                    int c = gen_integer_op(para[i], scope_monitor, global_string, reg);
                     wf(outfile, global_string);
                     string a = "";
                     if (reg == "")
@@ -368,7 +373,7 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
                 {
                     global_string = "";
                     string reg = "";
-                    int c = gen_float_op(para[i], scope, global_string, reg);
+                    int c = gen_float_op(para[i], scope_monitor, global_string, reg);
                     wf(outfile, global_string);
                     string a = "";
                     if (reg == "")
@@ -383,7 +388,7 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
                 }
                 else if (param[i]->typeOfVar->id == type::CHAR)
                 {
-                    string reg = gen_char_op(para[i], scope, global_string);
+                    string reg = gen_char_op(para[i], scope_monitor, global_string);
                     wf(outfile, global_string);
                     string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
                     wf(outfile, a);
@@ -407,26 +412,26 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         {
             return;
         }
-        handle_boolean(pd->condition, scope, global_string);
+        handle_boolean(pd->condition, scope_monitor, global_string);
 
         wf(outfile, global_string);
 
         global_string = "";
         int ifBranch = getnOfBranch();
         increase_numofbranch();
-        allocate_Scope(scope);
+        allocate_Scope(scope_monitor->scope);
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen(pd->statements[i], function, scope, f, outfile); // write a new function for this T~T
+            statementsGen(pd->statements[i], function, scope_monitor, outfile); // write a new function for this T~T
         }
         increase_numofbranch();
         int elseBranch = getnOfBranch();
         increase_numofbranch();
-        deallocate_Scope(scope);
+        deallocate_Scope(scope_monitor->scope);
         if (pd->Else != nullptr)
         {
-            allocate_Scope(scope);
+            allocate_Scope(scope_monitor->scope);
             global_string = "j L" + to_string(elseBranch) + " \n";
             wf(outfile, global_string);
             global_string = "";
@@ -439,13 +444,13 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
             vector<Node *> statementsElse = pd->Else->statements;
             for (int i = 0; i < statementsElse.size(); i++)
             {
-                statementsGen(statementsElse[i], function, scope, f, outfile);
+                statementsGen(statementsElse[i], function, scope_monitor, outfile);
             }
             // go through statements
             global_string = "L" + to_string(elseBranch) + ": \n";
             wf(outfile, global_string);
             global_string = "";
-            deallocate_Scope(scope);
+            deallocate_Scope(scope_monitor->scope);
         }
     }
     else if (instanceof <LoopNode *>(statement))
@@ -466,17 +471,17 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         wf(outfile, global_string);
         global_string = "";
 
-        handle_boolean(pd->condition, scope, global_string, 1);
+        handle_boolean(pd->condition, scope_monitor, global_string, 1);
         string condition = global_string;
         increase_numofbranch();
         global_string = "";
-        allocate_Scope(scope);
+        allocate_Scope(scope_monitor->scope);
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen(pd->statements[i], function, scope, f, outfile); // write a new function for this T~T
+            statementsGen(pd->statements[i], function, scope_monitor, outfile); // write a new function for this T~T
         }
-        deallocate_Scope(scope);
+        deallocate_Scope(scope_monitor->scope);
         global_string += "L" + to_string(b) + ": \n # condition";
         wf(outfile, global_string);
         wf(outfile, condition);
@@ -489,11 +494,9 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
     {
         global_string = "";
         ForLoopNode *pd = dynamic_cast<ForLoopNode *>(statement);
-        allocate_Scope(scope);
-        cout << "size: " << scope.size() << endl;
-
-        statementsGen(pd->incrimentorVar, function, scope, f, outfile); // write a new function for this T~T
-        allocate_Scope(scope);
+        allocate_Scope(scope_monitor->scope);
+        statementsGen(pd->incrimentorVar, function, scope_monitor, outfile); // write a new function for this T~T
+        allocate_Scope(scope_monitor->scope);
         increase_numofbranch();
         int b = getnOfBranch();
         global_string += "b L" + to_string(b) + "\n";
@@ -502,14 +505,14 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         wf(outfile, global_string);
         global_string = "";
 
-        handle_boolean(pd->condition, scope, global_string, 1);
+        handle_boolean(pd->condition, scope_monitor, global_string, 1);
         string condition = global_string;
         increase_numofbranch();
         global_string = "";
         for (int i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen(pd->statements[i], function, scope, f, outfile); // write a new function for this T~T
+            statementsGen(pd->statements[i], function, scope_monitor, outfile); // write a new function for this T~T
         }
 
         global_string += "L" + to_string(b) + ": \n # condition";
@@ -517,14 +520,14 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         wf(outfile, condition);
 
         global_string = "";
-        deallocate_Scope(scope);
-        deallocate_Scope(scope);
+        deallocate_Scope(scope_monitor->scope);
+        deallocate_Scope(scope_monitor->scope);
     }
     else if (instanceof <ReturnStatment *>(statement))
     {
         Tokens *returnType = function->returnType;
         ReturnStatment *pd = dynamic_cast<ReturnStatment *>(statement);
-
+        global_string = "";
         string reg = "";
         if (returnType == nullptr)
         {
@@ -533,7 +536,7 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         }
         if (returnType->id == type::INT)
         {
-            int c = gen_integer_op(pd->expression, scope, global_string, reg);
+            int c = gen_integer_op(pd->expression, scope_monitor, global_string, reg);
 
             string a = "";
             if (reg == "")
@@ -541,11 +544,11 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
                 reg = allocateReg();
                 global_string += "li " + reg + ", " + to_string(c) + " \n";
             }
-            global_string += "move $v0 ," + reg + "#f \n";
+            global_string += "move $v0 ," + reg + "#fn call \n";
         }
         else if (returnType->id == type::FLOAT)
         {
-            int c = gen_float_op(pd->expression, scope, global_string, reg);
+            int c = gen_float_op(pd->expression, scope_monitor, global_string, reg);
             string a = "";
             if (reg == "")
             {
@@ -556,9 +559,12 @@ void statementsGen(Node *statement, FunctionNode *function, vector<Scope_dimensi
         }
         else if (returnType->id == type::CHAR)
         {
-            string reg = gen_char_op(pd->expression, scope, global_string);
+            string reg = gen_char_op(pd->expression, scope_monitor, global_string);
             global_string += "move  $v0," + reg + "#f \n";
         }
+        cout << "max: " << max_size << endl;
+        cout << global_string << endl;
+        cout << " " << endl;
         global_string += "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
         wf(outfile, global_string);
     }
@@ -689,13 +695,16 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
             reset_arg_register();
             wf(outfile, add);
         }
-
+        Scope_Monitor *monitor = new Scope_Monitor;
+        monitor->scope = scope;
+        monitor->f = f;
         for (int i = 0; i < state.size(); i++)
         {
-            statementsGen(state[i], pd, scope, f, outfile);
+            statementsGen(state[i], pd, monitor, outfile);
         }
         if (pd->returnType == nullptr)
         {
+            cout << "null ptr" << endl;
             string exitStack = "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
             wf(outfile, exitStack);
         }

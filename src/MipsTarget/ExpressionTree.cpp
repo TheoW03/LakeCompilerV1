@@ -19,39 +19,8 @@ int getnOfBranch()
 {
     return nOfBranch;
 }
-void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector<Node *> params, vector<Scope_dimension *> scope, string &global_string)
-{
-    for (int i = 0; i < function_params.size(); i++)
-    {
-        if (function_params[i]->typeOfVar->id == type::INT)
-        {
-            string reg = "";
-            int c = gen_integer_op(params[i], scope, global_string, reg);
-            if (reg == "")
-            {
-                reg = allocateReg();
-                global_string += "li " + reg + ", " + to_string(c) + " \n";
-            }
-            global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
-        }
-        else if (function_params[i]->typeOfVar->id == type::FLOAT)
-        {
-            string reg = "";
-            int c = gen_float_op(params[i], scope, global_string, reg);
-            if (reg == "")
-            {
-                reg = allocateReg();
-                global_string += "li " + reg + ", " + to_string(c) + " \n";
-            }
-            global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
-        }
-        else if (function_params[i]->typeOfVar->id == type::CHAR)
-        {
-            string reg = gen_char_op(params[i], scope, global_string);
-            global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
-        }
-    }
-}
+void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector<Node *> params, Scope_Monitor *&scope_monitor, string &global_string);
+
 string gen_string(Node *op, vector<string> &tabs, vector<Scope_dimension *> &scope, string &global_string)
 {
     if (op == nullptr)
@@ -87,7 +56,7 @@ string gen_string(Node *op, vector<string> &tabs, vector<Scope_dimension *> &sco
     return "";
 }
 
-string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global_string, int isLoop = 0)
+string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_string, int isLoop = 0)
 {
     if (op == nullptr)
     {
@@ -142,7 +111,7 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
         // VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
         // type a = map[pd1->varailbe->buffer]->varType->id;
-        Varaible *var = get_varaible(pd, scope);
+        Varaible *var = get_varaible(pd, scope_monitor->scope);
         if (var == nullptr)
         {
             cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
@@ -194,12 +163,12 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
             string resultReg = allocateReg();
             if (isLoop == 1)
             {
-                global_string += "beq " + handle_boolean(pd->right, scope, global_string, isLoop) + " ," + handle_boolean(pd->left, scope, global_string, isLoop) + " , L" + to_string(nOfBranch) + "\n";
+                global_string += "beq " + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + " , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
             else
             {
-                global_string += "bne " + handle_boolean(pd->right, scope, global_string) + " ," + handle_boolean(pd->left, scope, global_string) + " , L" + to_string(nOfBranch) + "\n";
+                global_string += "bne " + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + " , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
 
@@ -214,13 +183,13 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
             string resultReg = allocateReg();
             if (isLoop == 1)
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string, isLoop) + " ," + handle_boolean(pd->left, scope, global_string, isLoop) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + "\n";
                 global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
             else
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string) + " ," + handle_boolean(pd->left, scope, global_string) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + "\n";
                 global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
@@ -236,13 +205,13 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
             string resultReg = allocateReg();
             if (isLoop == 1)
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string, isLoop) + " ," + handle_boolean(pd->left, scope, global_string, isLoop) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + "\n";
                 global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
             else
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string) + " ," + handle_boolean(pd->left, scope, global_string) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + "\n";
                 global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
@@ -259,13 +228,13 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
             string resultReg = allocateReg();
             if (isLoop == 1)
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, scope, global_string, isLoop) + " ," + handle_boolean(pd->right, scope, global_string, isLoop) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + "\n";
                 global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
             else
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, scope, global_string) + " ," + handle_boolean(pd->right, scope, global_string) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, scope_monitor, global_string) + " ," + handle_boolean(pd->right, scope_monitor, global_string) + "\n";
                 global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
@@ -278,13 +247,13 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
             string resultReg = allocateReg();
             if (isLoop == 1)
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string, isLoop) + " ," + handle_boolean(pd->left, scope, global_string, isLoop) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + "\n";
                 global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
             else
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope, global_string) + " ," + handle_boolean(pd->left, scope, global_string) + "\n";
+                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + "\n";
                 global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
             }
@@ -294,7 +263,7 @@ string handle_boolean(Node *op, vector<Scope_dimension *> &scope, string &global
     }
 }
 
-float gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_string, string &register_result)
+float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_string, string &register_result)
 {
 
     if (op == nullptr)
@@ -331,7 +300,7 @@ float gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
     if (instanceof <VaraibleReference *>(op))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
-        Varaible *var = get_varaible(pd, scope);
+        Varaible *var = get_varaible(pd, scope_monitor->scope);
         if (var == nullptr)
         {
             cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
@@ -370,9 +339,9 @@ float gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
         operations[type::MOD] = "div ";
         operations[type::MULTIPLY] = "mult ";
         string registers = "";
-        int a = gen_float_op(op->left, scope, global_string, registers);
+        int a = gen_float_op(op->left, scope_monitor, global_string, registers);
         string registers2 = "";
-        int b = gen_float_op(op->right, scope, global_string, registers2);
+        int b = gen_float_op(op->right, scope_monitor, global_string, registers2);
         if (registers2 == "" && registers == "")
         {
             if (pd->token->id == type::ADDITION)
@@ -441,7 +410,7 @@ float gen_float_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
     }
 }
 
-string gen_char_op(Node *op, vector<Scope_dimension *> &scope, string &global_string)
+string gen_char_op(Node *op, Scope_Monitor *&scope_monitor, string &global_string)
 {
     if (op == nullptr)
     {
@@ -485,7 +454,7 @@ string gen_char_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
 
         cout << "works in var \n";
         string reg = allocateReg();
-        Varaible *var = get_varaible(pd, scope);
+        Varaible *var = get_varaible(pd, scope_monitor->scope);
 
         if (var == nullptr)
         {
@@ -506,7 +475,7 @@ string gen_char_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
     return "";
 }
 
-int gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_string, string &register_result)
+int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_string, string &register_result)
 {
 
     if (op == nullptr)
@@ -522,9 +491,26 @@ int gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
     if (instanceof <funcCallNode *>(op))
     {
         funcCallNode *pd = dynamic_cast<funcCallNode *>(op);
-        register_result = "$v0";
+        // register_result = "$v0";
+
+        if (scope_monitor->f.find(pd->funcCall->buffer) == scope_monitor->f.end())
+        {
+            cerr << pd->funcCall->buffer + " is not a function" << endl;
+            exit(EXIT_FAILURE);
+            return 0;
+        }
+
+        vector<VaraibleDeclaration *> param = scope_monitor->f[pd->funcCall->buffer]->params;
+        cout << pd->funcCall->buffer << endl;
+
+        handle_function_calls(param, pd->params, scope_monitor, global_string);
+        reset_arg_register();
+        global_string += "sw $ra,4($sp) \n";
+        global_string += "jal " + pd->funcCall->buffer + "\n";
+        global_string += "lw $ra,4($sp) \n";
+        register_result = allocateReg();
+        global_string += "move " + register_result + ", $v0 \n";
         return 0;
-        // handle_function_calls(pd->funcCall, pd->);
     }
     if (instanceof <IntegerNode *>(op))
     {
@@ -547,25 +533,26 @@ int gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
     if (instanceof <VaraibleReference *>(op))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
-        Varaible *var = get_varaible(pd, scope);
+        Varaible *var = get_varaible(pd, scope_monitor->scope);
         if (var == nullptr)
         {
             cerr << pd->varaible->buffer + " doesnt exist as a var" << endl;
             exit(0);
             return -1;
         }
+
         if (var->varType->id == type::FLOAT)
         {
             string reg = allocateReg();
             register_result = allocateReg();
             global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
-            global_string += "div " + register_result + "," + reg + ", " + to_string(OFFSET) + " \n"; // scaling. I forgot i worked on this lmao :')
+            global_string += "div " + register_result + "," + reg + ", " + to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
             freeReg();
         }
         else
         {
             register_result = allocateReg();
-            global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($sp) \n";
+            global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($sp) #float \n";
         }
 
         return 0;
@@ -581,9 +568,9 @@ int gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
         operations[type::MULTIPLY] = "mult ";
 
         string registers = "";
-        int a = gen_integer_op(op->left, scope, global_string, registers);
+        int a = gen_integer_op(op->left, scope_monitor, global_string, registers);
         string registers2 = "";
-        int b = gen_integer_op(op->right, scope, global_string, registers2);
+        int b = gen_integer_op(op->right, scope_monitor, global_string, registers2);
 
         if (registers2 == "" && registers == "")
         {
@@ -660,4 +647,38 @@ int gen_integer_op(Node *op, vector<Scope_dimension *> &scope, string &global_st
         return 0;
     }
     return 0;
+}
+void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector<Node *> params, Scope_Monitor *&scope_monitor, string &global_string)
+{
+
+    for (int i = 0; i < function_params.size(); i++)
+    {
+        if (function_params[i]->typeOfVar->id == type::INT)
+        {
+            string reg = "";
+            int c = gen_integer_op(params[i], scope_monitor, global_string, reg);
+            if (reg == "")
+            {
+                reg = allocateReg();
+                global_string += "li " + reg + ", " + to_string(c) + " \n";
+            }
+            global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+        }
+        else if (function_params[i]->typeOfVar->id == type::FLOAT)
+        {
+            string reg = "";
+            int c = gen_float_op(params[i], scope_monitor, global_string, reg);
+            if (reg == "")
+            {
+                reg = allocateReg();
+                global_string += "li " + reg + ", " + to_string(c) + " \n";
+            }
+            global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+        }
+        else if (function_params[i]->typeOfVar->id == type::CHAR)
+        {
+            string reg = gen_char_op(params[i], scope_monitor, global_string);
+            global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+        }
+    }
 }

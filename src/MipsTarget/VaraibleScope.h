@@ -27,7 +27,7 @@ struct Scope_dimension
 #define SCOPE_MONITOR_H
 struct Scope_Monitor
 {
-    vector<Scope_dimension *> &scope;
+    vector<Scope_dimension *> scope;
     map<string, FunctionNode *> f;
 };
 #endif
