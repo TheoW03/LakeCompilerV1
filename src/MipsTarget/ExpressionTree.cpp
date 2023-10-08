@@ -504,12 +504,20 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         cout << pd->funcCall->buffer << endl;
 
         handle_function_calls(param, pd->params, scope_monitor, global_string);
+
         reset_arg_register();
+        int a = save_registers(global_string);
+
         global_string += "sw $ra,4($sp) \n";
         global_string += "jal " + pd->funcCall->buffer + "\n";
+
         global_string += "lw $ra,4($sp) \n";
+
         register_result = allocateReg();
+
         global_string += "move " + register_result + ", $v0 \n";
+        bring_saveBack(global_string, a);
+
         return 0;
     }
     if (instanceof <IntegerNode *>(op))
@@ -566,7 +574,6 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         operations[type::DIVISION] = "div ";
         operations[type::MOD] = "div ";
         operations[type::MULTIPLY] = "mult ";
-
         string registers = "";
         int a = gen_integer_op(op->left, scope_monitor, global_string, registers);
         string registers2 = "";
@@ -615,13 +622,13 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
             if (registers == "")
             {
                 registers = allocateReg();
-                global_string += "li " + registers + ", " + to_string(a) + "\n";
+                global_string += "li " + registers + ", " + to_string(a) + "#5\n ";
                 register_result = registers;
             }
             else if (registers2 == "")
             {
                 registers2 = allocateReg();
-                global_string += "li " + registers2 + ", " + to_string(b) + "\n";
+                global_string += "li " + registers2 + ", " + to_string(b) + "#4\n ";
                 register_result = registers2;
             }
             if (operations.find(pd->token->id) != operations.end())
@@ -660,9 +667,9 @@ void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector
             if (reg == "")
             {
                 reg = allocateReg();
-                global_string += "li " + reg + ", " + to_string(c) + " \n";
+                global_string += "li " + reg + ", " + to_string(c) + "\n";
             }
-            global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+            global_string += "move " + allocate_argumentRegister() + "," + reg + " \n";
         }
         else if (function_params[i]->typeOfVar->id == type::FLOAT)
         {

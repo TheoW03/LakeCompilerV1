@@ -36,6 +36,25 @@ string allocateReg()
     nextRegister++;
     return "$t" + to_string(nextRegister);
 }
+int save_registers(string &global_string)
+{
+    for (int i = 0; i < nextRegister; i++)
+    {
+        global_string += "move $s" + to_string(i) + ", " + "$t" + to_string(i) + "\n";
+    }
+    return nextRegister;
+}
+void bring_saveBack(string &global_string, int nextReg)
+{
+    for (int i = 0; i < nextReg; i++)
+    {
+        global_string += "move $t" + to_string(i) + ", " + "$s" + to_string(i) + "\n";
+    }
+}
+void reset_registers()
+{
+    nextRegister = -1;
+}
 void freeReg()
 {
     nextRegister--;

@@ -256,6 +256,8 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
 
         wf(outfile, global_string);
         global_string = "";
+        reset_registers();
+
         wf(outfile, add);
     }
     else if (instanceof <VaraibleReference *>(statement))
@@ -297,6 +299,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         else if (type1->varType->id == type::INT)
         {
             string reg = "";
+            global_string = "";
             int b = gen_integer_op(pd->expression, scope_monitor, global_string, reg);
             if (reg != "")
             {
@@ -321,6 +324,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         cout << "string: " + global_string << endl;
         wf(outfile, global_string);
         global_string = "";
+        reset_registers();
         wf(outfile, add);
         freeReg();
     }
@@ -397,6 +401,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
                 }
             }
             reset_arg_register();
+
             global_string += "sw $ra,4($sp) \n";
             global_string += "jal " + pd->funcCall->buffer + "\n";
             global_string += "lw $ra,4($sp) \n";
