@@ -15,7 +15,7 @@
 #include "../../src/MipsTarget/builtInFunction.h"
 #include "../../src/MipsTarget/VaraibleScope.h"
 #include "../../src/MipsTarget/ExpressionTree.h"
-
+#include "../../src/MipsTarget/Register.h"
 namespace fs = std::filesystem;
 using namespace std;
 
@@ -436,8 +436,9 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         deallocate_Scope(scope_monitor->scope);
         if (pd->Else != nullptr)
         {
+            cout << scope_monitor->scope.size() << endl;
             allocate_Scope(scope_monitor->scope);
-            global_string = "j L" + to_string(elseBranch) + " \n";
+            global_string = "j L" + to_string(elseBranch) + "#a \n";
             wf(outfile, global_string);
             global_string = "";
         }
@@ -446,6 +447,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         global_string = "";
         if (pd->Else != nullptr)
         {
+
             vector<Node *> statementsElse = pd->Else->statements;
             for (int i = 0; i < statementsElse.size(); i++)
             {
@@ -490,7 +492,6 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         global_string += "L" + to_string(b) + ": \n # condition";
         wf(outfile, global_string);
         wf(outfile, condition);
-
         global_string = "";
 
         // wf(outfile, global_string);
@@ -703,6 +704,8 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         Scope_Monitor *monitor = new Scope_Monitor;
         monitor->scope = scope;
         monitor->f = f;
+        Registers *rg = new Registers;
+
         for (int i = 0; i < state.size(); i++)
         {
             statementsGen(state[i], pd, monitor, outfile);

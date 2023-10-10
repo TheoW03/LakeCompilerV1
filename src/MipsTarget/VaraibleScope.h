@@ -3,6 +3,8 @@
 #include "../../src/CompilerFrontend/parser.h"
 #include "../../src/CompilerFrontend/Lexxer.h"
 #include "../../src/MipsTarget/UtilFunctions.h"
+#include "../../src/MipsTarget/Register.h"
+
 using namespace std;
 
 #ifndef VARAIBLE_H
@@ -29,6 +31,7 @@ struct Scope_Monitor
 {
     vector<Scope_dimension *> scope;
     map<string, FunctionNode *> f;
+    Registers *registers;
 };
 #endif
 string allocateReg();

@@ -4,6 +4,7 @@
 #include "../../src/CompilerFrontend/parser.h"
 #include "../../src/CompilerFrontend/Lexxer.h"
 #include "../../src/MipsTarget/UtilFunctions.h"
+#include "../../src/MipsTarget/Register.h"
 
 using namespace std;
 
@@ -23,22 +24,31 @@ struct Scope_Monitor
 {
     vector<Scope_dimension *> scope;
     map<string, FunctionNode *> f;
+    Registers *registers;
 };
 
 int nextRegister = -1;
 int nextArgRegister = -1;
+int registers_used = -1;
+
 string allocateReg()
 {
     if (nextRegister >= 9)
     {
         nextRegister = -1;
     }
+    // if (registers_used < 9)
+    // {
+    //     registers_used++;
+    // }
     nextRegister++;
     return "$t" + to_string(nextRegister);
 }
+
 int save_registers(string &global_string)
 {
-    for (int i = 0; i < nextRegister; i++)
+
+    for (int i = 0; i <= nextRegister; i++)
     {
         global_string += "move $s" + to_string(i) + ", " + "$t" + to_string(i) + "\n";
     }
@@ -46,7 +56,7 @@ int save_registers(string &global_string)
 }
 void bring_saveBack(string &global_string, int nextReg)
 {
-    for (int i = 0; i < nextReg; i++)
+    for (int i = 0; i <= nextRegister; i++)
     {
         global_string += "move $t" + to_string(i) + ", " + "$s" + to_string(i) + "\n";
     }
@@ -54,6 +64,7 @@ void bring_saveBack(string &global_string, int nextReg)
 void reset_registers()
 {
     nextRegister = -1;
+    registers_used = 0;
 }
 void freeReg()
 {
@@ -61,6 +72,7 @@ void freeReg()
     if (nextRegister < 0)
     {
         nextRegister = 0;
+        registers_used = 0;
     }
 }
 string allocate_argumentRegister()

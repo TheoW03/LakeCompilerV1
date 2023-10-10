@@ -67,10 +67,30 @@ void handle_cli(char *argv[], int argc)
 
     cout << "compiled successfully" << endl;
 }
+int fibonacci_recursive(int n)
+{
+
+    if (n < 1)
+    {
+
+        return 1;
+    }
+
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2);
+}
 int main(int argc, char *argv[])
 {
 
     handle_cli(argv, argc);
+    int i = 0;
+    while (i < 7)
+    {
+
+        int n = fibonacci_recursive(i);
+        cout << n << endl;
+
+        i++;
+    }
 
     // vector<Tokens> a = lex(readFile("test.lk"));
     // Node *c = testExpressionParse(a);

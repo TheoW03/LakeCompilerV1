@@ -624,6 +624,10 @@ Node *handleIfStatements(vector<Tokens> &tokens)
         elseNode->statements = states;
         ifStatement->Else = elseNode;
     }
+    else
+    {
+        ifStatement->Else = nullptr;
+    }
 
     return ifStatement;
 }
@@ -743,6 +747,7 @@ Node *handleSatements(vector<Tokens> &tokens)
                 : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr) ? current
                 : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)   ? current
                 : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)  ? current
+                : (matchAndRemove(tokens, type::CHAR, "parsefunctions") != nullptr)  ? current
                                                                                      : nullptr;
             var = parseVar(tokens, nullptr, a, 1);
         }

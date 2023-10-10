@@ -513,10 +513,10 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
 
         global_string += "lw $ra,4($sp) \n";
 
+        bring_saveBack(global_string, a);
         register_result = allocateReg();
 
         global_string += "move " + register_result + ", $v0 \n";
-        bring_saveBack(global_string, a);
 
         return 0;
     }
@@ -575,9 +575,18 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         operations[type::MOD] = "div ";
         operations[type::MULTIPLY] = "mult ";
         string registers = "";
-        int a = gen_integer_op(op->left, scope_monitor, global_string, registers);
         string registers2 = "";
-        int b = gen_integer_op(op->right, scope_monitor, global_string, registers2);
+        int a, b;
+        if (instanceof <funcCallNode *>(op->right) && (instanceof <VaraibleReference *>(op->left)))
+        {
+            b = gen_integer_op(op->right, scope_monitor, global_string, registers2);
+            a = gen_integer_op(op->left, scope_monitor, global_string, registers);
+        }
+        else
+        {
+            a = gen_integer_op(op->left, scope_monitor, global_string, registers);
+            b = gen_integer_op(op->right, scope_monitor, global_string, registers2);
+        }
 
         if (registers2 == "" && registers == "")
         {
@@ -647,10 +656,12 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
                         global_string += "mfhi " + register_result + "\n";
                     }
                 }
+
                 return 0;
             }
         }
-
+        freeReg();
+        freeReg();
         return 0;
     }
     return 0;
@@ -687,5 +698,6 @@ void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector
             string reg = gen_char_op(params[i], scope_monitor, global_string);
             global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
         }
+        freeReg();
     }
 }
