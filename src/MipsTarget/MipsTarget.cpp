@@ -418,7 +418,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
             return;
         }
         handle_boolean(pd->condition, scope_monitor, global_string);
-
+        reset_registers();
         wf(outfile, global_string);
 
         global_string = "";
@@ -479,6 +479,8 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         global_string = "";
 
         handle_boolean(pd->condition, scope_monitor, global_string, 1);
+        reset_registers();
+
         string condition = global_string;
         increase_numofbranch();
         global_string = "";
@@ -568,6 +570,8 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
             string reg = gen_char_op(pd->expression, scope_monitor, global_string);
             global_string += "move  $v0," + reg + "#f \n";
         }
+        reset_registers();
+
         cout << "max: " << max_size << endl;
         cout << global_string << endl;
         cout << " " << endl;
@@ -653,8 +657,8 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         map<string, Varaible *> map;
         vector<Scope_dimension *> scope;
         Scope_dimension *l = new Scope_dimension;
-        max_size = 4;
-        stack_number = 4;
+        max_size = 44;
+        stack_number = 44;
         map["."] = 0;
         l->vars = map;
         allocate_Scope(scope);

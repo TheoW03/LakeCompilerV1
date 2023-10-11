@@ -8,6 +8,11 @@ struct Registers
 {
     int array[10];
 };
+struct AllocatedRegister
+{
+    string allocated_register;
+    int weight;
+};
 void resetRegisters(int *array)
 {
     for (int i = 0; i < 10; i++)
