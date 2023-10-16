@@ -18,3 +18,4 @@ void increase_numofbranch();
 int getnOfBranch();
 #pragma once
 string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_string, int isLoop = 0);
+void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector<Node *> params, Scope_Monitor *&scope_monitor, string &global_string);

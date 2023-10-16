@@ -505,7 +505,6 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
 
         handle_function_calls(param, pd->params, scope_monitor, global_string);
 
-        reset_arg_register();
         // int a = save_registers(global_string);
 
         global_string += "sw $ra,4($sp) \n";
@@ -582,7 +581,6 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
             b = gen_integer_op(op->right, scope_monitor, global_string, registers2);
             a = gen_integer_op(op->left, scope_monitor, global_string, registers);
             cout << "left" << endl;
-            
         }
         else
         {
@@ -702,4 +700,5 @@ void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector
         }
         freeReg();
     }
+    reset_arg_register();
 }

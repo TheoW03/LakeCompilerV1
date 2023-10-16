@@ -29,7 +29,7 @@ Node::~Node()
 string global_string = "";
 int max_size = 0;
 int stack_number = 0;
-
+void update_var_values(Varaible *var, Node *expression, string &global_string, Scope_Monitor *&scope_monitor);
 /**
  * @brief
  *
@@ -214,51 +214,54 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         {
             return;
         }
-        string add = "";
-        if (type1->varType->id == type::FLOAT)
-        {
-            string reg = "";
-            int b = gen_float_op(pd->expression, scope_monitor, global_string, reg);
-            if (reg != "")
-            {
-                add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-            else
-            {
-                reg = allocateReg();
-                add += "li" + reg + ", " + to_string(b) + " \n";
-                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-        }
-        else if (type1->varType->id == type::INT)
-        {
-            string reg = "";
-            int b = gen_integer_op(pd->expression, scope_monitor, global_string, reg);
-            if (reg != "")
-            {
-                add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-            else
-            {
-                reg = allocateReg();
-                add += "li" + reg + ", " + to_string(b) + " \n";
-                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-        }
-        else if (type1->varType->id == type::BOOL)
-        {
-            add = "sw " + handle_boolean(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
-        }
-        else if (type1->varType->id == type::CHAR)
-        {
-            add = "sw " + gen_char_op(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
-        }
-
-        wf(outfile, global_string);
+        // string add = "";
         global_string = "";
-        reset_registers();
+        update_var_values(type1, pd->expression, global_string, scope_monitor);
+        wf(outfile, global_string);
+        // if (type1->varType->id == type::FLOAT)
+        // {
+        //     string reg = "";
+        //     int b = gen_float_op(pd->expression, scope_monitor, global_string, reg);
+        //     if (reg != "")
+        //     {
+        //         add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+        //     }
+        //     else
+        //     {
+        //         reg = allocateReg();
+        //         add += "li" + reg + ", " + to_string(b) + " \n";
+        //         add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+        //     }
+        // }
+        // else if (type1->varType->id == type::INT)
+        // {
+        //     string reg = "";
+        //     int b = gen_integer_op(pd->expression, scope_monitor, global_string, reg);
+        //     if (reg != "")
+        //     {
+        //         add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+        //     }
+        //     else
+        //     {
+        //         reg = allocateReg();
+        //         add += "li" + reg + ", " + to_string(b) + " \n";
+        //         add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+        //     }
+        // }
+        // else if (type1->varType->id == type::BOOL)
+        // {
+        //     add = "sw " + handle_boolean(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+        // }
+        // else if (type1->varType->id == type::CHAR)
+        // {
+        //     add = "sw " + gen_char_op(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+        // }
 
-        wf(outfile, add);
+        // wf(outfile, global_string);
+        // global_string = "";
+        // reset_registers();
+        // scope_monitor->rg->reset_registers();
+        // wf(outfile, add);
     }
     else if (instanceof <VaraibleReference *>(statement))
     {
@@ -280,53 +283,57 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
 
             return;
         }
-        string add = "";
-        if (type1->varType->id == type::FLOAT)
-        {
-            string reg = "";
-            int b = gen_float_op(pd->expression, scope_monitor, global_string, reg);
-            if (reg != "")
-            {
-                add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-            else
-            {
-                reg = allocateReg();
-                add += "li" + reg + ", " + to_string(b) + " \n";
-                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-        }
-        else if (type1->varType->id == type::INT)
-        {
-            string reg = "";
-            global_string = "";
-            int b = gen_integer_op(pd->expression, scope_monitor, global_string, reg);
-            if (reg != "")
-            {
-                add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-            else
-            {
-                reg = allocateReg();
-                add += "li" + reg + ", " + to_string(b) + "\n";
-                add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
-            }
-        }
-        else if (type1->varType->id == type::BOOL)
-        {
-            add = "sw " + handle_boolean(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
-        }
-        else if (type1->varType->id == type::CHAR)
-        {
-            add = "sw " + gen_char_op(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
-        }
-
-        cout << "string: " + global_string << endl;
-        wf(outfile, global_string);
         global_string = "";
-        reset_registers();
-        wf(outfile, add);
-        freeReg();
+        update_var_values(type1, pd->expression, global_string, scope_monitor);
+
+        wf(outfile, global_string);
+        // if (type1->varType->id == type::FLOAT)
+        // {
+        //     string reg = "";
+        //     int b = gen_float_op(pd->expression, scope_monitor, global_string, reg);
+        //     if (reg != "")
+        //     {
+        //         add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+        //     }
+        //     else
+        //     {
+        //         reg = allocateReg();
+        //         add += "li" + reg + ", " + to_string(b) + " \n";
+        //         add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+        //     }
+        // }
+        // else if (type1->varType->id == type::INT)
+        // {
+        //     string reg = "";
+        //     global_string = "";
+        //     int b = gen_integer_op(pd->expression, scope_monitor, global_string, reg);
+        //     if (reg != "")
+        //     {
+        //         add = "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+        //     }
+        //     else
+        //     {
+        //         reg = allocateReg();
+        //         add += "li" + reg + ", " + to_string(b) + "\n";
+        //         add += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+        //     }
+        // }
+        // else if (type1->varType->id == type::BOOL)
+        // {
+        //     add = "sw " + handle_boolean(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+        // }
+        // else if (type1->varType->id == type::CHAR)
+        // {
+        //     add = "sw " + gen_char_op(pd->expression, scope_monitor, global_string) + "," + to_string(type1->stackNum) + "($sp) \n";
+        // }
+
+        // cout << "string: " + global_string << endl;
+        // wf(outfile, global_string);
+        // global_string = "";
+        // reset_registers();
+        // scope_monitor->rg->reset_registers();
+        // wf(outfile, add);
+        // freeReg();
     }
     else if (instanceof <funcCallNode *>(statement))
     {
@@ -352,55 +359,57 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
                 exit(EXIT_FAILURE);
                 return;
             }
-
             vector<VaraibleDeclaration *> param = scope_monitor->f[pd->funcCall->buffer]->params;
-            for (int i = 0; i < param.size(); i++)
-            {
-                if (param[i]->typeOfVar->id == type::INT)
-                {
-                    global_string = "";
-                    string reg = "";
-                    int c = gen_integer_op(para[i], scope_monitor, global_string, reg);
-                    wf(outfile, global_string);
-                    string a = "";
-                    if (reg == "")
-                    {
-                        reg = allocateReg();
-                        a += "li " + reg + ", " + to_string(c) + " \n";
-                    }
-                    a += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
-                    wf(outfile, a);
-                    global_string = "";
-                    a = "";
-                }
-                else if (param[i]->typeOfVar->id == type::FLOAT)
-                {
-                    global_string = "";
-                    string reg = "";
-                    int c = gen_float_op(para[i], scope_monitor, global_string, reg);
-                    wf(outfile, global_string);
-                    string a = "";
-                    if (reg == "")
-                    {
-                        reg = allocateReg();
-                        a += "li " + reg + ", " + to_string(c) + " \n";
-                    }
-                    a += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
-                    wf(outfile, a);
-                    global_string = "";
-                    a = "";
-                }
-                else if (param[i]->typeOfVar->id == type::CHAR)
-                {
-                    string reg = gen_char_op(para[i], scope_monitor, global_string);
-                    wf(outfile, global_string);
-                    string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
-                    wf(outfile, a);
-                    global_string = "";
-                    a = "";
-                }
-            }
-            reset_arg_register();
+            global_string = "";
+            handle_function_calls(param, para, scope_monitor, global_string);
+
+            // for (int i = 0; i < param.size(); i++)
+            // {
+            //     if (param[i]->typeOfVar->id == type::INT)
+            //     {
+            //         global_string = "";
+            //         string reg = "";
+            //         int c = gen_integer_op(para[i], scope_monitor, global_string, reg);
+            //         wf(outfile, global_string);
+            //         string a = "";
+            //         if (reg == "")
+            //         {
+            //             reg = allocateReg();
+            //             a += "li " + reg + ", " + to_string(c) + " \n";
+            //         }
+            //         a += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+            //         wf(outfile, a);
+            //         global_string = "";
+            //         a = "";
+            //     }
+            //     else if (param[i]->typeOfVar->id == type::FLOAT)
+            //     {
+            //         global_string = "";
+            //         string reg = "";
+            //         int c = gen_float_op(para[i], scope_monitor, global_string, reg);
+            //         wf(outfile, global_string);
+            //         string a = "";
+            //         if (reg == "")
+            //         {
+            //             reg = allocateReg();
+            //             a += "li " + reg + ", " + to_string(c) + " \n";
+            //         }
+            //         a += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+            //         wf(outfile, a);
+            //         global_string = "";
+            //         a = "";
+            //     }
+            //     else if (param[i]->typeOfVar->id == type::CHAR)
+            //     {
+            //         string reg = gen_char_op(para[i], scope_monitor, global_string);
+            //         wf(outfile, global_string);
+            //         string a = "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+            //         wf(outfile, a);
+            //         global_string = "";
+            //         a = "";
+            //     }
+            // }
+            // reset_arg_register();
 
             global_string += "sw $ra,4($sp) \n";
             global_string += "jal " + pd->funcCall->buffer + "\n";
@@ -580,6 +589,52 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
     }
 }
 
+void update_var_values(Varaible *var, Node *expression, string &global_string, Scope_Monitor *&scope_monitor)
+{
+    if (var->varType->id == type::FLOAT)
+    {
+        string reg = "";
+        int b = gen_float_op(expression, scope_monitor, global_string, reg);
+        if (reg != "")
+        {
+            global_string += "sw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+        }
+        else
+        {
+            reg = allocateReg();
+            global_string += "li" + reg + ", " + to_string(b) + " \n";
+            global_string += "sw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+        }
+    }
+    else if (var->varType->id == type::INT)
+    {
+        string reg = "";
+        int b = gen_integer_op(expression, scope_monitor, global_string, reg);
+        if (reg != "")
+        {
+            global_string += "sw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+        }
+        else
+        {
+            reg = allocateReg();
+            global_string += "li" + reg + ", " + to_string(b) + " \n";
+            global_string += "sw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+        }
+    }
+    else if (var->varType->id == type::BOOL)
+    {
+        string reg = handle_boolean(expression, scope_monitor, global_string);
+        global_string += "sw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+    }
+    else if (var->varType->id == type::CHAR)
+    {
+        string reg = gen_char_op(expression, scope_monitor, global_string);
+        global_string += "sw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+    }
+    scope_monitor->rg->reset_registers();
+    reset_registers();
+}
+
 void rewrite_vars(Node *op)
 {
     string filename = "";
@@ -708,7 +763,8 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         Scope_Monitor *monitor = new Scope_Monitor;
         monitor->scope = scope;
         monitor->f = f;
-        Registers *rg = new Registers;
+        RegisterAllocation *rg = new RegisterAllocation();
+        monitor->rg = rg;
 
         for (int i = 0; i < state.size(); i++)
         {

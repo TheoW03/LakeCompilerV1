@@ -31,7 +31,8 @@ struct Scope_Monitor
 {
     vector<Scope_dimension *> scope;
     map<string, FunctionNode *> f;
-    Registers *registers;
+    RegisterAllocation *rg;
+    // Registers *registers;
 };
 #endif
 string allocateReg();

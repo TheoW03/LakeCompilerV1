@@ -1,54 +1,37 @@
 #include <iostream>
 #include <string>
+#include "../../src/MipsTarget/Register.h"
 using namespace std;
 
-int nextRegisters = 0;
-
-struct Registers
-{
-    int array[10];
-};
-struct AllocatedRegister
-{
-    string allocated_register;
-    int weight;
-};
-void resetRegisters(int *array)
+RegisterAllocation::RegisterAllocation()
 {
     for (int i = 0; i < 10; i++)
     {
-        array[i] = 0;
+        allocated_registers.push_back(0);
     }
-    nextRegisters = 0;
+    register_number = -1;
 }
-string allocateRegister(int *array, int weight)
+void RegisterAllocation::reset_registers()
 {
-    if (nextRegisters >= 9)
+    for (int i = 0; i < 10; i++)
     {
-        nextRegisters = -1;
+        allocated_registers[i] = 0;
     }
-
-    nextRegisters++;
-    array[nextRegisters] = weight;
-    return "$t" + to_string(nextRegisters);
+    register_number = -1;
 }
-void saveRegister(int *array, string &global_string)
+void RegisterAllocation::send_save(string &global)
 {
-    for (int i = 0; i < sizeof(array); i++)
-    {
-        if (array[i] == 2)
-        {
-            global_string += "move $s" + to_string(i) + ", $t" + to_string(i) + "\n";
-        }
-    }
 }
-void bringSaveback(int *array, string &global_string)
+string RegisterAllocation::allocate_register(int is_important)
 {
-    for (int i = 0; i < sizeof(array); i++)
+    if (register_number >= 9)
     {
-        if (array[i] == 2)
-        {
-            global_string += "move $t" + to_string(i) + ", $s" + to_string(i) + "\n";
-        }
+        register_number = -1;
     }
-}
+    register_number++;
+    if (is_important == 1)
+    {
+        allocated_registers[register_number] = 1;
+    }
+    return "$t" + to_string(register_number);
+} // returns $t0-$t9 and sets the id to 1 if important
