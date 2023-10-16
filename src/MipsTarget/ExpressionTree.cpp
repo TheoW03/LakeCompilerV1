@@ -702,3 +702,35 @@ void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector
     }
     reset_arg_register();
 }
+
+void update_var_values(Tokens *type, Node *expression, string &global_string, string &reg, Scope_Monitor *&scope_monitor)
+{
+    if (type->id == type::FLOAT)
+    {
+        int b = gen_float_op(expression, scope_monitor, global_string, reg);
+        if (reg == "")
+        {
+            reg = allocateReg();
+            global_string += "li" + reg + ", " + to_string(b) + " \n";
+        }
+    }
+    else if (type->id == type::INT)
+    {
+        int b = gen_integer_op(expression, scope_monitor, global_string, reg);
+        if (reg == "")
+        {
+            reg = allocateReg();
+            global_string += "li" + reg + ", " + to_string(b) + " \n";
+        }
+    }
+    else if (type->id == type::BOOL)
+    {
+        reg = handle_boolean(expression, scope_monitor, global_string);
+    }
+    else if (type->id == type::CHAR)
+    {
+        reg = gen_char_op(expression, scope_monitor, global_string);
+    }
+    scope_monitor->rg->reset_registers();
+    reset_registers();
+}

@@ -29,38 +29,7 @@ Node::~Node()
 string global_string = "";
 int max_size = 0;
 int stack_number = 0;
-void update_var_values(Tokens *type, Node *expression, string &global_string, string &reg, Scope_Monitor *&scope_monitor)
-{
-    // string reg = "";
-    if (type->id == type::FLOAT)
-    {
-        int b = gen_float_op(expression, scope_monitor, global_string, reg);
-        if (reg == "")
-        {
-            reg = allocateReg();
-            global_string += "li" + reg + ", " + to_string(b) + " \n";
-        }
-    }
-    else if (type->id == type::INT)
-    {
-        int b = gen_integer_op(expression, scope_monitor, global_string, reg);
-        if (reg == "")
-        {
-            reg = allocateReg();
-            global_string += "li" + reg + ", " + to_string(b) + " \n";
-        }
-    }
-    else if (type->id == type::BOOL)
-    {
-        reg = handle_boolean(expression, scope_monitor, global_string);
-    }
-    else if (type->id == type::CHAR)
-    {
-        reg = gen_char_op(expression, scope_monitor, global_string);
-    }
-    scope_monitor->rg->reset_registers();
-    reset_registers();
-}
+
 /**
  * @brief
  *
@@ -70,123 +39,6 @@ void update_var_values(Tokens *type, Node *expression, string &global_string, st
 void wf(ofstream &outfile, string word)
 {
     outfile << word << endl;
-}
-int gen_Expression(Node *op, string &gen_string, string &registerResult)
-{
-    if (op == nullptr)
-    {
-        return 0;
-    }
-    if (instanceof <IntegerNode *>(op))
-    {
-        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
-        registerResult = "";
-        return stoi(pd->num);
-    }
-    if (instanceof <FloatNode *>(op))
-    {
-        FloatNode *pd = dynamic_cast<FloatNode *>(op);
-        return (int)stoi(pd->num) / OFFSET;
-    }
-    if (instanceof <VaraibleReference *>(op))
-    {
-        registerResult = allocateReg();
-        gen_string += "li" + registerResult + ", 10 \n";
-        return 0;
-    }
-    if (instanceof <OperatorNode *>(op))
-    {
-        OperatorNode *pd = dynamic_cast<OperatorNode *>(op);
-        map<type, string> operations;
-        operations[type::ADDITION] = "add ";
-        operations[type::SUBTRACT] = "sub ";
-        operations[type::DIVISION] = "div ";
-        operations[type::MOD] = "div ";
-        operations[type::MULTIPLY] = "mult ";
-
-        string registers = "";
-        int a = gen_Expression(op->left, gen_string, registers);
-        string registers2 = "";
-        int b = gen_Expression(op->right, gen_string, registers2);
-        if (operations.find(pd->token->id) != operations.end())
-        {
-
-            // return
-
-            if (registers2 == "" && registers == "")
-            {
-
-                registerResult = allocateReg();
-                string num = "";
-                if (pd->token->id == type::ADDITION)
-                {
-                    int n = a + b;
-                    num = to_string(n);
-                }
-                if (pd->token->id == type::SUBTRACT)
-                {
-                    int n = a - b;
-                    num = to_string(n);
-                }
-                if (pd->token->id == type::DIVISION)
-                {
-                    if (b == 0)
-                    {
-                        num = to_string(a);
-                    }
-                    else
-                    {
-                        int n = a / b;
-                        num = to_string(n);
-                    }
-                }
-                if (pd->token->id == type::MOD)
-                {
-                    int n = a % b;
-                    num = to_string(n);
-                }
-                if (pd->token->id == type::MULTIPLY)
-                {
-                    int n = a * b;
-                    num = to_string(n);
-                }
-                gen_string += "li " + registerResult + ", " + num + "\n";
-                return 0;
-            }
-            else
-            {
-                string rg = "";
-                if (registers == "")
-                {
-                    registers = allocateReg();
-                    gen_string += "li " + registers + ", " + to_string(a) + "\n";
-                }
-                else if (registers2 == "")
-                {
-                    registers2 = allocateReg();
-                    gen_string += "li " + registers2 + ", " + to_string(b) + "\n";
-                    /* code */
-                }
-                registerResult = allocateReg();
-                if (pd->token->id == type::MULTIPLY)
-                {
-                    gen_string += operations[pd->token->id] + " " + registers + ", " + registers2 + "\n";
-                    gen_string += "mflo " + registerResult + "\n";
-                }
-                else
-                {
-                    gen_string += operations[pd->token->id] + " " + registerResult + ", " + registers + ", " + registers2 + "\n";
-                    if (pd->token->id == type::MOD)
-                    {
-                        gen_string += "mfhi " + registerResult + "\n";
-                    }
-                }
-                return 0;
-            }
-        }
-
-        return 0;
-    }
 }
 
 void gen_function(vector<Node *> state, int &stackNum)
@@ -453,32 +305,6 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
     }
 }
 
-void rewrite_vars(Node *op)
-{
-    string filename = "";
-    string dirname = "src/MipsTarget/MipsTargetASM/";
-    int status = fs::create_directories(dirname);
-
-    if (filename == "")
-    {
-        filename = "out.s";
-    }
-
-    ofstream outfile(dirname + filename);
-    string word = ".data \n .text \n";
-    wf(outfile, word);
-
-    string function_name = "main: \n";
-    wf(outfile, function_name);
-    string global_string = "";
-    string reg = "";
-    gen_Expression(op, global_string, reg);
-
-    wf(outfile, global_string);
-    string exitStuff = "li $v0, 10 \n syscall # exited program pop into QtSpim and it should work";
-    wf(outfile, exitStuff);
-    outfile.close();
-}
 /**
  * @brief
  *

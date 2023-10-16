@@ -19,3 +19,4 @@ int getnOfBranch();
 #pragma once
 string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_string, int isLoop = 0);
 void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector<Node *> params, Scope_Monitor *&scope_monitor, string &global_string);
+void update_var_values(Tokens *type, Node *expression, string &global_string, string &reg, Scope_Monitor *&scope_monitor);
