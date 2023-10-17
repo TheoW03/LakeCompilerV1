@@ -51,7 +51,6 @@ string RegisterAllocation::allocate_register(int is_important)
     }
     register_number++;
     allocated_registers[register_number] = is_important;
-
     return "$t" + to_string(register_number);
 } // returns $t0-$t9 and sets the id to 1 if important
 void RegisterAllocation::downgrade_register(string id)
