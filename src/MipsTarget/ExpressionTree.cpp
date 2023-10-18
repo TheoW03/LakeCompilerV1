@@ -686,6 +686,7 @@ void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector
                 global_string += "li " + reg + ", " + to_string(c) + "\n";
             }
             global_string += "move " + allocate_argumentRegister() + "," + reg + " \n";
+            scope_monitor->rg->downgrade_register(reg);
         }
         else if (function_params[i]->typeOfVar->id == type::FLOAT)
         {
@@ -697,13 +698,14 @@ void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector
                 global_string += "li " + reg + ", " + to_string(c) + " \n";
             }
             global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+            scope_monitor->rg->downgrade_register(reg);
         }
         else if (function_params[i]->typeOfVar->id == type::CHAR)
         {
             string reg = gen_char_op(params[i], scope_monitor, global_string);
             global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
+            scope_monitor->rg->downgrade_register(reg);
         }
-        freeReg();
     }
     reset_arg_register();
 }
