@@ -453,7 +453,7 @@ string gen_char_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
 
         cout << "works in var \n";
-        string reg = allocateReg();
+        string reg = scope_monitor->rg->allocate_register(0);
         Varaible *var = get_varaible(pd, scope_monitor->scope);
 
         if (var == nullptr)
@@ -516,7 +516,6 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         // bring_saveBack(global_string, a);
         register_result = scope_monitor->rg->allocate_register(1);
         global_string += "move " + register_result + ", $v0 \n";
-
         return 0;
     }
     if (instanceof <IntegerNode *>(op))

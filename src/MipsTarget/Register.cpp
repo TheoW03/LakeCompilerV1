@@ -46,8 +46,6 @@ void RegisterAllocation::send_save(string &global)
 }
 string RegisterAllocation::allocate_register(int is_important)
 {
-    cout << allocated_registers.size() << endl;
-    cout << register_number << endl;
     if (register_number >= 9)
     {
         register_number = -1;
@@ -58,7 +56,6 @@ string RegisterAllocation::allocate_register(int is_important)
 } // returns $t0-$t9 and sets the id to 1 if important
 void RegisterAllocation::downgrade_register(string id)
 {
-    cout << "id: " << id << endl;
     if (id == "")
     {
         return;
