@@ -506,15 +506,15 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         handle_function_calls(param, pd->params, scope_monitor, global_string);
 
         // int a = save_registers(global_string);
-
+        scope_monitor->rg->send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
+
         global_string += "jal " + pd->funcCall->buffer + "\n";
 
         global_string += "lw $ra,4($sp) \n";
-
+        scope_monitor->rg->return_save(global_string);
         // bring_saveBack(global_string, a);
-        register_result = allocateReg();
-
+        register_result = scope_monitor->rg->allocate_register(1);
         global_string += "move " + register_result + ", $v0 \n";
 
         return 0;
@@ -550,15 +550,17 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
 
         if (var->varType->id == type::FLOAT)
         {
-            string reg = allocateReg();
-            register_result = allocateReg();
+
+            // string reg = allocateReg();
+            string reg = scope_monitor->rg->allocate_register(0);
+            register_result = scope_monitor->rg->allocate_register(1);
             global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
             global_string += "div " + register_result + "," + reg + ", " + to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
             freeReg();
         }
         else
         {
-            register_result = allocateReg();
+            register_result = scope_monitor->rg->allocate_register(1);
             global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($sp) #float \n";
         }
 
@@ -630,19 +632,21 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         {
             if (registers == "")
             {
-                registers = allocateReg();
+                // registers = allocateReg();
+                registers = scope_monitor->rg->allocate_register(1);
                 global_string += "li " + registers + ", " + to_string(a) + "#5\n ";
                 register_result = registers;
             }
-            else if (registers2 == "")
+            if (registers2 == "")
             {
-                registers2 = allocateReg();
+                registers2 = scope_monitor->rg->allocate_register(1);
                 global_string += "li " + registers2 + ", " + to_string(b) + "#4\n ";
                 register_result = registers2;
             }
             if (operations.find(pd->token->id) != operations.end())
             {
-                register_result = allocateReg();
+                // register_result = allocateReg();
+                register_result = scope_monitor->rg->allocate_register(1);
                 if (pd->token->id == type::MULTIPLY)
                 {
                     global_string += operations[pd->token->id] + " " + registers + ", " + registers2 + "\n";
@@ -656,12 +660,14 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
                         global_string += "mfhi " + register_result + "\n";
                     }
                 }
+                scope_monitor->rg->downgrade_register(registers);
+                scope_monitor->rg->downgrade_register(registers2);
 
                 return 0;
             }
         }
-        freeReg();
-        freeReg();
+        // freeReg();
+        // freeReg();
         return 0;
     }
     return 0;
@@ -717,9 +723,11 @@ void update_var_values(Tokens *type, Node *expression, string &global_string, st
     else if (type->id == type::INT)
     {
         int b = gen_integer_op(expression, scope_monitor, global_string, reg);
+        cout << "here" << endl;
         if (reg == "")
         {
-            reg = allocateReg();
+            // reg = allocateReg();
+            reg = scope_monitor->rg->allocate_register(0);
             global_string += "li" + reg + ", " + to_string(b) + " \n";
         }
     }
@@ -732,5 +740,4 @@ void update_var_values(Tokens *type, Node *expression, string &global_string, st
         reg = gen_char_op(expression, scope_monitor, global_string);
     }
     scope_monitor->rg->reset_registers();
-    reset_registers();
 }

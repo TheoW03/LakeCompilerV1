@@ -302,6 +302,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         global_string += "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
         wf(outfile, global_string);
         global_string = "";
+        
     }
 }
 
@@ -408,6 +409,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         monitor->scope = scope;
         monitor->f = f;
         RegisterAllocation *rg = new RegisterAllocation();
+        rg->reset_registers();
         monitor->rg = rg;
 
         for (int i = 0; i < state.size(); i++)

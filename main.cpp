@@ -67,29 +67,25 @@ void handle_cli(char *argv[], int argc)
 
     cout << "compiled successfully" << endl;
 }
-int fibonacci_recursive(int n)
+int factorial(int n)
 {
 
     if (n < 1)
     {
-
         return 1;
     }
-
-    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2);
+    return n * factorial(n - 1);
 }
 int main(int argc, char *argv[])
 {
 
     handle_cli(argv, argc);
     int i = 0;
-    while (i < 7)
+    while (i < 4)
     {
-
-        int n = fibonacci_recursive(i);
-        cout << n << endl;
-
-        i++;
+        int b = factorial(i);
+        cout << b << endl;
+        i = i + 1;
     }
 
     // vector<Tokens> a = lex(readFile("test.lk"));
