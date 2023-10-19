@@ -67,10 +67,26 @@ void handle_cli(char *argv[], int argc)
 
     cout << "compiled successfully" << endl;
 }
+int factorial(int n)
+{
+
+    if (n < 1)
+    {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
 int main(int argc, char *argv[])
 {
 
     handle_cli(argv, argc);
+    int i = 0;
+    while (i < 4)
+    {
+        int b = factorial(i);
+        cout << b << endl;
+        i = i + 1;
+    }
 
     // vector<Tokens> a = lex(readFile("test.lk"));
     // Node *c = testExpressionParse(a);
