@@ -8,7 +8,6 @@ coded by TheoW03, in C++
 
 
 ```C++
-
 //% -> mod
 //* -> multiply
 // / -> divison
