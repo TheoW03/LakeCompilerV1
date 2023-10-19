@@ -14,16 +14,16 @@ using namespace std;
 
 #pragma region builtin
 
-void builtInFunction::execute_code_integer(string &gen_string, string registers)
+void builtInFunction::execute_code_integer(string &gen_string, RegisterAllocation *register_context, string registers)
 {
 }
-void builtInFunction::execute_code_float(string &gen_string, string registers)
+void builtInFunction::execute_code_float(string &gen_string, RegisterAllocation *register_context, string registers)
 {
 }
-void builtInFunction::execute_code_char(string &gen_string, string registers)
+void builtInFunction::execute_code_char(string &gen_string, RegisterAllocation *register_context, string registers)
 {
 }
-void builtInFunction::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor* &scope_monitor)
+void builtInFunction::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor *&scope_monitor)
 {
 }
 #pragma endregion
@@ -34,7 +34,7 @@ Print::Print()
 {
 }
 
-void Print::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor* &scope_monitor)
+void Print::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor *&scope_monitor)
 {
     if (instanceof <StringNode *>(params[0]))
     {
@@ -51,10 +51,10 @@ void Print::setup_params(vector<Node *> params, string &gen_string, Scope_Monito
             int b = gen_integer_op(params[1], scope_monitor, gen_string, reg);
             if (reg == "")
             {
-                reg = allocateReg();
+                reg = scope_monitor->rg->allocate_register(0);
                 gen_string += "li " + reg + ", " + to_string(b) + " #0 \n";
             }
-            execute_code_integer(gen_string, reg);
+            execute_code_integer(gen_string, scope_monitor->rg, reg);
         }
         else if (a->stringBuffer == "%f")
         {
@@ -62,15 +62,15 @@ void Print::setup_params(vector<Node *> params, string &gen_string, Scope_Monito
             int b = gen_float_op(params[1], scope_monitor, gen_string, reg);
             if (reg == "")
             {
-                reg = allocateReg();
+                reg = scope_monitor->rg->allocate_register(0);
                 gen_string += "li " + reg + ", " + to_string(b) + " \n";
             }
-            execute_code_float(gen_string, reg);
+            execute_code_float(gen_string, scope_monitor->rg, reg);
         }
         else if (a->stringBuffer == "%c")
         {
             string reg = gen_char_op(params[1], scope_monitor, gen_string);
-            execute_code_char(gen_string, reg);
+            execute_code_char(gen_string, scope_monitor->rg, reg);
         }
         //     if (check_if_pureExpression(params[1]) == 0)
         //     {
@@ -172,21 +172,21 @@ void Print::setup_params(vector<Node *> params, string &gen_string, Scope_Monito
         // }
     }
 }
-void Print::execute_code_char(string &gen_string, string registers)
+void Print::execute_code_char(string &gen_string, RegisterAllocation *register_context, string registers)
 {
     gen_string += "move $a0," + registers + "\n li $v0, 11 \n syscall \n"; // new line
 }
-void Print::execute_code_integer(string &gen_string, string registers)
+void Print::execute_code_integer(string &gen_string, RegisterAllocation *register_context, string registers)
 {
     gen_string += "li  $v0, 1 \n move $a0, " + registers + "\n syscall \n";
     gen_string += "li $a0, 10 \n li $v0, 11 \n syscall \n"; // new line
 }
-void Print::execute_code_float(string &gen_string, string registers = "")
+void Print::execute_code_float(string &gen_string, RegisterAllocation *register_context, string registers = "")
 {
 
-    string wholeNumReg = allocateReg();
-    string fracReg = allocateReg();
-    string negatveReg = allocateReg();
+    string wholeNumReg = register_context->allocate_register(0);
+    string fracReg = register_context->allocate_register(0);
+    string negatveReg = register_context->allocate_register(0);
 
     // neagtive stuff
     gen_string += "slt " + negatveReg + ", " + registers + ", 0 \n";
@@ -226,18 +226,18 @@ void Exit::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor
 {
     if (params.size() == 0)
     {
-        execute_code_integer(gen_string, "");
+        execute_code_integer(gen_string, scope_monitor->rg, "");
     }
 }
-void Exit::execute_code_integer(string &gen_string, string registers)
+void Exit::execute_code_integer(string &gen_string, RegisterAllocation *register_context, string registers)
 {
     gen_string += "li $v0, 10 \n syscall";
 }
-void Exit::execute_code_float(string &gen_string, string registers)
+void Exit::execute_code_float(string &gen_string, RegisterAllocation *register_context, string registers)
 {
     gen_string += "li $v0, 10 \n syscall";
 }
-void Exit::execute_code_char(string &gen_string, string registers)
+void Exit::execute_code_char(string &gen_string, RegisterAllocation *register_context, string registers)
 {
     gen_string += "li $v0, 10 \n syscall";
 }

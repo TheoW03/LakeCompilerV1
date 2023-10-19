@@ -17,9 +17,9 @@ class builtInFunction
 {
 public:
     funcCallNode *function;
-    virtual void execute_code_integer(string &gen_string, string registers);
-    virtual void execute_code_float(string &gen_string, string registers);
-    virtual void execute_code_char(string &gen_string, string registers);
+    virtual void execute_code_integer(string &gen_string, RegisterAllocation *register_context, string registers);
+    virtual void execute_code_float(string &gen_string, RegisterAllocation *register_context, string registers);
+    virtual void execute_code_char(string &gen_string, RegisterAllocation *register_context, string registers);
     virtual void setup_params(vector<Node *> params, string &gen_string, Scope_Monitor *&scope_monitor);
 };
 
@@ -31,9 +31,9 @@ class Print : public builtInFunction
 {
 public:
     Print();
-    void execute_code_integer(string &gen_string, string registers);
-    void execute_code_float(string &gen_string, string registers);
-    void execute_code_char(string &gen_string, string registers);
+    void execute_code_integer(string &gen_string, RegisterAllocation *register_context, string registers);
+    void execute_code_float(string &gen_string, RegisterAllocation *register_context, string registers);
+    void execute_code_char(string &gen_string, RegisterAllocation *register_context, string registers);
 
     void setup_params(vector<Node *> params, string &gen_string, Scope_Monitor *&scope_monitor);
 };
@@ -45,9 +45,9 @@ class Exit : public builtInFunction
 {
 public:
     Exit();
-    void execute_code_integer(string &gen_string, string registers);
-    void execute_code_float(string &gen_string, string registers);
-    void execute_code_char(string &gen_string, string registers);
+    void execute_code_integer(string &gen_string, RegisterAllocation *register_context, string registers);
+    void execute_code_float(string &gen_string, RegisterAllocation *register_context, string registers);
+    void execute_code_char(string &gen_string, RegisterAllocation *register_context, string registers);
     void setup_params(vector<Node *> params, string &gen_string, Scope_Monitor *&scope_monitor);
 };
 #endif

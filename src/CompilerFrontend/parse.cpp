@@ -526,7 +526,7 @@ Node *parseVar(vector<Tokens> &tokens, Tokens *type, int constant = 0)
  */
 BoolExpressionNode *handleBooleanExpression(vector<Tokens> &tokens)
 {
-    Node *right = factor(tokens);
+    Node *right = expression(tokens);
 
     Tokens *op = (matchAndRemove(tokens, type::BOOL_EQ, "parsefunctions") != nullptr) ? current
                  : (matchAndRemove(tokens, type::LTE, "parsefunctions") != nullptr)   ? current
@@ -534,7 +534,7 @@ BoolExpressionNode *handleBooleanExpression(vector<Tokens> &tokens)
                  : (matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)    ? current
                  : (matchAndRemove(tokens, type::LT, "parseFunctions") != nullptr)    ? current
                                                                                       : nullptr;
-    Node *left = factor(tokens);
+    Node *left = expression(tokens);
     BoolExpressionNode *a = new BoolExpressionNode;
     a->right = right;
     a->left = left;

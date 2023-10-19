@@ -64,11 +64,46 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
         return "";
         // c++ moment. casually coding and bam "cout is ambigous " T~T
     }
+    if (instanceof <funcCallNode *>(op))
+    {
+        funcCallNode *pd = dynamic_cast<funcCallNode *>(op);
+        if (scope_monitor->f.find(pd->funcCall->buffer) == scope_monitor->f.end())
+        {
+            cerr << pd->funcCall->buffer + " is not a function" << endl;
+            exit(EXIT_FAILURE);
+            return 0;
+        }
+        FunctionNode *function = scope_monitor->f[pd->funcCall->buffer];
+
+        vector<VaraibleDeclaration *> called_params = function->params;
+        handle_function_calls(called_params, pd->params, scope_monitor, global_string);
+        scope_monitor->rg->send_save(global_string);
+        global_string += "sw $ra,4($sp) \n";
+
+        global_string += "jal " + pd->funcCall->buffer + "\n";
+
+        global_string += "lw $ra,4($sp) \n";
+        scope_monitor->rg->return_save(global_string);
+        string register_result = scope_monitor->rg->allocate_register(1);
+        if (function->returnType->id == type::INT || function->returnType->id == type::CHAR)
+        {
+            string reg = scope_monitor->rg->allocate_register(0);
+            global_string += "li " + reg + "," + to_string(OFFSET) + "\n";
+            global_string += "mult " + reg + "," + "$v0" + " \n";
+            global_string += "mflo " + register_result + " \n"; // scaling
+        }
+        else
+        {
+            global_string += "move " + register_result + ", $v0 \n";
+        }
+        return register_result;
+    }
     if (instanceof <IntegerNode *>(op))
     {
         IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
         cout << "works in num \n";
-        string reg = allocateReg();
+        string reg = scope_monitor->rg->allocate_register(1);
+        // string reg = allocateReg();
         int num = stoi(pd->num) * OFFSET;
         global_string += "li " + reg + "," + to_string(num) + "\n";
         return reg;
@@ -77,7 +112,7 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
     {
         CharNode *pd = dynamic_cast<CharNode *>(op);
         cout << "works in num \n";
-        string reg = allocateReg();
+        string reg = scope_monitor->rg->allocate_register(1);
         int num = (int)stoi(pd->character) * OFFSET;
         global_string += "li " + reg + "," + to_string(num) + "\n";
         return reg;
@@ -85,14 +120,14 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
     if (instanceof <FloatNode *>(op))
     {
         FloatNode *pd = dynamic_cast<FloatNode *>(op);
-        string reg = allocateReg();
+        string reg = scope_monitor->rg->allocate_register(1);
         global_string += "li " + reg + "," + pd->num + "\n";
         return reg;
     }
     if (instanceof <BooleanLiteralNode *>(op))
     {
         BooleanLiteralNode *pd = dynamic_cast<BooleanLiteralNode *>(op);
-        string reg = allocateReg();
+        string reg = scope_monitor->rg->allocate_register(1);
         if (pd->value->id == type::TRUE)
         {
             global_string += "li " + reg + ", 1 \n";
@@ -122,28 +157,25 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
         if (var->varType->id == type::INT)
         {
 
-            string reg = allocateReg();
-            string reg2 = allocateReg();
-            string resultReg = allocateReg();
-
+            string reg = scope_monitor->rg->allocate_register(0);
+            string reg2 = scope_monitor->rg->allocate_register(0);
+            string resultReg = scope_monitor->rg->allocate_register(1);
             global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
 
             global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
             global_string += "mult " + reg + "," + reg2 + " \n";
-            global_string += "mflo " + resultReg + " \n"; // scaling
-            freeReg();
-            freeReg();
+            global_string += "mflo " + resultReg + " \n"; // scalings
 
             return resultReg;
         }
         else
         {
-            string reg = allocateReg();
+            string reg = scope_monitor->rg->allocate_register(1);
             global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
             return reg;
         }
-        string reg = allocateReg();
+        string reg = scope_monitor->rg->allocate_register(1);
         global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
         return reg;
     }
@@ -158,108 +190,196 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
             }
             return "";
         }
-        if (pd->op->id == type::BOOL_EQ)
-        {
-            string resultReg = allocateReg();
-            if (isLoop == 1)
-            {
-                global_string += "beq " + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + " , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-            else
-            {
-                global_string += "bne " + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + " , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
 
-            return "";
-        }
-        if (pd->op->id == type::GT)
+        string register1 = "";
+        string register2 = "";
+        if (pd->op->id != type::BOOL_EQ)
         {
             if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
             {
                 return "";
             }
-            string resultReg = allocateReg();
-            if (isLoop == 1)
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + "\n";
-                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-            else
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + "\n";
-                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-
-            return "";
         }
-        if (pd->op->id == type::LT)
+        if (isLoop == 1)
         {
-            if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
-            {
-                return "";
-            }
-            string resultReg = allocateReg();
-            if (isLoop == 1)
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + "\n";
-                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-            else
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + "\n";
-                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-
-            return "";
+            register1 = handle_boolean(pd->right, scope_monitor, global_string, isLoop);
+            register2 = handle_boolean(pd->left, scope_monitor, global_string, isLoop);
         }
-        if (pd->op->id == type::LTE)
+        else
         {
-            if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
-            {
-                return "";
-            }
-
-            string resultReg = allocateReg();
-            if (isLoop == 1)
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + "\n";
-                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-            else
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->left, scope_monitor, global_string) + " ," + handle_boolean(pd->right, scope_monitor, global_string) + "\n";
-                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                global_string += "nop \n";
-            }
-
-            return "";
+            register1 = handle_boolean(pd->right, scope_monitor, global_string);
+            register2 = handle_boolean(pd->left, scope_monitor, global_string);
         }
-        if (pd->op->id == type::GTE)
+
+        string resultReg = scope_monitor->rg->allocate_register(0);
+        if (isLoop == 1)
         {
-
-            string resultReg = allocateReg();
-            if (isLoop == 1)
+            switch (pd->op->id)
             {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + "\n";
+            case type::BOOL_EQ:
+                global_string += "beq " + register1 + " ," + register2 + " , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+                break;
+            case type::GT:
+                global_string += "slt " + resultReg + "," + register1 + " ," + register2 + "\n";
                 global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
-            }
-            else
-            {
-                global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + "\n";
+                break;
+            case type::LT:
+                global_string += "slt " + resultReg + "," + register1 + " ," + register2 + "\n";
                 global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
+                break;
+            case type::LTE:
+                global_string += "slt " + resultReg + "," + register2 + " ," + register1 + "\n";
+                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                break;
+            case type::GTE:
+                global_string += "slt " + resultReg + "," + register1 + " ," + register2 + "\n";
+                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+                break;
+            default:
+                break;
             }
-
-            return "";
         }
+        else
+        {
+            switch (pd->op->id)
+            {
+            case type::BOOL_EQ:
+                global_string += "bne " + register1 + " ," + register2 + " , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+                break;
+            case type::GT:
+                global_string += "slt " + resultReg + "," + register1 + " ," + register2 + "\n";
+                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+                break;
+            case type::LT:
+                global_string += "slt " + resultReg + "," + register1 + " ," + register2 + "\n";
+                global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+                break;
+            case type::LTE:
+                global_string += "slt " + resultReg + "," + register2 + " ," + register1 + "\n";
+                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+                break;
+            case type::GTE:
+                global_string += "slt " + resultReg + "," + register1 + " ," + register2 + "\n";
+                global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+                break;
+            default:
+                break;
+            }
+        }
+        return "";
+
+        // if (pd->op->id == type::BOOL_EQ)
+        // {
+        //     // string resultReg = scope_monitor->rg->allocate_register(1);
+
+        //     if (isLoop == 1)
+        //     {
+        //         global_string += "beq " + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + " , L" + to_string(nOfBranch) + "\n";
+        //         global_string += "nop \n";
+        //     }
+        //     else
+        //     {
+        //         global_string += "bne " + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + " , L" + to_string(nOfBranch) + "\n";
+        //         global_string += "nop \n";
+        //     }
+
+        //     return "";
+        // }
+        // if (pd->op->id == type::GT)
+        // {
+        //     if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
+        //     {
+        //         return "";
+        //     }
+        //     // string resultReg = allocateReg();
+        //     if (isLoop == 1)
+        //     {
+        //         global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + "\n";
+        //         global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+        //         global_string += "nop \n";
+        //     }
+        //     else
+        //     {
+        //         global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + "\n";
+        //         global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+        //         global_string += "nop \n";
+        //     }
+
+        //     return "";
+        // }
+        // if (pd->op->id == type::LT)
+        // {
+        //     if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
+        //     {
+        //         return "";
+        //     }
+        //     string resultReg = allocateReg();
+        //     if (isLoop == 1)
+        //     {
+        //         global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + "\n";
+        //         global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+        //         global_string += "nop \n";
+        //     }
+        //     else
+        //     {
+        //         global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + "\n";
+        //         global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+        //         global_string += "nop \n";
+        //     }
+
+        //     return "";
+        // }
+        // if (pd->op->id == type::LTE)
+        // {
+        //     if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
+        //     {
+        //         return "";
+        //     }
+
+        //     // string resultReg = allocateReg();
+        //     if (isLoop == 1)
+        //     {
+        //         global_string += "slt " + resultReg + "," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + "\n";
+        //         global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+        //         global_string += "nop \n";
+        //     }
+        //     else
+        //     {
+        //         global_string += "slt " + resultReg + "," + handle_boolean(pd->left, scope_monitor, global_string) + " ," + handle_boolean(pd->right, scope_monitor, global_string) + "\n";
+        //         global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+        //         global_string += "nop \n";
+        //     }
+
+        //     return "";
+        // }
+        // if (pd->op->id == type::GTE)
+        // {
+
+        //     // string resultReg = allocateReg();
+        //     if (isLoop == 1)
+        //     {
+        //         global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string, isLoop) + " ," + handle_boolean(pd->left, scope_monitor, global_string, isLoop) + "\n";
+        //         global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+        //         global_string += "nop \n";
+        //     }
+        //     else
+        //     {
+        //         global_string += "slt " + resultReg + "," + handle_boolean(pd->right, scope_monitor, global_string) + " ," + handle_boolean(pd->left, scope_monitor, global_string) + "\n";
+        //         global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+        //         global_string += "nop \n";
+        //     }
+
+        //     return "";
+        // }
     }
 }
 
@@ -269,6 +389,53 @@ float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
     if (op == nullptr)
     {
         return 0.0f;
+    }
+    if (instanceof <funcCallNode *>(op))
+    {
+        funcCallNode *pd = dynamic_cast<funcCallNode *>(op);
+        register_result = "$v0";
+
+        if (scope_monitor->f.find(pd->funcCall->buffer) == scope_monitor->f.end())
+        {
+            cerr << pd->funcCall->buffer + " is not a function" << endl;
+            exit(EXIT_FAILURE);
+            return 0;
+        }
+    }
+    if (instanceof <funcCallNode *>(op))
+    {
+        funcCallNode *pd = dynamic_cast<funcCallNode *>(op);
+        register_result = "$v0";
+        if (scope_monitor->f.find(pd->funcCall->buffer) == scope_monitor->f.end())
+        {
+            cerr << pd->funcCall->buffer + " is not a function" << endl;
+            exit(EXIT_FAILURE);
+            return 0;
+        }
+        FunctionNode *function = scope_monitor->f[pd->funcCall->buffer];
+
+        vector<VaraibleDeclaration *> called_params = function->params;
+        handle_function_calls(called_params, pd->params, scope_monitor, global_string);
+        scope_monitor->rg->send_save(global_string);
+        global_string += "sw $ra,4($sp) \n";
+
+        global_string += "jal " + pd->funcCall->buffer + "\n";
+
+        global_string += "lw $ra,4($sp) \n";
+        scope_monitor->rg->return_save(global_string);
+        register_result = scope_monitor->rg->allocate_register(1);
+        if (function->returnType->id == type::INT || function->returnType->id == type::CHAR)
+        {
+            string reg = scope_monitor->rg->allocate_register(0);
+            global_string += "li " + reg + "," + to_string(OFFSET) + "\n";
+            global_string += "mult " + reg + "," + "$v0" + " \n";
+            global_string += "mflo " + register_result + " \n"; // scaling
+        }
+        else
+        {
+            global_string += "move " + register_result + ", $v0 \n";
+        }
+        return 0;
     }
     if (instanceof <BooleanLiteralNode *>(op))
     {
@@ -291,7 +458,6 @@ float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
     if (instanceof <CharNode *>(op))
     {
         CharNode *pd = dynamic_cast<CharNode *>(op);
-        string reg = allocateReg();
         int ch = stoi(pd->character);
         int num = (int)ch * OFFSET;
         register_result = "";
@@ -309,21 +475,19 @@ float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         }
         if (var->varType->id == type::INT)
         {
-            register_result = allocateReg();
-            string reg = allocateReg();
-            string reg2 = allocateReg();
+            register_result = scope_monitor->rg->allocate_register(1);
+            string reg = scope_monitor->rg->allocate_register(0);
+            string reg2 = scope_monitor->rg->allocate_register(0);
             global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
 
             global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
             global_string += "mult " + reg + "," + reg2 + " \n";
             global_string += "mflo " + register_result + " \n"; // scaling
-            freeReg();
-            freeReg();
         }
         else
         {
-            register_result = allocateReg();
+            register_result = scope_monitor->rg->allocate_register(1);
             global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($sp) \n";
         }
 
@@ -339,9 +503,18 @@ float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         operations[type::MOD] = "div ";
         operations[type::MULTIPLY] = "mult ";
         string registers = "";
-        int a = gen_float_op(op->left, scope_monitor, global_string, registers);
         string registers2 = "";
-        int b = gen_float_op(op->right, scope_monitor, global_string, registers2);
+        int a, b;
+        if (instanceof <funcCallNode *>(op->right) && (instanceof <VaraibleReference *>(op->left)))
+        {
+            b = gen_float_op(op->right, scope_monitor, global_string, registers2);
+            a = gen_float_op(op->left, scope_monitor, global_string, registers);
+        }
+        else
+        {
+            a = gen_float_op(op->left, scope_monitor, global_string, registers);
+            b = gen_float_op(op->right, scope_monitor, global_string, registers2);
+        }
         if (registers2 == "" && registers == "")
         {
             if (pd->token->id == type::ADDITION)
@@ -378,19 +551,19 @@ float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         {
             if (registers == "")
             {
-                registers = allocateReg();
+                registers = scope_monitor->rg->allocate_register(1);
                 global_string += "li " + registers + ", " + to_string(a) + "\n";
                 register_result = registers;
             }
             else if (registers2 == "")
             {
-                registers2 = allocateReg();
+                registers2 = scope_monitor->rg->allocate_register(1);
                 global_string += "li " + registers2 + ", " + to_string(b) + "\n";
                 register_result = registers2;
             }
             if (operations.find(pd->token->id) != operations.end())
             {
-                register_result = allocateReg();
+                register_result = scope_monitor->rg->allocate_register(1);
                 if (pd->token->id == type::MULTIPLY)
                 {
                     global_string += operations[pd->token->id] + " " + registers + ", " + registers2 + "\n";
@@ -404,6 +577,8 @@ float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
                         global_string += "mfhi " + register_result + "\n";
                     }
                 }
+                scope_monitor->rg->downgrade_register(registers);
+                scope_monitor->rg->downgrade_register(registers2);
                 return 0;
             }
         }
@@ -417,6 +592,35 @@ string gen_char_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         cout << "null \n";
         return "";
     }
+    if (instanceof <funcCallNode *>(op))
+    {
+        funcCallNode *pd = dynamic_cast<funcCallNode *>(op);
+
+        if (scope_monitor->f.find(pd->funcCall->buffer) == scope_monitor->f.end())
+        {
+            cerr << pd->funcCall->buffer + " is not a function" << endl;
+            exit(EXIT_FAILURE);
+            return 0;
+        }
+        FunctionNode *f1 = scope_monitor->f[pd->funcCall->buffer];
+
+        vector<VaraibleDeclaration *> param = f1->params;
+        handle_function_calls(param, pd->params, scope_monitor, global_string);
+        global_string += "sw $ra,4($sp) \n";
+
+        global_string += "jal " + pd->funcCall->buffer + "\n";
+
+        global_string += "lw $ra,4($sp) \n";
+        if (f1->returnType->id == type::FLOAT)
+        {
+            cout << "error: integer isnt accepted here" << endl;
+            exit(0);
+        }
+        string register_result = scope_monitor->rg->allocate_register(1);
+        global_string += "move " + register_result + ", $v0 \n";
+
+        return register_result;
+    }
     if (instanceof <BooleanLiteralNode *>(op))
     {
         cout << "boolean literal not accepted in integer, use 1 or 0" << endl;
@@ -425,14 +629,14 @@ string gen_char_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
     if (instanceof <CharNode *>(op))
     {
         CharNode *pd = dynamic_cast<CharNode *>(op);
-        string reg = allocateReg();
+        string reg = scope_monitor->rg->allocate_register(0);
         global_string += "li " + reg + "," + pd->character + "\n";
         return reg;
     }
     if (instanceof <IntegerNode *>(op))
     {
         IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
-        string reg = allocateReg();
+        string reg = scope_monitor->rg->allocate_register(0);
         if (stoi(pd->num) > 255)
         {
             cerr << "char only accepts an 8 bit number" << endl;
@@ -452,7 +656,6 @@ string gen_char_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
 
-        cout << "works in var \n";
         string reg = scope_monitor->rg->allocate_register(0);
         Varaible *var = get_varaible(pd, scope_monitor->scope);
 
@@ -499,10 +702,9 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
             exit(EXIT_FAILURE);
             return 0;
         }
+        FunctionNode *f1 = scope_monitor->f[pd->funcCall->buffer];
 
-        vector<VaraibleDeclaration *> param = scope_monitor->f[pd->funcCall->buffer]->params;
-        cout << pd->funcCall->buffer << endl;
-
+        vector<VaraibleDeclaration *> param = f1->params;
         handle_function_calls(param, pd->params, scope_monitor, global_string);
 
         // int a = save_registers(global_string);
@@ -516,6 +718,10 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         // bring_saveBack(global_string, a);
         register_result = scope_monitor->rg->allocate_register(1);
         global_string += "move " + register_result + ", $v0 \n";
+        if (f1->returnType->id == type::FLOAT)
+        {
+            global_string += "div " + register_result + "," + register_result + ", " + to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
+        }
         return 0;
     }
     if (instanceof <IntegerNode *>(op))

@@ -1,0 +1,15 @@
+fn main(string args) returns int {
+  int i = 0;
+  while(i < 4){
+    int f = factorial(i);
+    print("%d",f);
+    i = i + 1;
+  }  
+  return 1;
+}
+fn factorial(int n) returns int {
+    if(n < 1){
+        return 1;
+    }
+    return n * factorial(n - 1);
+}

@@ -1,0 +1,15 @@
+fn main(string args) returns int {
+  int i = 0;
+  while(i < 5){
+    int f = fib(i);
+    print("%d",f);
+    i = i + 1;
+  }  
+  return 1;
+}
+fn fib(int n) returns int{
+    if (n < 1) {
+        return 1;
+    }
+    return fib(n - 1) + fib(n - 2);
+}
