@@ -271,10 +271,10 @@ vector<Tokens> lex(vector<string> lines)
                 if (stateIsNum == 1)
                 {
 
-                    cout << "string: " + str + "\n"
-                         << endl;
-                    cout << "buffer: " + buffer + "\n";
-                    cout << "state: " + to_string(state) << endl;
+                    // cout << "string: " + str + "\n"
+                    //      << endl;
+                    // cout << "buffer: " + buffer + "\n";
+                    // cout << "state: " + to_string(state) << endl;
                     if (wordBuffer != "")
                     {
 
@@ -411,7 +411,7 @@ vector<Tokens> lex(vector<string> lines)
                         }
                         else if (str == "-")
                         {
-                            cout << "here" << endl;
+                            // cout << "here" << endl;
                             buffer += str;
                             state = 1;
                         }
@@ -456,8 +456,8 @@ vector<Tokens> lex(vector<string> lines)
                 }
                 else if (stateIsNum == 0)
                 {
-                    cout << "string: " + str << endl;
-                    cout << "wordBuffer: " + wordBuffer + "\n";
+                    // cout << "string: " + str << endl;
+                    // cout << "wordBuffer: " + wordBuffer + "\n";
 #pragma region word
 
                     if (buffer != "")
@@ -480,7 +480,6 @@ vector<Tokens> lex(vector<string> lines)
                     }
                     if (wordstate == 1)
                     {
-                        cout << "state == 1" << endl;
                         if (str == "=" || str == ">" || str == "<")
                         {
                             wordstate = 2;
@@ -561,11 +560,11 @@ vector<Tokens> lex(vector<string> lines)
                         }
                         else
                         {
-                            cout << "word: " << wordBuffer << endl;
+                            // cout << "word: " << wordBuffer << endl;
 
                             if (wordBuffer != "")
                             {
-                                cout << "word: " << wordBuffer << endl;
+                                // cout << "word: " << wordBuffer << endl;
 
                                 modifyStruct(token, type::EQUALS, dictionary, wordBuffer);
                                 wordBuffer = "";
@@ -573,7 +572,7 @@ vector<Tokens> lex(vector<string> lines)
                             }
 
                             wordBuffer += str;
-                            cout << "buffer: " << wordBuffer << endl;
+                            // cout << "buffer: " << wordBuffer << endl;
                             // modifyStruct(token, (typeOfOP.find(wordBuffer) != typeOfOP.end()) ? typeOfOP[wordBuffer] : type::WORD, dictionary, wordBuffer);
                             // wordBuffer = "";
                             // a.push_back(token);

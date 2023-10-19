@@ -371,17 +371,17 @@ Node *expression(vector<Tokens> &tokens)
             n->right = new Node;
             n->right = right;
             n->token = op;
-            cout << op->buffer << endl;
+            // cout << op->buffer << endl;
 
             opNode = n;
             node = opNode;
             // delete op;
         }
     }
-    if (opNode == nullptr)
-    {
-        cout << "opNode nulll \n";
-    }
+    // if (opNode == nullptr)
+    // {
+    //     cout << "opNode nulll \n";
+    // }
     return opNode;
     // do stuff
 }
@@ -756,7 +756,6 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
 {
 
     vector<FunctionNode *> functionNodes;
-    printList(tokens);
     while (matchAndRemove(tokens, type::FUNCTION, "functioon parse") != nullptr)
     {
 

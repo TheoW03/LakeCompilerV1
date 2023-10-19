@@ -101,7 +101,7 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
     if (instanceof <IntegerNode *>(op))
     {
         IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
-        cout << "works in num \n";
+        // cout << "works in num \n";
         string reg = scope_monitor->rg->allocate_register(1);
         // string reg = allocateReg();
         int num = stoi(pd->num) * OFFSET;
@@ -381,6 +381,7 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
         //     return "";
         // }
     }
+    return "";
 }
 
 float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_string, string &register_result)
@@ -583,6 +584,7 @@ float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
             }
         }
     }
+    return 0;
 }
 
 string gen_char_op(Node *op, Scope_Monitor *&scope_monitor, string &global_string)
@@ -930,7 +932,7 @@ void update_var_values(Tokens *type, Node *expression, string &global_string, st
     else if (type->id == type::INT)
     {
         int b = gen_integer_op(expression, scope_monitor, global_string, reg);
-        cout << "here" << endl;
+        // cout << "here" << endl;
         if (reg == "")
         {
             // reg = allocateReg();
