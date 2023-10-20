@@ -111,7 +111,7 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
     if (instanceof <CharNode *>(op))
     {
         CharNode *pd = dynamic_cast<CharNode *>(op);
-        cout << "works in num \n";
+        // cout << "works in num \n";
         string reg = scope_monitor->rg->allocate_register(1);
         int num = (int)stoi(pd->character) * OFFSET;
         global_string += "li " + reg + "," + to_string(num) + "\n";
@@ -160,7 +160,7 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
             string reg = scope_monitor->rg->allocate_register(0);
             string reg2 = scope_monitor->rg->allocate_register(0);
             string resultReg = scope_monitor->rg->allocate_register(1);
-            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
 
             global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
@@ -172,11 +172,11 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
         else
         {
             string reg = scope_monitor->rg->allocate_register(1);
-            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
             return reg;
         }
         string reg = scope_monitor->rg->allocate_register(1);
-        global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+        global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
         return reg;
     }
     if (instanceof <BoolExpressionNode *>(op))
@@ -423,6 +423,7 @@ float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         global_string += "jal " + pd->funcCall->buffer + "\n";
 
         global_string += "lw $ra,4($sp) \n";
+        global_string += "move $fp, $sp \n";
         scope_monitor->rg->return_save(global_string);
         register_result = scope_monitor->rg->allocate_register(1);
         if (function->returnType->id == type::INT || function->returnType->id == type::CHAR)
@@ -479,7 +480,7 @@ float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
             register_result = scope_monitor->rg->allocate_register(1);
             string reg = scope_monitor->rg->allocate_register(0);
             string reg2 = scope_monitor->rg->allocate_register(0);
-            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
 
             global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
@@ -489,7 +490,7 @@ float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         else
         {
             register_result = scope_monitor->rg->allocate_register(1);
-            global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($sp) \n";
+            global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($fp) \n";
         }
 
         return 0;
@@ -591,7 +592,7 @@ string gen_char_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
 {
     if (op == nullptr)
     {
-        cout << "null \n";
+        // cout << "null \n";
         return "";
     }
     if (instanceof <funcCallNode *>(op))
@@ -613,6 +614,8 @@ string gen_char_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         global_string += "jal " + pd->funcCall->buffer + "\n";
 
         global_string += "lw $ra,4($sp) \n";
+        global_string += "move $fp, $sp \n";
+
         if (f1->returnType->id == type::FLOAT)
         {
             cout << "error: integer isnt accepted here" << endl;
@@ -673,7 +676,7 @@ string gen_char_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
             exit(0);
             return "";
         }
-        global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+        global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
 
         return reg;
     }
@@ -716,6 +719,8 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         global_string += "jal " + pd->funcCall->buffer + "\n";
 
         global_string += "lw $ra,4($sp) \n";
+        global_string += "move $fp, $sp \n";
+
         scope_monitor->rg->return_save(global_string);
         // bring_saveBack(global_string, a);
         register_result = scope_monitor->rg->allocate_register(1);
@@ -761,14 +766,14 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
             // string reg = allocateReg();
             string reg = scope_monitor->rg->allocate_register(0);
             register_result = scope_monitor->rg->allocate_register(1);
-            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($sp) \n";
+            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
             global_string += "div " + register_result + "," + reg + ", " + to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
             freeReg();
         }
         else
         {
             register_result = scope_monitor->rg->allocate_register(1);
-            global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($sp) #float \n";
+            global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($fp) #float \n";
         }
 
         return 0;

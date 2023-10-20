@@ -27,7 +27,7 @@ void RegisterAllocation::return_save(string &global)
     {
         if (allocated_registers[i] == 1)
         {
-            global += "lw $t" + to_string(i) + "," + to_string(s) + "($sp) \n";
+            global += "lw $t" + to_string(i) + "," + to_string(s) + "($fp) \n";
         }
         s += 4;
     }
@@ -39,7 +39,7 @@ void RegisterAllocation::send_save(string &global)
     {
         if (allocated_registers[i] == 1)
         {
-            global += "sw $t" + to_string(i) + "," + to_string(s) + "($sp) \n";
+            global += "sw $t" + to_string(i) + "," + to_string(s) + "($fp) \n";
         }
         s += 4;
     }

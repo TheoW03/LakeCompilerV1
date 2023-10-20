@@ -94,7 +94,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         global_string = "";
         string reg = "";
         update_var_values(type1->varType, pd->expression, global_string, reg, scope_monitor);
-        global_string += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+        global_string += "sw " + reg + "," + to_string(type1->stackNum) + "($fp) \n";
         wf(outfile, global_string);
         global_string = "";
     }
@@ -120,7 +120,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         global_string = "";
         string reg = "";
         update_var_values(type1->varType, pd->expression, global_string, reg, scope_monitor);
-        global_string += "sw " + reg + "," + to_string(type1->stackNum) + "($sp) \n";
+        global_string += "sw " + reg + "," + to_string(type1->stackNum) + "($fp) \n";
         wf(outfile, global_string);
         global_string = "";
     }
@@ -154,6 +154,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
             global_string += "sw $ra,4($sp) \n";
             global_string += "jal " + pd->funcCall->buffer + "\n";
             global_string += "lw $ra,4($sp) \n";
+            global_string += "move $fp, $sp \n";
             wf(outfile, global_string);
             global_string = "";
         }
@@ -373,12 +374,13 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         string setupstack = "";
         if (max_size != 0)
         {
-            setupstack = "addi $sp, $sp,-" + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
+            setupstack = "addi $sp, $sp,-" + to_string(max_size) + " \n  # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
         }
         else
         {
             setupstack = "addi $sp, $sp, " + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
         }
+        setupstack += "move $fp, $sp\n";
         wf(outfile, setupstack);
         if (pd->nameOfFunction->buffer != "main")
         {
@@ -392,7 +394,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
             string add;
             for (size_t i = 0; i < params.size(); i++)
             {
-                add += "sw " + allocate_argumentRegister() + "," + to_string(var[i]->stackNum) + "($sp) \n";
+                add += "sw " + allocate_argumentRegister() + "," + to_string(var[i]->stackNum) + "($fp) \n";
             }
             reset_arg_register();
             wf(outfile, add);

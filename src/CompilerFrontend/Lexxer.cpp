@@ -527,7 +527,7 @@ vector<Tokens> lex(vector<string> lines)
                             if (wordBuffer == "<")
                             {
                                 wordBuffer += str;
-                                cout << wordBuffer << endl;
+                                // cout << wordBuffer << endl;
                                 modifyStruct(token, type::LTE, dictionary, wordBuffer);
                                 a.push_back(token);
                                 wordBuffer = "";
