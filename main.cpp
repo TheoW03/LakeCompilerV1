@@ -70,6 +70,41 @@ int main(int argc, char *argv[])
 {
 
     handle_cli(argv, argc);
+    // int array[10]; // Simulate an array or data structure
+    // Load a value from the array
+
+    // int value = 33;
+    // Decrement the value by 1
+    // value--;
+
+    // Store the decremented value back into the array
+    // array[2] = value;
+
+    // Perform bitwise operations
+    // int value1 = value >> 27;
+    // int value2 = 0 << 5;
+    // int result1 = value1 | value2;
+
+    // int value3 = value;
+    // int value4 = value >> 27;
+    // int value5 = 0 << 5;
+    // int result2 = (value3 & ~((1 << 27) - 1)) | (value4 << 5) | value5;
+
+    // // Stack manipulation
+    // int stack[100];
+    // int stack_pointer = 0;
+
+    // // Push data onto the stack
+    // stack[stack_pointer++] = result1;
+
+    // // Pop data from the stack
+    // int popped_value = stack[--stack_pointer];
+
+    // // Output the results
+    // std::cout << "Result1: " << result1 << std::endl;
+    // std::cout << "Result2: " << result2 << std::endl;
+
+    // return 0;
     // vector<Tokens> a = lex(readFile("test.lk"));
     // Node *c = testExpressionParse(a);
     // rewrite_vars(c);

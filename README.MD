@@ -1,6 +1,6 @@
 # Lake
 
-a MIPS 32 target Transpiler. from a pythonic, JS, C like syntax
+Compiler, with a MIPS32 target
 
 coded by TheoW03, in C++ 
 
@@ -12,7 +12,6 @@ coded by TheoW03, in C++
 //* -> multiply
 // / -> divison
 // +,- -> addition and subtraction
-
 fn main(string args) returns int { //this is how you call the main method (this is how you do comments), returns for return
     const float pi = 3.1415; // floats
     int random_var = 100; //integer

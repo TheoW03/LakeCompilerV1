@@ -5,13 +5,13 @@ Lexxer.o: src/CompilerFrontend/Lexxer.cpp src/CompilerFrontend/parser.h src/Comp
 		g++ -c -g src/CompilerFrontend/Lexxer.cpp
 
 parse.o: src/CompilerFrontend/parse.cpp src/CompilerFrontend/parser.h src/CompilerFrontend/Lexxer.h
-		g++ -c -g src/CompilerFrontend/parse.cpp
+		g++ -c -g  src/CompilerFrontend/parse.cpp
 
 UtilFunctions.o: src/MipsTarget/UtilFunctions.cpp src/MipsTarget/UtilFunctions.h src/CompilerFrontend/Lexxer.h  src/CompilerFrontend/parser.h
-		g++ -c -g src/MipsTarget/UtilFunctions.cpp
+		g++ -c -g  src/MipsTarget/UtilFunctions.cpp
 
 MipsTarget.o: src/MipsTarget/MipsTarget.cpp src/MipsTarget/Register.h src/MipsTarget/MipsTarget.h src/MipsTarget/UtilFunctions.h src/CompilerFrontend/parser.h src/MipsTarget/builtInFunction.h src/CompilerFrontend/Lexxer.h  
-		g++ -c -g src/MipsTarget/MipsTarget.cpp
+		g++ -c -g  src/MipsTarget/MipsTarget.cpp
 
 main.o: main.cpp src/CompilerFrontend/parser.h src/CompilerFrontend/Lexxer.h src/MipsTarget/MipsTarget.h src/ARMTarget/ARMTarget.h
 		

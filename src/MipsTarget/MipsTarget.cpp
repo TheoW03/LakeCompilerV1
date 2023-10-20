@@ -45,11 +45,10 @@ void gen_function(vector<Node *> state, int &stackNum)
 {
     if (state.size() == 0)
     {
-        cout << "0" << endl;
         return;
     }
 
-    for (int i = 0; i < state.size(); i++)
+    for (size_t i = 0; i < state.size(); i++)
     {
         if (instanceof <IfSatementNode *>(state[i]))
         {
@@ -65,16 +64,11 @@ void gen_function(vector<Node *> state, int &stackNum)
         {
 
             ForLoopNode *pd = dynamic_cast<ForLoopNode *>(state[i]);
-            cout << "for" << endl;
             stackNum += 4;
-            cout << stackNum << endl;
-
             gen_function(pd->statements, stackNum);
-            cout << stackNum << endl;
         }
         else if (instanceof <VaraibleDeclaration *>(state[i]))
         {
-            VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(state[i]);
             stackNum += 4;
         }
     }
@@ -119,7 +113,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         }
         if (type1->constant == 1)
         {
-            cout << "err: is constant" << endl;
+            cout << pd->varaible->buffer << " is constant" << endl;
             exit(1);
             return;
         }
@@ -180,7 +174,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         int ifBranch = getnOfBranch();
         increase_numofbranch();
         allocate_Scope(scope_monitor->scope);
-        for (int i = 0; i < pd->statements.size(); i++)
+        for (size_t i = 0; i < pd->statements.size(); i++)
         {
 
             statementsGen(pd->statements[i], function, scope_monitor, outfile); // write a new function for this T~T
@@ -191,7 +185,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         deallocate_Scope(scope_monitor->scope);
         if (pd->Else != nullptr)
         {
-            cout << scope_monitor->scope.size() << endl;
+            // cout << scope_monitor->scope.size() << endl;
             allocate_Scope(scope_monitor->scope);
             global_string = "j L" + to_string(elseBranch) + "#a \n";
             wf(outfile, global_string);
@@ -204,7 +198,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         {
 
             vector<Node *> statementsElse = pd->Else->statements;
-            for (int i = 0; i < statementsElse.size(); i++)
+            for (size_t i = 0; i < statementsElse.size(); i++)
             {
                 statementsGen(statementsElse[i], function, scope_monitor, outfile);
             }
@@ -240,7 +234,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         increase_numofbranch();
         global_string = "";
         allocate_Scope(scope_monitor->scope);
-        for (int i = 0; i < pd->statements.size(); i++)
+        for (size_t i = 0; i < pd->statements.size(); i++)
         {
 
             statementsGen(pd->statements[i], function, scope_monitor, outfile); // write a new function for this T~T
@@ -272,7 +266,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         string condition = global_string;
         increase_numofbranch();
         global_string = "";
-        for (int i = 0; i < pd->statements.size(); i++)
+        for (size_t i = 0; i < pd->statements.size(); i++)
         {
 
             statementsGen(pd->statements[i], function, scope_monitor, outfile); // write a new function for this T~T
@@ -302,7 +296,6 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         global_string += "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
         wf(outfile, global_string);
         global_string = "";
-        
     }
 }
 
@@ -330,7 +323,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
     f["."] = nullptr;
 
     string dirname = "src/MipsTarget/MipsTargetASM/";
-    int status = fs::create_directories(dirname);
+    fs::create_directories(dirname);
 
     if (filename == "")
     {
@@ -341,13 +334,13 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
     string word = ".data \n .text \n";
 
     wf(outfile, word);
-    for (int i = 0; i < op.size(); i++)
+    for (size_t i = 0; i < op.size(); i++)
     {
 
         f[op[i]->nameOfFunction->buffer] = op[i];
     }
 
-    for (int i = 0; i < op.size(); i++)
+    for (size_t i = 0; i < op.size(); i++)
     {
 
         // FILE* fp = fopen("output.s", "w");
@@ -363,14 +356,13 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         l->vars = map;
         allocate_Scope(scope);
 
-// where to iterate on list of vectors
-#pragma region iterate vector of functions sarts here
+        // where to iterate on list of vectors
         string function_name = pd->nameOfFunction->buffer + ": \n";
         wf(outfile, function_name);
         vector<VaraibleDeclaration *> params = pd->params;
         if (pd->nameOfFunction->buffer != "main")
         {
-            for (int i = 0; i < params.size(); i++)
+            for (size_t i = 0; i < params.size(); i++)
             {
                 max_size += 4;
             }
@@ -391,14 +383,14 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         if (pd->nameOfFunction->buffer != "main")
         {
             vector<Varaible *> var;
-            for (int i = 0; i < params.size(); i++)
+            for (size_t i = 0; i < params.size(); i++)
             {
                 stack_number += 4;
                 var.push_back(add_to_var(params[i], scope, stack_number));
                 // prepare_interptMips(params[i], map, 4);
             }
             string add;
-            for (int i = 0; i < params.size(); i++)
+            for (size_t i = 0; i < params.size(); i++)
             {
                 add += "sw " + allocate_argumentRegister() + "," + to_string(var[i]->stackNum) + "($sp) \n";
             }
@@ -412,7 +404,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         rg->reset_registers();
         monitor->rg = rg;
 
-        for (int i = 0; i < state.size(); i++)
+        for (size_t i = 0; i < state.size(); i++)
         {
             statementsGen(state[i], pd, monitor, outfile);
         }
@@ -428,7 +420,6 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
             string exitStuff = "li $v0, 10 \n syscall # exited program pop into QtSpim and it should work";
             wf(outfile, exitStuff);
         }
-#pragma endregion // iterate function
     }
     outfile.close();
 }

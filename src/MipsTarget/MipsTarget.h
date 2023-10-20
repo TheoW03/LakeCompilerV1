@@ -15,4 +15,3 @@ using namespace std;
 
 #pragma once
 void gen_mips_target(vector<FunctionNode *> op, string filename = "");
-void rewrite_vars(Node *op);

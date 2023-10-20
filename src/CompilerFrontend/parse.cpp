@@ -285,7 +285,7 @@ Node *factor(vector<Tokens> &tokens)
 
 /**
  * @brief
- * does /*%
+ * does div, mul, mod
  * @param tokens
  * @return Node*
  */
@@ -457,7 +457,7 @@ Node *handleMacros(vector<Tokens> &list)
 void printParams(vector<Tokens *> a)
 {
     cout << "params" << endl;
-    for (int i = 0; i < a.size(); i++)
+    for (size_t i = 0; i < a.size(); i++)
     {
         cout << a[i]->dictionary[a[i]->id] + "(" + a[i]->buffer + ") \n";
     }
