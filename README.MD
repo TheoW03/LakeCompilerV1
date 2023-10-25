@@ -59,16 +59,15 @@ fn f(int x) : int -> x + 1; //new feature i been thinking of. for a while >:3
 
 # Build Instructions
 
-1. make sure you have g++ installed
----
+if you have linux as your primary OS
 
-2. type "make" in the terminal
----
+use the ./setUpCMake.sh script
 
-3. the final exe is "./output {to any file with .lk extension or CLI arg}"
+and from then on./build.sh or ./clean.sh
 
----
-4. if you see "compiled successfully" your code should work. 
+else just create a build dir and do 
+
+cmake ..
 
 # run transpiled code
 
