@@ -81,7 +81,10 @@ int main(int argc, char *argv[])
 
     // Store the decremented value back into the array
     // array[2] = value;
+    int c = 0;
+    if(c <= 1){
 
+    }
     // Perform bitwise operations
     // int value1 = value >> 27;
     // int value2 = 0 << 5;

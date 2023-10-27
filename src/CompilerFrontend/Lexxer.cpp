@@ -5,6 +5,8 @@
 #include <string>
 #include <regex>
 #include <map>
+#include <sstream>
+
 using namespace std;
 
 enum class type
@@ -70,7 +72,14 @@ string Tokens::to_string()
 // {
 //     return dictionary[id] + "(" + buffer + ")";
 // }
-
+bool isNumber(const std::string &str)
+{
+    std::istringstream ss(str);
+    double num;
+    ss >> num;
+    // Check if the entire string was successfully converted to a number
+    return !ss.fail() && ss.eof();
+}
 void throwException(string message)
 {
     cerr << message;
@@ -105,6 +114,7 @@ void groupings(vector<Tokens> &token_list, string &buffer)
     op["/"] = type::DIVISION;
     op["("] = type::OP_PARENTHISIS;
     op[")"] = type::CL_PARENTHISIS;
+    op["fn"] = type::FUNCTION;
 
     if (op.find(buffer) != op.end())
     {
@@ -113,12 +123,42 @@ void groupings(vector<Tokens> &token_list, string &buffer)
         token_list.push_back(token);
         buffer = "";
     }
-    else
+    else if (isNumber(buffer))
     {
         Tokens token;
         modifyStruct(token, type::NUMBER, buffer);
         token_list.push_back(token);
         buffer = "";
+    }
+    else
+    {
+        Tokens token;
+        modifyStruct(token, type::WORD, buffer);
+        token_list.push_back(token);
+        buffer = "";
+    }
+}
+void number(int &state, string str, vector<Tokens> &token_list, string &buffer);
+
+void equals_lex(int &state, string str, vector<Tokens> &token_list, string &buffer)
+{
+    if (str == "=")
+    {
+        buffer += str;
+        if (buffer != "")
+        {
+            groupings(token_list, buffer);
+        }
+        state = 1;
+    }
+    else
+    {
+        if (buffer != "")
+        {
+            groupings(token_list, buffer);
+        }
+        number(state, str, token_list, buffer);
+        state = 1;
     }
 }
 void operation(int &state, string str, vector<Tokens> &token_list, string &buffer)
@@ -128,13 +168,14 @@ void operation(int &state, string str, vector<Tokens> &token_list, string &buffe
     {
 
         groupings(token_list, buffer);
-        state = 1;
     }
     buffer += str;
+
     if (str == "(" || str == ")")
     {
         groupings(token_list, buffer);
     }
+    state = 1;
 }
 
 void number(int &state, string str, vector<Tokens> &token_list, string &buffer)
@@ -148,6 +189,17 @@ void number(int &state, string str, vector<Tokens> &token_list, string &buffer)
             return;
         }
     }
+    if (str == "{" || str == "}" || str == ":" || str == ";" || str == "," || str == "[" || str == "]")
+    {
+        if (buffer != "")
+        {
+
+            groupings(token_list, buffer);
+        }
+        buffer += str;
+        groupings(token_list, buffer);
+        return;
+    }
     if (str == "(" || str == ")")
     {
         if (buffer != "")
@@ -159,7 +211,16 @@ void number(int &state, string str, vector<Tokens> &token_list, string &buffer)
         groupings(token_list, buffer);
         return;
     }
-
+    if (str == "=" || str == ">" || str == "<")
+    {
+        if (buffer != "")
+        {
+            groupings(token_list, buffer);
+        }
+        state = 3;
+        buffer += str;
+        return;
+    }
     if (str == "+" || str == "*" || str == "/" || str == "-")
     {
         if (buffer != "")
@@ -178,18 +239,45 @@ vector<Tokens> lex(vector<string> lines)
     vector<Tokens> token_list;
     int state = 1;
     string buffer = "";
+    int isComment = 0;
     for (int line_loc = 0; line_loc < lines.size(); line_loc++)
     {
         string line = lines[line_loc];
         for (int next_char = 0; next_char < line.length(); next_char++)
         {
-
-            if ((int)line.at(next_char) == 32 || (int)line.at(next_char) == 13 || (int)line.at(next_char) == 9)
+            if (isComment == 1)
             {
                 continue;
             }
 
+            if ((int)line.at(next_char) == 32 || (int)line.at(next_char) == 13 || (int)line.at(next_char) == 9)
+            {
+                if (buffer != "")
+                {
+                    groupings(token_list, buffer);
+                }
+                continue;
+            }
+
             string str(1, line.at(next_char));
+            if (next_char < (line.length() - 1))
+            {
+                if (str == "/" && line.at(next_char + 1) == '/')
+                {
+                    isComment = 1;
+                    continue;
+                }
+                if (str == "." && line.at(next_char + 1) == '.')
+                {
+                    if (buffer != "")
+                    {
+                        groupings(token_list, buffer);
+                    }
+                    buffer += str;
+                    state = 4;
+                    continue;
+                }
+            }
 
             if (state == 1)
             {
@@ -199,7 +287,18 @@ vector<Tokens> lex(vector<string> lines)
             {
                 operation(state, str, token_list, buffer);
             }
+            else if (state == 3)
+            {
+                equals_lex(state, str, token_list, buffer);
+            }
+            else if (state == 4)
+            {
+                buffer += str;
+                groupings(token_list, buffer);
+                state = 1;
+            }
         }
+        isComment = 0;
     }
     if (buffer != "")
     {
@@ -760,6 +859,8 @@ void printList(vector<Tokens> a)
     dictonary[type::NUMBER] = "NUMBER";
     dictonary[type::OP_PARENTHISIS] = "OP_PARAN";
     dictonary[type::CL_PARENTHISIS] = "CL_PARAN";
+    dictonary[type::FUNCTION] = "FUNCTION";
+    dictonary[type::WORD] = "WORD";
 
     for (int i = 0; i < a.size(); i++)
     {
