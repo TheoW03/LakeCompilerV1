@@ -54,7 +54,13 @@ enum class type
     ELSE,
     FOR_LOOP,
     CHAR,
-    CHAR_LITERAL
+    CHAR_LITERAL,
+    STEP,
+    ELLIPSIS,
+    RANGE,
+    ARRAY,
+    OP_BRACKET,
+    CL_BRACKET
 };
 struct Tokens
 {
@@ -112,9 +118,41 @@ void groupings(vector<Tokens> &token_list, string &buffer)
     op["*"] = type::MULTIPLY;
     op["%"] = type::MOD;
     op["/"] = type::DIVISION;
+    op["="] = type::EQUALS;
     op["("] = type::OP_PARENTHISIS;
     op[")"] = type::CL_PARENTHISIS;
+    op["=="] = type::BOOL_EQ;
+    op["<="] = type::LTE;
+    op[">="] = type::GTE;
+    op[">"] = type::GT;
+    op["<"] = type::LT;
+    op[".."] = type::ELLIPSIS;
+    op["{"] = type::BEGIN;
+    op["}"] = type::END;
+
+    op["and"] = type::AND;
+    op["or"] = type::OR;
+
     op["fn"] = type::FUNCTION;
+    op["returns"] = type::RETURNS;
+    op["return"] = type::RETURN;
+
+    op["int"] = type::INT;
+    op["float"] = type::FLOAT;
+    op["char"] = type::CHAR;
+    op["bool"] = type::BOOL;
+
+    op["while"] = type::LOOP;
+    op["for"] = type::FOR_LOOP;
+    op["step"] = type::STEP;
+    op["range"] = type::RANGE;
+
+    op["Array"] = type::ARRAY;
+    op["["] = type::OP_BRACKET;
+    op["]"] = type::CL_BRACKET;
+
+    op[":"] = type::SEMI_COLON;
+    op[","] = type::COMMA;
 
     if (op.find(buffer) != op.end())
     {
@@ -198,6 +236,8 @@ void number(int &state, string str, vector<Tokens> &token_list, string &buffer)
     seperator["]"] = type::OP_PARENTHISIS;
     seperator[")"] = type::CL_PARENTHISIS;
     seperator["("] = type::FUNCTION;
+    seperator[","] = type::FUNCTION;
+
     if (seperator.find(str) != seperator.end())
     {
         if (buffer != "")
@@ -252,12 +292,14 @@ vector<Tokens> lex(vector<string> lines)
             {
                 if (buffer != "")
                 {
+
                     groupings(token_list, buffer);
                 }
                 continue;
             }
 
             string str(1, line.at(next_char));
+
             if (next_char < (line.length() - 1))
             {
                 if (str == "/" && line.at(next_char + 1) == '/')
@@ -849,19 +891,55 @@ vector<Tokens> lex(vector<string> lines)
 // }
 void printList(vector<Tokens> a)
 {
-    map<type, string> dictonary;
-    dictonary[type::ADDITION] = "ADDITION";
-    dictonary[type::MULTIPLY] = "MULTIPLY";
-    dictonary[type::DIVISION] = "DIVISION";
-    dictonary[type::SUBTRACT] = "SUBTRACT";
-    dictonary[type::NUMBER] = "NUMBER";
-    dictonary[type::OP_PARENTHISIS] = "OP_PARAN";
-    dictonary[type::CL_PARENTHISIS] = "CL_PARAN";
-    dictonary[type::FUNCTION] = "FUNCTION";
-    dictonary[type::WORD] = "WORD";
+    map<type, string> dictionary;
+
+    dictionary[type::NUMBER] = "NUMBER";
+    dictionary[type::ADDITION] = "ADDITION";
+    dictionary[type::SUBTRACT] = "SUBTRACT";
+    dictionary[type::DIVISION] = "DIVISION";
+    dictionary[type::MULTIPLY] = "MULTIPLY";
+    dictionary[type::OP_PARENTHISIS] = "OP_PARENTHISIS";
+    dictionary[type::CL_PARENTHISIS] = "CL_PARENTHISIS";
+    dictionary[type::CL_PARENTHISIS] = "CL_PARENTHISIS";
+    dictionary[type::MOD] = "MOD";
+    dictionary[type::WORD] = "WORD";
+    dictionary[type::EQUALS] = "EQUALS";
+    dictionary[type::COMMA] = "COMMA";
+    dictionary[type::BEGIN] = "BEGIN";
+    dictionary[type::END] = "END";
+    dictionary[type::FUNCTION] = "FUNCTION";
+    dictionary[type::VAR] = "VAR";
+    dictionary[type::END_OF_LINE] = "END_OF_LINE";
+    dictionary[type::PRINT] = "PRINT";
+    dictionary[type::SCAN] = "SCAN";
+    dictionary[type::EXIT] = "EXIT";
+    dictionary[type::NUMBER] = "NUMBER";
+    dictionary[type::INT] = "INT";
+    dictionary[type::STRING] = "STRING";
+    dictionary[type::FLOAT] = "FLOAT";
+    dictionary[type::MACRO] = "MACRO";
+    dictionary[type::RETURN] = "RETURN";
+    dictionary[type::STRING_LITERAL] = "STRING_LITERAL";
+    dictionary[type::BOOL_EQ] = "BOOL_EQ";
+    dictionary[type::IF] = "IF";
+    dictionary[type::TRUE] = "TRUE";
+    dictionary[type::FALSE] = "FALSE";
+    dictionary[type::GT] = "GT";
+    dictionary[type::LT] = "LT";
+    dictionary[type::GTE] = "GTE";
+    dictionary[type::LTE] = "LTE";
+    dictionary[type::BOOL] = "BOOL";
+    dictionary[type::CONSTANT] = "CONST";
+    dictionary[type::RETURNS] = "RETURNS";
+    dictionary[type::ELLIPSIS] = "ELLIPSIS";
+    dictionary[type::STEP] = "STEP";
+    dictionary[type::OP_BRACKET] = "OP_BRACKET";
+    dictionary[type::CL_BRACKET] = "CL_BRACKET";
+    dictionary[type::ARRAY] = "ARRAY";
+    dictionary[type::SEMI_COLON] = "SEMICOLON";
 
     for (int i = 0; i < a.size(); i++)
     {
-        cout << dictonary[a[i].id] + "(" + a[i].buffer + ")" << endl;
+        cout << dictionary[a[i].id] + "(" + a[i].buffer + ")" << endl;
     }
 }
