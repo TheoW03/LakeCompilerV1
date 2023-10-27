@@ -189,18 +189,16 @@ void number(int &state, string str, vector<Tokens> &token_list, string &buffer)
             return;
         }
     }
-    if (str == "{" || str == "}" || str == ":" || str == ";" || str == "," || str == "[" || str == "]")
-    {
-        if (buffer != "")
-        {
-
-            groupings(token_list, buffer);
-        }
-        buffer += str;
-        groupings(token_list, buffer);
-        return;
-    }
-    if (str == "(" || str == ")")
+    map<string, type> seperator;
+    seperator["{"] = type::ADDITION;
+    seperator["}"] = type::SUBTRACT;
+    seperator[":"] = type::MULTIPLY;
+    seperator[";"] = type::MOD;
+    seperator["["] = type::DIVISION;
+    seperator["]"] = type::OP_PARENTHISIS;
+    seperator[")"] = type::CL_PARENTHISIS;
+    seperator["("] = type::FUNCTION;
+    if (seperator.find(str) != seperator.end())
     {
         if (buffer != "")
         {
