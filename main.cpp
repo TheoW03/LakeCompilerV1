@@ -68,8 +68,10 @@ void handle_cli(char *argv[], int argc)
 }
 int main(int argc, char *argv[])
 {
-
-    handle_cli(argv, argc);
+    char *file = "test.lk";
+    vector<Tokens> a = lex(readFile(file));
+    printList(a);
+    // handle_cli(argv, argc);
     // int array[10]; // Simulate an array or data structure
     // Load a value from the array
 

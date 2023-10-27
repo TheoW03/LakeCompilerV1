@@ -64,8 +64,12 @@ struct Tokens
 };
 string Tokens::to_string()
 {
-    return dictionary[id] + "(" + buffer + ")";
+    return "C++ is great lang meowing";
 }
+// string Tokens::to_string()
+// {
+//     return dictionary[id] + "(" + buffer + ")";
+// }
 
 void throwException(string message)
 {
@@ -86,16 +90,124 @@ vector<string> readFile(string file)
     infile.close();
     return vec;
 }
-void modifyStruct(Tokens &token, type enumType1, map<type, string> dictionary1, string buffer1)
+void modifyStruct(Tokens &token, type enumType, string buffer)
 {
-    token.buffer = buffer1;
-    token.id = enumType1;
-    token.dictionary = dictionary1;
+    token.buffer = buffer;
+    token.id = enumType;
+}
+void groupings(vector<Tokens> &token_list, string &buffer)
+{
+    map<string, type> op;
+    op["+"] = type::ADDITION;
+    op["-"] = type::SUBTRACT;
+    op["*"] = type::MULTIPLY;
+    op["%"] = type::MOD;
+    op["/"] = type::DIVISION;
+    op["("] = type::OP_PARENTHISIS;
+    op[")"] = type::CL_PARENTHISIS;
+
+    if (op.find(buffer) != op.end())
+    {
+        Tokens token;
+        modifyStruct(token, op[buffer], buffer);
+        token_list.push_back(token);
+        buffer = "";
+    }
+    else
+    {
+        Tokens token;
+        modifyStruct(token, type::NUMBER, buffer);
+        token_list.push_back(token);
+        buffer = "";
+    }
+}
+void operation(int &state, string str, vector<Tokens> &token_list, string &buffer)
+{
+
+    if (buffer != "")
+    {
+
+        groupings(token_list, buffer);
+        state = 1;
+    }
+    buffer += str;
+    if (str == "(" || str == ")")
+    {
+        groupings(token_list, buffer);
+    }
+}
+
+void number(int &state, string str, vector<Tokens> &token_list, string &buffer)
+{
+
+    if (str == "-")
+    {
+        if (buffer == "")
+        {
+            buffer += str;
+            return;
+        }
+    }
+    if (str == "(" || str == ")")
+    {
+        if (buffer != "")
+        {
+
+            groupings(token_list, buffer);
+        }
+        buffer += str;
+        groupings(token_list, buffer);
+        return;
+    }
+
+    if (str == "+" || str == "*" || str == "/" || str == "-")
+    {
+        if (buffer != "")
+        {
+            groupings(token_list, buffer);
+        }
+        state = 2;
+    }
+    buffer += str;
 }
 vector<Tokens> lex(vector<string> lines)
 {
-    
+    Tokens token;
+    map<string, type> op;
+
+    vector<Tokens> token_list;
+    int state = 1;
+    string buffer = "";
+    for (int line_loc = 0; line_loc < lines.size(); line_loc++)
+    {
+        string line = lines[line_loc];
+        for (int next_char = 0; next_char < line.length(); next_char++)
+        {
+
+            if ((int)line.at(next_char) == 32 || (int)line.at(next_char) == 13 || (int)line.at(next_char) == 9)
+            {
+                continue;
+            }
+
+            string str(1, line.at(next_char));
+
+            if (state == 1)
+            {
+                number(state, str, token_list, buffer);
+            }
+            else if (state == 2)
+            {
+                operation(state, str, token_list, buffer);
+            }
+        }
+    }
+    if (buffer != "")
+    {
+        groupings(token_list, buffer);
+    }
+    return token_list;
 }
+
 // vector<Tokens> lex(vector<string> lines)
 // {
 
@@ -276,7 +388,7 @@ vector<Tokens> lex(vector<string> lines)
 
 //                     // cout << "string: " + str + "\n"
 //                     //      << endl;
-//                     // cout << "buffer: " + buffer + "\n";
+//                     // cout << "buffer: " + buffe r + "\n";
 //                     // cout << "state: " + to_string(state) << endl;
 //                     if (wordBuffer != "")
 //                     {
@@ -640,8 +752,17 @@ vector<Tokens> lex(vector<string> lines)
 // }
 void printList(vector<Tokens> a)
 {
+    map<type, string> dictonary;
+    dictonary[type::ADDITION] = "ADDITION";
+    dictonary[type::MULTIPLY] = "MULTIPLY";
+    dictonary[type::DIVISION] = "DIVISION";
+    dictonary[type::SUBTRACT] = "SUBTRACT";
+    dictonary[type::NUMBER] = "NUMBER";
+    dictonary[type::OP_PARENTHISIS] = "OP_PARAN";
+    dictonary[type::CL_PARENTHISIS] = "CL_PARAN";
+
     for (int i = 0; i < a.size(); i++)
     {
-        cout << a[i].to_string() << endl;
+        cout << dictonary[a[i].id] + "(" + a[i].buffer + ")" << endl;
     }
 }
