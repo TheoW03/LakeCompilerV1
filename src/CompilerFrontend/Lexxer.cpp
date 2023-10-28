@@ -346,6 +346,60 @@ vector<Tokens> lex(vector<string> lines)
     }
     return token_list;
 }
+void printList(vector<Tokens> a)
+{
+    map<type, string> dictionary;
+
+    dictionary[type::NUMBER] = "NUMBER";
+    dictionary[type::ADDITION] = "ADDITION";
+    dictionary[type::SUBTRACT] = "SUBTRACT";
+    dictionary[type::DIVISION] = "DIVISION";
+    dictionary[type::MULTIPLY] = "MULTIPLY";
+    dictionary[type::OP_PARENTHISIS] = "OP_PARENTHISIS";
+    dictionary[type::CL_PARENTHISIS] = "CL_PARENTHISIS";
+    dictionary[type::CL_PARENTHISIS] = "CL_PARENTHISIS";
+    dictionary[type::MOD] = "MOD";
+    dictionary[type::WORD] = "WORD";
+    dictionary[type::EQUALS] = "EQUALS";
+    dictionary[type::COMMA] = "COMMA";
+    dictionary[type::BEGIN] = "BEGIN";
+    dictionary[type::END] = "END";
+    dictionary[type::FUNCTION] = "FUNCTION";
+    dictionary[type::VAR] = "VAR";
+    dictionary[type::END_OF_LINE] = "END_OF_LINE";
+    dictionary[type::PRINT] = "PRINT";
+    dictionary[type::SCAN] = "SCAN";
+    dictionary[type::EXIT] = "EXIT";
+    dictionary[type::NUMBER] = "NUMBER";
+    dictionary[type::INT] = "INT";
+    dictionary[type::STRING] = "STRING";
+    dictionary[type::FLOAT] = "FLOAT";
+    dictionary[type::MACRO] = "MACRO";
+    dictionary[type::RETURN] = "RETURN";
+    dictionary[type::STRING_LITERAL] = "STRING_LITERAL";
+    dictionary[type::BOOL_EQ] = "BOOL_EQ";
+    dictionary[type::IF] = "IF";
+    dictionary[type::TRUE] = "TRUE";
+    dictionary[type::FALSE] = "FALSE";
+    dictionary[type::GT] = "GT";
+    dictionary[type::LT] = "LT";
+    dictionary[type::GTE] = "GTE";
+    dictionary[type::LTE] = "LTE";
+    dictionary[type::BOOL] = "BOOL";
+    dictionary[type::CONSTANT] = "CONST";
+    dictionary[type::RETURNS] = "RETURNS";
+    dictionary[type::ELLIPSIS] = "ELLIPSIS";
+    dictionary[type::STEP] = "STEP";
+    dictionary[type::OP_BRACKET] = "OP_BRACKET";
+    dictionary[type::CL_BRACKET] = "CL_BRACKET";
+    dictionary[type::ARRAY] = "ARRAY";
+    dictionary[type::SEMI_COLON] = "SEMICOLON";
+
+    for (int i = 0; i < a.size(); i++)
+    {
+        cout << dictionary[a[i].id] + "(" + a[i].buffer + ")" << endl;
+    }
+}
 
 // vector<Tokens> lex(vector<string> lines)
 // {
@@ -889,57 +943,3 @@ vector<Tokens> lex(vector<string> lines)
 //     }
 //     return a;
 // }
-void printList(vector<Tokens> a)
-{
-    map<type, string> dictionary;
-
-    dictionary[type::NUMBER] = "NUMBER";
-    dictionary[type::ADDITION] = "ADDITION";
-    dictionary[type::SUBTRACT] = "SUBTRACT";
-    dictionary[type::DIVISION] = "DIVISION";
-    dictionary[type::MULTIPLY] = "MULTIPLY";
-    dictionary[type::OP_PARENTHISIS] = "OP_PARENTHISIS";
-    dictionary[type::CL_PARENTHISIS] = "CL_PARENTHISIS";
-    dictionary[type::CL_PARENTHISIS] = "CL_PARENTHISIS";
-    dictionary[type::MOD] = "MOD";
-    dictionary[type::WORD] = "WORD";
-    dictionary[type::EQUALS] = "EQUALS";
-    dictionary[type::COMMA] = "COMMA";
-    dictionary[type::BEGIN] = "BEGIN";
-    dictionary[type::END] = "END";
-    dictionary[type::FUNCTION] = "FUNCTION";
-    dictionary[type::VAR] = "VAR";
-    dictionary[type::END_OF_LINE] = "END_OF_LINE";
-    dictionary[type::PRINT] = "PRINT";
-    dictionary[type::SCAN] = "SCAN";
-    dictionary[type::EXIT] = "EXIT";
-    dictionary[type::NUMBER] = "NUMBER";
-    dictionary[type::INT] = "INT";
-    dictionary[type::STRING] = "STRING";
-    dictionary[type::FLOAT] = "FLOAT";
-    dictionary[type::MACRO] = "MACRO";
-    dictionary[type::RETURN] = "RETURN";
-    dictionary[type::STRING_LITERAL] = "STRING_LITERAL";
-    dictionary[type::BOOL_EQ] = "BOOL_EQ";
-    dictionary[type::IF] = "IF";
-    dictionary[type::TRUE] = "TRUE";
-    dictionary[type::FALSE] = "FALSE";
-    dictionary[type::GT] = "GT";
-    dictionary[type::LT] = "LT";
-    dictionary[type::GTE] = "GTE";
-    dictionary[type::LTE] = "LTE";
-    dictionary[type::BOOL] = "BOOL";
-    dictionary[type::CONSTANT] = "CONST";
-    dictionary[type::RETURNS] = "RETURNS";
-    dictionary[type::ELLIPSIS] = "ELLIPSIS";
-    dictionary[type::STEP] = "STEP";
-    dictionary[type::OP_BRACKET] = "OP_BRACKET";
-    dictionary[type::CL_BRACKET] = "CL_BRACKET";
-    dictionary[type::ARRAY] = "ARRAY";
-    dictionary[type::SEMI_COLON] = "SEMICOLON";
-
-    for (int i = 0; i < a.size(); i++)
-    {
-        cout << dictionary[a[i].id] + "(" + a[i].buffer + ")" << endl;
-    }
-}
