@@ -426,8 +426,9 @@ Node *handleFunctions(vector<Tokens> &tokens)
 
     while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlefunctions") == nullptr)
     {
-        Tokens *typeVar = getTypes(tokens);
         Tokens *word = matchAndRemove(tokens, type::WORD, "handlefunctions");
+        matchAndRemove(tokens, type::SEMI_COLON, "handlefunctions");
+        Tokens *typeVar = getTypes(tokens);
         matchAndRemove(tokens, type::COMMA, "handlefunctions");
         VaraibleDeclaration *v = new VaraibleDeclaration;
         v->typeOfVar = typeVar;
@@ -658,7 +659,6 @@ Node *handleFor(vector<Tokens> &tokens)
     statements.push_back(b);
 
     forLoop->statements = statements;
-    // forLoop->
     return forLoop;
 }
 /**
@@ -667,6 +667,23 @@ Node *handleFor(vector<Tokens> &tokens)
  * @param tokens
  * @return Node*
  */
+Node *handle_step(vector<Tokens> &tokens)
+{
+    VaraibleReference *var = new VaraibleReference;
+    // Node *word = expression(tokens);
+    Tokens *word = matchAndRemove(tokens, type::WORD, "step");
+    var->varaible = word;
+    OperatorNode *op = new OperatorNode;
+
+    matchAndRemove(tokens, type::COMMA, "step");
+    op->left = factor(tokens);
+    op->right = var;
+    Tokens *toke = new Tokens;
+    toke->id = type::ADDITION;
+    op->token = toke;
+    var->expression = op;
+    return var;
+}
 Node *parse_var_statements(vector<Tokens> &tokens, Tokens *a)
 {
     if (a->id == type::WORD)
@@ -714,6 +731,7 @@ Node *handleSatements(vector<Tokens> &tokens)
                 : (matchAndRemove(tokens, type::IF, "k") != nullptr)                    ? current
                 : (matchAndRemove(tokens, type::LOOP, "k") != nullptr)                  ? current
                 : (matchAndRemove(tokens, type::FOR_LOOP, "k") != nullptr)              ? current
+                : (matchAndRemove(tokens, type::STEP, "k") != nullptr)                  ? current
                 : (matchAndRemove(tokens, type::RETURN, "k") != nullptr)                ? current
                                                                                         : nullptr;
 
@@ -738,6 +756,8 @@ Node *handleSatements(vector<Tokens> &tokens)
         return handleFor(tokens);
     case type::RETURN:
         return handleReturn(tokens);
+    case type::STEP:
+        return handle_step(tokens);
     default:
         return parse_var_statements(tokens, a);
     }

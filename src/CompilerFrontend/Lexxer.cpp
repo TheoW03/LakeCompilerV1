@@ -57,7 +57,7 @@ enum class type
     CHAR_LITERAL,
     STEP,
     ELLIPSIS,
-    RANGE,
+    FROM,
     ARRAY,
     OP_BRACKET,
     CL_BRACKET
@@ -146,7 +146,7 @@ void groupings(vector<Tokens> &token_list, string &buffer)
     op["while"] = type::LOOP;
     op["for"] = type::FOR_LOOP;
     op["step"] = type::STEP;
-    op["range"] = type::RANGE;
+    op["from"] = type::FROM;
 
     op["Array"] = type::ARRAY;
     op["["] = type::OP_BRACKET;
@@ -154,6 +154,10 @@ void groupings(vector<Tokens> &token_list, string &buffer)
 
     op[":"] = type::SEMI_COLON;
     op[","] = type::COMMA;
+
+    op["print"] = type::PRINT;
+    op["exit"] = type::PRINT;
+    op[";"] = type::END_OF_LINE;
 
     if (op.find(buffer) != op.end())
     {

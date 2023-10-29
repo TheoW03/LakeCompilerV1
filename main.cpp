@@ -71,6 +71,10 @@ int main(int argc, char *argv[])
     char *file = "test.lk";
     vector<Tokens> a = lex(readFile(file));
     printList(a);
+    vector<FunctionNode *> functions = functionParse(a);
+    gen_mips_target(functions);
+    // cout << "parsed " << functions[0]->statements.size() << endl;
+
     // handle_cli(argv, argc);
     // int array[10]; // Simulate an array or data structure
     // Load a value from the array
@@ -82,8 +86,8 @@ int main(int argc, char *argv[])
     // Store the decremented value back into the array
     // array[2] = value;
     int c = 0;
-    if(c <= 1){
-
+    if (c <= 1)
+    {
     }
     // Perform bitwise operations
     // int value1 = value >> 27;
