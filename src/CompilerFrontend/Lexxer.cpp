@@ -141,6 +141,7 @@ void groupings(vector<Tokens> &token_list, string &buffer)
     op["float"] = type::FLOAT;
     op["char"] = type::CHAR;
     op["bool"] = type::BOOL;
+    op["string"] = type::STRING;
 
     op["while"] = type::LOOP;
     op["for"] = type::FOR_LOOP;
@@ -273,7 +274,7 @@ vector<Tokens> lex(vector<string> lines)
 {
     Tokens token;
     map<string, type> op;
-
+    int isString = 0;
     vector<Tokens> token_list;
     int state = 1;
     string buffer = "";
@@ -287,6 +288,60 @@ vector<Tokens> lex(vector<string> lines)
             {
                 continue;
             }
+            string str(1, line.at(next_char));
+
+            if (str == "\"")
+            {
+                if (isString == 0)
+                {
+                    if (buffer != "")
+                    {
+
+                        groupings(token_list, buffer);
+                    }
+                    isString = 1;
+                }
+                else
+                {
+                    Tokens token;
+                    token.buffer = buffer;
+                    token.id = type::STRING_LITERAL;
+
+                    token_list.push_back(token);
+                    buffer = "";
+                    isString = 0;
+                }
+                continue;
+            }
+            if (str == "\'")
+            {
+                if (isString == 0)
+                {
+                    if (buffer != "")
+                    {
+
+                        groupings(token_list, buffer);
+                    }
+                    isString = 1;
+                }
+                else
+                {
+                    Tokens token;
+                    token.buffer = buffer;
+                    cout << buffer << endl;
+
+                    token.id = type::CHAR_LITERAL;
+                    token_list.push_back(token);
+                    buffer = "";
+                    isString = 0;
+                }
+                continue;
+            }
+            if (isString == 1)
+            {
+                buffer += str;
+                continue;
+            }
 
             if ((int)line.at(next_char) == 32 || (int)line.at(next_char) == 13 || (int)line.at(next_char) == 9)
             {
@@ -297,8 +352,6 @@ vector<Tokens> lex(vector<string> lines)
                 }
                 continue;
             }
-
-            string str(1, line.at(next_char));
 
             if (next_char < (line.length() - 1))
             {
@@ -394,6 +447,8 @@ void printList(vector<Tokens> a)
     dictionary[type::CL_BRACKET] = "CL_BRACKET";
     dictionary[type::ARRAY] = "ARRAY";
     dictionary[type::SEMI_COLON] = "SEMICOLON";
+    dictionary[type::CHAR] = "CHAR";
+    dictionary[type::CHAR_LITERAL] = "CHAR_LITERAL";
 
     for (int i = 0; i < a.size(); i++)
     {
