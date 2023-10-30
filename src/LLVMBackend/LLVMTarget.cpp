@@ -18,13 +18,13 @@ void gen_LLVM(vector<FunctionNode *> op, string filename)
     llvm::LLVMContext context;
     std::unique_ptr<llvm::Module> module = std::make_unique<llvm::Module>("MyModule", context);
 
-    llvm::FunctionType *funcType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
+    llvm::FunctionType *funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context), false);
     llvm::Function *mainFunction = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, "main", module.get());
 
     llvm::BasicBlock *entryBlock = llvm::BasicBlock::Create(context, "entry", mainFunction);
     llvm::IRBuilder<> builder(entryBlock);
 
-    llvm::Value *constant = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 42);
+    llvm::Value *constant = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0);
     builder.CreateRet(constant);
 
     // module->print(llvm::outs(), nullptr);
