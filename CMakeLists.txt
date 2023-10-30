@@ -35,7 +35,8 @@ src/MipsTarget/VaraibleScope.cpp
 src/CompilerFrontend/Lexxer.cpp
 src/CompilerFrontend/parse.cpp
 
-src/ARMTarget/ARMTarget.cpp
+src/LLVMBackend/LLVMTarget.cpp
+
 )
 
 
