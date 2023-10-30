@@ -73,6 +73,7 @@ int main(int argc, char *argv[])
     printList(a);
     vector<FunctionNode *> functions = functionParse(a);
     gen_mips_target(functions);
+
     // cout << "parsed " << functions[0]->statements.size() << endl;
 
     // handle_cli(argv, argc);

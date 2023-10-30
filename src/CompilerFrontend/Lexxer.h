@@ -62,7 +62,11 @@ enum class type
     FROM,
     ARRAY,
     OP_BRACKET,
-    CL_BRACKET
+    CL_BRACKET,
+    SLL,
+    SRR,
+    B_AND,
+    B_OR
 };
 #endif // TYPE
 

@@ -112,6 +112,18 @@ struct StatementNode : public Node
     struct Node *expression;
     struct Tokens *nameOfVar;
 };
+struct ArrayDeclaration : public Node
+{
+    Node *size;
+    Tokens *varaible;
+    Tokens *typeOfVar;
+};
+struct ArrayRef : public Node
+{
+    Tokens *name;
+    Node *RefedLocation;
+};
+
 struct LoopNode : public Node
 {
     BoolExpressionNode *condition;
@@ -296,9 +308,14 @@ Node *term(vector<Tokens> &tokens)
     Node *n = new Node;
     Node *opNode = new Node;
     opNode = factor(tokens);
-    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY, "term") != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION, "term") != nullptr) ? current
-                                                                                     : (matchAndRemove(tokens, type::MOD, "term") != nullptr)        ? current
-                                                                                                                                                     : nullptr; // n.value = 0;
+    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY, "term") != nullptr)   ? current
+                 : (matchAndRemove(tokens, type::DIVISION, "term") != nullptr) ? current
+                 : (matchAndRemove(tokens, type::MOD, "term") != nullptr)      ? current
+                 : (matchAndRemove(tokens, type::SLL, "term") != nullptr)      ? current
+                 : (matchAndRemove(tokens, type::SRR, "term") != nullptr)      ? current
+                 : (matchAndRemove(tokens, type::B_AND, "term") != nullptr)    ? current
+                 : (matchAndRemove(tokens, type::B_OR, "term") != nullptr)     ? current
+                                                                               : nullptr; // n.value = 0;
     if (op != nullptr)
     {
         Node *node = nullptr;
@@ -306,9 +323,14 @@ Node *term(vector<Tokens> &tokens)
         {
             if (node != nullptr)
             {
-                op = (matchAndRemove(tokens, type::MULTIPLY, "term") != nullptr) ? current : (matchAndRemove(tokens, type::DIVISION, "term") != nullptr) ? current
-                                                                                         : (matchAndRemove(tokens, type::MOD, "term") != nullptr)        ? current
-                                                                                                                                                         : nullptr; // n.value = 0;
+                op = (matchAndRemove(tokens, type::MULTIPLY, "term") != nullptr)   ? current
+                     : (matchAndRemove(tokens, type::DIVISION, "term") != nullptr) ? current
+                     : (matchAndRemove(tokens, type::MOD, "term") != nullptr)      ? current
+                     : (matchAndRemove(tokens, type::SLL, "term") != nullptr)      ? current
+                     : (matchAndRemove(tokens, type::SRR, "term") != nullptr)      ? current
+                     : (matchAndRemove(tokens, type::B_AND, "term") != nullptr)    ? current
+                     : (matchAndRemove(tokens, type::B_OR, "term") != nullptr)     ? current
+                                                                                   : nullptr; // n.value =
             }
             if (op == nullptr)
             {

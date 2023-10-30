@@ -60,7 +60,12 @@ enum class type
     FROM,
     ARRAY,
     OP_BRACKET,
-    CL_BRACKET
+    CL_BRACKET,
+    SLL,
+    SRR,
+    B_AND,
+    B_OR
+
 };
 struct Tokens
 {
@@ -158,6 +163,10 @@ void groupings(vector<Tokens> &token_list, string &buffer)
     op["print"] = type::PRINT;
     op["exit"] = type::PRINT;
     op[";"] = type::END_OF_LINE;
+    op[">>"] = type::SLL;
+    op["<<"] = type::SRR;
+    op["|"] = type::B_OR;
+    op["&"] = type::B_AND;
 
     if (op.find(buffer) != op.end())
     {
@@ -185,7 +194,7 @@ void number(int &state, string str, vector<Tokens> &token_list, string &buffer);
 
 void equals_lex(int &state, string str, vector<Tokens> &token_list, string &buffer)
 {
-    if (str == "=")
+    if (str == "=" || str == ">" || str == "<")
     {
         buffer += str;
         if (buffer != "")
@@ -453,6 +462,10 @@ void printList(vector<Tokens> a)
     dictionary[type::SEMI_COLON] = "SEMICOLON";
     dictionary[type::CHAR] = "CHAR";
     dictionary[type::CHAR_LITERAL] = "CHAR_LITERAL";
+    dictionary[type::SRR] = "SRR";
+    dictionary[type::SLL] = "SLL";
+    dictionary[type::B_AND] = "B_AND";
+    dictionary[type::B_OR] = "B_OR";
 
     for (int i = 0; i < a.size(); i++)
     {
