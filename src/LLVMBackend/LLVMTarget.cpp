@@ -11,25 +11,53 @@
 #include "llvm/Support/raw_ostream.h"
 #include "../../src/CompilerFrontend/parser.h"
 #include "../../src/MipsTarget/UtilFunctions.h"
+#include "../../src/CompilerFrontend/Lexxer.h"
 
+using namespace std;
+
+string LLVM_to_string()
+{
+}
 void gen_LLVM(vector<FunctionNode *> op, string filename)
 {
     // basic hello world in LLVM
     llvm::LLVMContext context;
-    std::unique_ptr<llvm::Module> module = std::make_unique<llvm::Module>("MyModule", context);
+    std::unique_ptr<llvm::Module> module = make_unique<llvm::Module>("MyModule", context);
 
-    llvm::FunctionType *funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context), false);
-    llvm::Function *mainFunction = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, "main", module.get());
+    for (int i = 0; i < op.size(); i++)
+    {
+        // llvm::FunctionType *funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context), false);
+        llvm::FunctionType *funcType;
+        if (op[i]->returnType != nullptr)
+        {
+            switch (op[i]->returnType->id)
+            {
+            case type::INT:
+                funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context), false);
+                break;
+            case type::FLOAT:
+                funcType = llvm::FunctionType::get(llvm::Type::getFloatTy(context), false);
+                break;
+            case type::CHAR:
+                funcType = llvm::FunctionType::get(llvm::Type::getInt8Ty(context), false);
+                break;
+            }
+        }
+        else
+        {
+            funcType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
+        }
+        llvm::Function *mainFunction = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, op[i]->nameOfFunction->buffer, module.get());
+        llvm::BasicBlock *entryBlock = llvm::BasicBlock::Create(context, "entry", mainFunction);
+        llvm::IRBuilder<> builder(entryBlock);
+    }
 
-    llvm::BasicBlock *entryBlock = llvm::BasicBlock::Create(context, "entry", mainFunction);
-    llvm::IRBuilder<> builder(entryBlock);
-
-    llvm::Value *constant = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0);
-    builder.CreateRet(constant);
+    // llvm::Value *constant = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0);
+    // builder.CreateRet(constant);
 
     // module->print(llvm::outs(), nullptr);
 
-    std::string irString;
+    string irString;
     llvm::raw_string_ostream stringStream(irString);
 
     // Print the LLVM module to the output stream.
