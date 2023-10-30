@@ -7,6 +7,7 @@
 #include "src/CompilerFrontend/parser.h" // #define String string
 #include <cmath>
 #include <functional>
+#include "src/LLVMBackend/LLVMTarget.h"
 using namespace std;
 
 #pragma endregion
@@ -69,9 +70,10 @@ int main(int argc, char *argv[])
 {
     char *file = "test.lk";
     vector<Tokens> a = lex(readFile(file));
-    printList(a);
+    // printList(a);
     vector<FunctionNode *> functions = functionParse(a);
     gen_mips_target(functions);
+    // gen_LLVM(functions, "");
 
     // cout << "parsed " << functions[0]->statements.size() << endl;
 
