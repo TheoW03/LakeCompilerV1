@@ -10,7 +10,6 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 # E.g. if using the C++ header files
 # you will need to enable C++11 support
 # for your compiler.
-
 include_directories(${LLVM_INCLUDE_DIRS})
 separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
@@ -23,22 +22,20 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/..)
 set(EXECUTABLE_NAME output)
 
 # Add your source files to an executable target
-add_executable(${EXECUTABLE_NAME} main.cpp 
+add_executable(${EXECUTABLE_NAME} main.cpp
 
-src/MipsTarget/builtInFunctions.cpp 
-src/MipsTarget/ExpressionTree.cpp 
-src/MipsTarget/Register.cpp 
-src/MipsTarget/MipsTarget.cpp
-src/MipsTarget/UtilFunctions.cpp
-src/MipsTarget/VaraibleScope.cpp
+    src/CompilerFrontend/Lexxer.cpp
+    src/CompilerFrontend/parse.cpp
 
-src/CompilerFrontend/Lexxer.cpp
-src/CompilerFrontend/parse.cpp
+    src/MipsTarget/builtInFunctions.cpp
+    src/MipsTarget/ExpressionTree.cpp
+    src/MipsTarget/Register.cpp
+    src/MipsTarget/MipsTarget.cpp
+    src/MipsTarget/UtilFunctions.cpp
+    src/MipsTarget/VaraibleScope.cpp
 
-src/LLVMBackend/LLVMTarget.cpp
-
+    src/LLVMBackend/LLVMTarget.cpp
 )
-
 
 # Find the libraries that correspond to the LLVM components
 # that we wish to use
