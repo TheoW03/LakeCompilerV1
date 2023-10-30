@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
     vector<Tokens> a = lex(readFile(file));
     // printList(a);
     vector<FunctionNode *> functions = functionParse(a);
-    gen_mips_target(functions);
-    // gen_LLVM(functions, "");
+    // gen_mips_target(functions);
+    gen_LLVM(functions, "");
 
     // cout << "parsed " << functions[0]->statements.size() << endl;
 

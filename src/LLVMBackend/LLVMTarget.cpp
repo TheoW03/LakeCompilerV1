@@ -41,6 +41,9 @@ void gen_LLVM(vector<FunctionNode *> op, string filename)
             case type::CHAR:
                 funcType = llvm::FunctionType::get(llvm::Type::getInt8Ty(context), false);
                 break;
+            case type::BOOL:
+                funcType = llvm::FunctionType::get(llvm::Type::getInt1Ty(context), false);
+                break;
             }
         }
         else
@@ -64,7 +67,7 @@ void gen_LLVM(vector<FunctionNode *> op, string filename)
     module->print(stringStream, nullptr);
 
     // Get the LLVM IR as a string.
-    std::string irCode = stringStream.str();
+    string irCode = stringStream.str();
 
     // Output the LLVM IR string.
     std::cout << irCode << endl;
