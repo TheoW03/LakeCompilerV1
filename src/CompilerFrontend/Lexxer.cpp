@@ -64,7 +64,9 @@ enum class type
     SLL,
     SRR,
     B_AND,
-    B_OR
+    B_OR,
+    THEN,
+    DO
 
 };
 struct Tokens
@@ -132,6 +134,9 @@ void groupings(vector<Tokens> &token_list, string &buffer)
     op[">"] = type::GT;
     op["<"] = type::LT;
     op[".."] = type::ELLIPSIS;
+
+    op["then"] = type::THEN;
+    op["do"] = type::DO;
     op["{"] = type::BEGIN;
     op["}"] = type::END;
 

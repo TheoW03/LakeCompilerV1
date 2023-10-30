@@ -66,7 +66,9 @@ enum class type
     SLL,
     SRR,
     B_AND,
-    B_OR
+    B_OR,
+    THEN,
+    DO
 };
 #endif // TYPE
 
