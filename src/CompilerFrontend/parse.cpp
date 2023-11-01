@@ -190,7 +190,7 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct);
  * @param caller
  * @return Tokens*
  */
-Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
+Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT)
 {
     if (tokens.empty())
     {
@@ -232,7 +232,7 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
 Node *factor(vector<Tokens> &tokens)
 {
 
-    if (matchAndRemove(tokens, type::NUMBER, "factor") != nullptr)
+    if (matchAndRemove(tokens, type::NUMBER) != nullptr)
     {
         string myString = current->buffer;
         if (myString.find(".") == string::npos)
@@ -246,19 +246,19 @@ Node *factor(vector<Tokens> &tokens)
         floatNode->num = to_string(fPoint);
         return floatNode;
     }
-    else if (matchAndRemove(tokens, type::OP_PARENTHISIS, "factor") != nullptr)
+    else if (matchAndRemove(tokens, type::OP_PARENTHISIS) != nullptr)
     {
         Node *exp = expression(tokens);
-        matchAndRemove(tokens, type::CL_PARENTHISIS, "factor");
+        matchAndRemove(tokens, type::CL_PARENTHISIS);
         return exp;
     }
-    else if (matchAndRemove(tokens, type::STRING_LITERAL, "factor") != nullptr)
+    else if (matchAndRemove(tokens, type::STRING_LITERAL) != nullptr)
     {
         StringNode *s = new StringNode;
         s->stringBuffer = current->buffer;
         return s;
     }
-    else if (matchAndRemove(tokens, type::WORD, "factor") != nullptr)
+    else if (matchAndRemove(tokens, type::WORD) != nullptr)
     {
         Node *a = handleCalls(tokens, current);
         if (a == nullptr)
@@ -269,13 +269,13 @@ Node *factor(vector<Tokens> &tokens)
         }
         return a;
     }
-    else if (matchAndRemove(tokens, type::TRUE, "factor") != nullptr || matchAndRemove(tokens, type::FALSE, "factor") != nullptr)
+    else if (matchAndRemove(tokens, type::TRUE) != nullptr || matchAndRemove(tokens, type::FALSE) != nullptr)
     {
         BooleanLiteralNode *boolean = new BooleanLiteralNode;
         boolean->value = current;
         return boolean;
     }
-    else if (matchAndRemove(tokens, type::CHAR_LITERAL, "factor") != nullptr)
+    else if (matchAndRemove(tokens, type::CHAR_LITERAL) != nullptr)
     {
         CharNode *integer = new CharNode;
 
@@ -303,14 +303,14 @@ Node *term(vector<Tokens> &tokens)
     Node *n = new Node;
     Node *opNode = new Node;
     opNode = factor(tokens);
-    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY, "term") != nullptr)   ? current
-                 : (matchAndRemove(tokens, type::DIVISION, "term") != nullptr) ? current
-                 : (matchAndRemove(tokens, type::MOD, "term") != nullptr)      ? current
-                 : (matchAndRemove(tokens, type::SLL, "term") != nullptr)      ? current
-                 : (matchAndRemove(tokens, type::SRR, "term") != nullptr)      ? current
-                 : (matchAndRemove(tokens, type::B_AND, "term") != nullptr)    ? current
-                 : (matchAndRemove(tokens, type::B_OR, "term") != nullptr)     ? current
-                                                                               : nullptr; // n.value = 0;
+    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr)   ? current
+                 : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
+                 : (matchAndRemove(tokens, type::MOD) != nullptr)      ? current
+                 : (matchAndRemove(tokens, type::SLL) != nullptr)      ? current
+                 : (matchAndRemove(tokens, type::SRR) != nullptr)      ? current
+                 : (matchAndRemove(tokens, type::B_AND) != nullptr)    ? current
+                 : (matchAndRemove(tokens, type::B_OR) != nullptr)     ? current
+                                                                       : nullptr; // n.value = 0;
     if (op != nullptr)
     {
         Node *node = nullptr;
@@ -318,14 +318,14 @@ Node *term(vector<Tokens> &tokens)
         {
             if (node != nullptr)
             {
-                op = (matchAndRemove(tokens, type::MULTIPLY, "term") != nullptr)   ? current
-                     : (matchAndRemove(tokens, type::DIVISION, "term") != nullptr) ? current
-                     : (matchAndRemove(tokens, type::MOD, "term") != nullptr)      ? current
-                     : (matchAndRemove(tokens, type::SLL, "term") != nullptr)      ? current
-                     : (matchAndRemove(tokens, type::SRR, "term") != nullptr)      ? current
-                     : (matchAndRemove(tokens, type::B_AND, "term") != nullptr)    ? current
-                     : (matchAndRemove(tokens, type::B_OR, "term") != nullptr)     ? current
-                                                                                   : nullptr; // n.value =
+                op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr)   ? current
+                     : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
+                     : (matchAndRemove(tokens, type::MOD) != nullptr)      ? current
+                     : (matchAndRemove(tokens, type::SLL) != nullptr)      ? current
+                     : (matchAndRemove(tokens, type::SRR) != nullptr)      ? current
+                     : (matchAndRemove(tokens, type::B_AND) != nullptr)    ? current
+                     : (matchAndRemove(tokens, type::B_OR) != nullptr)     ? current
+                                                                           : nullptr; // n.value =
             }
             if (op == nullptr)
             {
@@ -359,9 +359,9 @@ Node *expression(vector<Tokens> &tokens)
     Node *n = new Node;
     // Node* opNode = new Node;
     Node *opNode = term(tokens);
-    Tokens *op = (matchAndRemove(tokens, type::ADDITION, "expressiion") != nullptr)   ? current
-                 : (matchAndRemove(tokens, type::SUBTRACT, "expressiion") != nullptr) ? current
-                                                                                      : nullptr; // n.value = 0;
+    Tokens *op = (matchAndRemove(tokens, type::ADDITION) != nullptr)   ? current
+                 : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
+                                                                       : nullptr; // n.value = 0;
     if (op != nullptr)
     {
         Node *node = nullptr;
@@ -369,8 +369,9 @@ Node *expression(vector<Tokens> &tokens)
         {
             if (node != nullptr)
             {
-                op = (matchAndRemove(tokens, type::ADDITION, "expressiion") != nullptr) ? current : (matchAndRemove(tokens, type::SUBTRACT, "expressiion") != nullptr) ? current
-                                                                                                                                                                       : nullptr; // n.value = 0;
+                op = (matchAndRemove(tokens, type::ADDITION) != nullptr)   ? current
+                     : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
+                                                                           : nullptr; // n.value = 0;
             }
             if (op == nullptr)
             {
@@ -413,7 +414,7 @@ void RemoveEOLS(vector<Tokens> &list)
 {
     while (true)
     {
-        Tokens *e = matchAndRemove(list, type::END_OF_LINE, "remove EOLS");
+        Tokens *e = matchAndRemove(list, type::END_OF_LINE);
 
         if (e == nullptr)
         {
@@ -423,30 +424,30 @@ void RemoveEOLS(vector<Tokens> &list)
 }
 Tokens *getTypes(vector<Tokens> &tokens)
 {
-    Tokens *types = (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)    ? current
-                    : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)    ? current
-                    : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)   ? current
-                    : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr) ? current
-                    : (matchAndRemove(tokens, type::CHAR, "parseFunctions") != nullptr)   ? current
-                                                                                          : nullptr;
+    Tokens *types = (matchAndRemove(tokens, type::FLOAT) != nullptr)    ? current
+                    : (matchAndRemove(tokens, type::INT) != nullptr)    ? current
+                    : (matchAndRemove(tokens, type::BOOL) != nullptr)   ? current
+                    : (matchAndRemove(tokens, type::STRING) != nullptr) ? current
+                    : (matchAndRemove(tokens, type::CHAR) != nullptr)   ? current
+                                                                        : nullptr;
     return types;
 }
 // will parse functions
 Node *handleFunctions(vector<Tokens> &tokens)
 {
     FunctionNode *f = new FunctionNode;
-    matchAndRemove(tokens, type::FUNCTION, "handlefunctions");
-    Tokens *name = matchAndRemove(tokens, type::WORD, "handlefunctions");
-    matchAndRemove(tokens, type::OP_PARENTHISIS, "handlefunctions");
+    matchAndRemove(tokens, type::FUNCTION);
+    Tokens *name = matchAndRemove(tokens, type::WORD);
+    matchAndRemove(tokens, type::OP_PARENTHISIS);
 
     vector<VaraibleDeclaration *> vars;
 
-    while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlefunctions") == nullptr)
+    while (matchAndRemove(tokens, type::CL_PARENTHISIS) == nullptr)
     {
-        Tokens *word = matchAndRemove(tokens, type::WORD, "handlefunctions");
-        matchAndRemove(tokens, type::SEMI_COLON, "handlefunctions");
+        Tokens *word = matchAndRemove(tokens, type::WORD);
+        matchAndRemove(tokens, type::SEMI_COLON);
         Tokens *typeVar = getTypes(tokens);
-        matchAndRemove(tokens, type::COMMA, "handlefunctions");
+        matchAndRemove(tokens, type::COMMA);
         VaraibleDeclaration *v = new VaraibleDeclaration;
         v->typeOfVar = typeVar;
         v->varaible = word;
@@ -459,7 +460,7 @@ Node *handleFunctions(vector<Tokens> &tokens)
 
 Node *handleMacros(vector<Tokens> &list)
 {
-    Tokens *name = matchAndRemove(list, type::WORD, "macros");
+    Tokens *name = matchAndRemove(list, type::WORD);
     Node *statements;
     statements = expression(list);
     if (statements == nullptr)
@@ -484,9 +485,9 @@ void printParams(vector<Tokens *> a)
 Node *parserVarRef(vector<Tokens> &tokens, Tokens *name)
 {
     VaraibleReference *var = new VaraibleReference;
-    Tokens *DecOp = (matchAndRemove(tokens, type::ADDITION, "a") != nullptr)   ? current
-                    : (matchAndRemove(tokens, type::SUBTRACT, "a") != nullptr) ? current
-                                                                               : nullptr;
+    Tokens *DecOp = (matchAndRemove(tokens, type::ADDITION) != nullptr)   ? current
+                    : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
+                                                                          : nullptr;
 
     var->varaible = name;
     if (DecOp != nullptr)
@@ -503,7 +504,7 @@ Node *parserVarRef(vector<Tokens> &tokens, Tokens *name)
     }
     else
     {
-        matchAndRemove(tokens, type::EQUALS, "");
+        matchAndRemove(tokens, type::EQUALS);
         var->expression = expression(tokens);
     }
     return var;
@@ -524,13 +525,13 @@ Node *testParse(vector<Tokens> &tokens)
 Node *parseVar(vector<Tokens> &tokens, Tokens *type, int constant = 0)
 {
 
-    Tokens *name = matchAndRemove(tokens, type::WORD, "parseVar");
+    Tokens *name = matchAndRemove(tokens, type::WORD);
     VaraibleDeclaration *n = new VaraibleDeclaration;
     n->typeOfVar = type;
     n->varaible = name;
     n->size = 4;
     n->constant = constant;
-    matchAndRemove(tokens, type::EQUALS, "parseVar");
+    matchAndRemove(tokens, type::EQUALS);
     n->expression = expression(tokens);
     RemoveEOLS(tokens);
 
@@ -547,13 +548,13 @@ BoolExpressionNode *handleBooleanExpression(vector<Tokens> &tokens)
 {
     Node *right = expression(tokens);
 
-    Tokens *op = (matchAndRemove(tokens, type::BOOL_EQ, "parsefunctions") != nullptr)  ? current
-                 : (matchAndRemove(tokens, type::LTE, "parsefunctions") != nullptr)    ? current
-                 : (matchAndRemove(tokens, type::GTE, "parsefunctions") != nullptr)    ? current
-                 : (matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)     ? current
-                 : (matchAndRemove(tokens, type::LT, "parseFunctions") != nullptr)     ? current
-                 : (matchAndRemove(tokens, type::NOT_EQ, "parseFunctions") != nullptr) ? current
-                                                                                       : nullptr;
+    Tokens *op = (matchAndRemove(tokens, type::BOOL_EQ) != nullptr)  ? current
+                 : (matchAndRemove(tokens, type::LTE) != nullptr)    ? current
+                 : (matchAndRemove(tokens, type::GTE) != nullptr)    ? current
+                 : (matchAndRemove(tokens, type::GT) != nullptr)     ? current
+                 : (matchAndRemove(tokens, type::LT) != nullptr)     ? current
+                 : (matchAndRemove(tokens, type::NOT_EQ) != nullptr) ? current
+                                                                     : nullptr;
     Node *left = expression(tokens);
     BoolExpressionNode *a = new BoolExpressionNode;
     a->right = right;
@@ -566,15 +567,15 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
 {
     funcCallNode *f1 = new funcCallNode;
     f1->funcCall = checkIfFunct;
-    if (matchAndRemove(tokens, type::OP_PARENTHISIS, "h") == nullptr)
+    if (matchAndRemove(tokens, type::OP_PARENTHISIS) == nullptr)
     {
         return nullptr;
     }
     vector<Node *> vars;
-    while (matchAndRemove(tokens, type::CL_PARENTHISIS, "handlecalls") == nullptr)
+    while (matchAndRemove(tokens, type::CL_PARENTHISIS) == nullptr)
     {
         vars.push_back(expression(tokens));
-        matchAndRemove(tokens, type::COMMA, "handlefunctions");
+        matchAndRemove(tokens, type::COMMA);
     }
     f1->params = vars;
     return f1;
@@ -583,21 +584,21 @@ Node *handleLoops(vector<Tokens> &tokens)
 {
     LoopNode *loop = new LoopNode;
     BoolExpressionNode *a = new BoolExpressionNode;
-    matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
+    matchAndRemove(tokens, type::OP_PARENTHISIS);
     a = handleBooleanExpression(tokens);
-    matchAndRemove(tokens, type::CL_PARENTHISIS, "a");
-    matchAndRemove(tokens, type::DO, "a");
+    matchAndRemove(tokens, type::CL_PARENTHISIS);
+    matchAndRemove(tokens, type::DO);
 
     vector<Node *> states;
 
-    if (matchAndRemove(tokens, type::BEGIN, "A") == nullptr)
+    if (matchAndRemove(tokens, type::BEGIN) == nullptr)
     {
         RemoveEOLS(tokens);
         states.push_back(handleSatements(tokens));
     }
     else
     {
-        while (matchAndRemove(tokens, type::END, "j") == nullptr)
+        while (matchAndRemove(tokens, type::END) == nullptr)
         {
             RemoveEOLS(tokens);
             states.push_back(handleSatements(tokens));
@@ -615,12 +616,12 @@ Node *handleLoops(vector<Tokens> &tokens)
 Node *handleIfStatements(vector<Tokens> &tokens)
 {
     BoolExpressionNode *a = new BoolExpressionNode;
-    matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
+    matchAndRemove(tokens, type::OP_PARENTHISIS);
     a = handleBooleanExpression(tokens);
 
     IfSatementNode *ifStatement = new IfSatementNode;
     ifStatement->condition = a;
-    if (matchAndRemove(tokens, type::CL_PARENTHISIS, "a") == nullptr && matchAndRemove(tokens, type::THEN, "a") == nullptr)
+    if (matchAndRemove(tokens, type::CL_PARENTHISIS) == nullptr && matchAndRemove(tokens, type::THEN) == nullptr)
     {
         cout << "error" << endl;
         exit(EXIT_FAILURE);
@@ -629,9 +630,9 @@ Node *handleIfStatements(vector<Tokens> &tokens)
 
     vector<Node *> states;
     RemoveEOLS(tokens);
-    if (matchAndRemove(tokens, type::BEGIN, "a") != nullptr)
+    if (matchAndRemove(tokens, type::BEGIN) != nullptr)
     {
-        while (matchAndRemove(tokens, type::END, "j") == nullptr)
+        while (matchAndRemove(tokens, type::END) == nullptr)
         {
 
             RemoveEOLS(tokens);
@@ -649,14 +650,14 @@ Node *handleIfStatements(vector<Tokens> &tokens)
 
     ifStatement->statements = states;
 
-    if (matchAndRemove(tokens, type::ELSE, "a") != nullptr)
+    if (matchAndRemove(tokens, type::ELSE) != nullptr)
     {
         ElseNode *elseNode = new ElseNode;
 
         vector<Node *> states;
         RemoveEOLS(tokens);
 
-        if (matchAndRemove(tokens, type::BEGIN, "a") == nullptr)
+        if (matchAndRemove(tokens, type::BEGIN) == nullptr)
         {
             RemoveEOLS(tokens);
             cout << "test" << endl;
@@ -665,7 +666,7 @@ Node *handleIfStatements(vector<Tokens> &tokens)
         }
         else
         {
-            while (matchAndRemove(tokens, type::END, "j") == nullptr)
+            while (matchAndRemove(tokens, type::END) == nullptr)
             {
                 RemoveEOLS(tokens);
                 states.push_back(handleSatements(tokens));
@@ -693,7 +694,7 @@ Node *handleReturn(vector<Tokens> &tokens)
 Node *handleFor(vector<Tokens> &tokens)
 {
     ForLoopNode *forLoop = new ForLoopNode;
-    matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
+    matchAndRemove(tokens, type::OP_PARENTHISIS);
 
     vector<Node *> statements;
 
@@ -715,11 +716,11 @@ Node *handleFor(vector<Tokens> &tokens)
 
     Node *b = handleSatements(tokens); // step
     RemoveEOLS(tokens);
-    matchAndRemove(tokens, type::CL_PARENTHISIS, "a");
+    matchAndRemove(tokens, type::CL_PARENTHISIS);
 
-    if (matchAndRemove(tokens, type::BEGIN, "a") != nullptr)
+    if (matchAndRemove(tokens, type::BEGIN) != nullptr)
     {
-        while (matchAndRemove(tokens, type::END, "a") == nullptr)
+        while (matchAndRemove(tokens, type::END) == nullptr)
         {
             RemoveEOLS(tokens);
             statements.push_back(handleSatements(tokens));
@@ -729,8 +730,8 @@ Node *handleFor(vector<Tokens> &tokens)
     }
     else
     {
-        matchAndRemove(tokens, type::SUBTRACT, "a");
-        matchAndRemove(tokens, type::GT, "a");
+        matchAndRemove(tokens, type::SUBTRACT);
+        matchAndRemove(tokens, type::GT);
         statements.push_back(handleSatements(tokens));
         RemoveEOLS(tokens);
     }
@@ -770,11 +771,11 @@ Node *handle_step(vector<Tokens> &tokens)
 {
     VaraibleReference *var = new VaraibleReference;
     // Node *word = expression(tokens);
-    Tokens *word = matchAndRemove(tokens, type::WORD, "step");
+    Tokens *word = matchAndRemove(tokens, type::WORD);
     var->varaible = word;
     OperatorNode *op = new OperatorNode;
 
-    matchAndRemove(tokens, type::COMMA, "step");
+    matchAndRemove(tokens, type::COMMA);
     op->left = factor(tokens);
     op->right = var;
     Tokens *toke = new Tokens;
@@ -807,32 +808,32 @@ Node *parse_var_statements(vector<Tokens> &tokens, Tokens *a)
 Node *handleSatements(vector<Tokens> &tokens)
 {
 #pragma region functionstate
-    if (matchAndRemove(tokens, type::MACRO, "statements") != nullptr)
+    if (matchAndRemove(tokens, type::MACRO) != nullptr)
     {
         return handleMacros(tokens);
     }
-    Tokens *checkIfFunct = (matchAndRemove(tokens, type::PRINT, "functionParse") != nullptr)  ? current
-                           : (matchAndRemove(tokens, type::EXIT, "functionParse") != nullptr) ? current
-                                                                                              : nullptr;
+    Tokens *checkIfFunct = (matchAndRemove(tokens, type::PRINT) != nullptr)  ? current
+                           : (matchAndRemove(tokens, type::EXIT) != nullptr) ? current
+                                                                             : nullptr;
     if (checkIfFunct != nullptr)
     {
         return handleCalls(tokens, checkIfFunct);
     }
 #pragma endregion
 #pragma region varstates
-    Tokens *a = (matchAndRemove(tokens, type::WORD, "parsefunctions") != nullptr)       ? current
-                : (matchAndRemove(tokens, type::CONSTANT, "parsefunctions") != nullptr) ? current
-                : (matchAndRemove(tokens, type::FLOAT, "parsefunctions") != nullptr)    ? current
-                : (matchAndRemove(tokens, type::INT, "parsefunctions") != nullptr)      ? current
-                : (matchAndRemove(tokens, type::BOOL, "parsefunctions") != nullptr)     ? current
-                : (matchAndRemove(tokens, type::STRING, "parseFunctions") != nullptr)   ? current
-                : (matchAndRemove(tokens, type::CHAR, "parseFunctions") != nullptr)     ? current
-                : (matchAndRemove(tokens, type::IF, "k") != nullptr)                    ? current
-                : (matchAndRemove(tokens, type::LOOP, "k") != nullptr)                  ? current
-                : (matchAndRemove(tokens, type::FOR_LOOP, "k") != nullptr)              ? current
-                : (matchAndRemove(tokens, type::STEP, "k") != nullptr)                  ? current
-                : (matchAndRemove(tokens, type::RETURN, "k") != nullptr)                ? current
-                                                                                        : nullptr;
+    Tokens *a = (matchAndRemove(tokens, type::WORD) != nullptr)       ? current
+                : (matchAndRemove(tokens, type::CONSTANT) != nullptr) ? current
+                : (matchAndRemove(tokens, type::FLOAT) != nullptr)    ? current
+                : (matchAndRemove(tokens, type::INT) != nullptr)      ? current
+                : (matchAndRemove(tokens, type::BOOL) != nullptr)     ? current
+                : (matchAndRemove(tokens, type::STRING) != nullptr)   ? current
+                : (matchAndRemove(tokens, type::CHAR) != nullptr)     ? current
+                : (matchAndRemove(tokens, type::IF) != nullptr)       ? current
+                : (matchAndRemove(tokens, type::LOOP) != nullptr)     ? current
+                : (matchAndRemove(tokens, type::FOR_LOOP) != nullptr) ? current
+                : (matchAndRemove(tokens, type::STEP) != nullptr)     ? current
+                : (matchAndRemove(tokens, type::RETURN) != nullptr)   ? current
+                                                                      : nullptr;
 
     if (a == nullptr)
     {
@@ -875,24 +876,24 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
 {
 
     vector<FunctionNode *> functionNodes;
-    while (matchAndRemove(tokens, type::FUNCTION, "functioon parse") != nullptr)
+    while (matchAndRemove(tokens, type::FUNCTION) != nullptr)
     {
 
         FunctionNode *f;
         vector<Node *> states;
         Node *func = handleFunctions(tokens);
         FunctionNode *pd = dynamic_cast<FunctionNode *>(func);
-        if (matchAndRemove(tokens, type::RETURNS, "search for return") != nullptr)
+        if (matchAndRemove(tokens, type::RETURNS) != nullptr)
         {
 
             Tokens *return_type = getTypes(tokens);
             pd->returnType = return_type;
         }
-        else if (matchAndRemove(tokens, type::SEMI_COLON, "search for semi") != nullptr)
+        else if (matchAndRemove(tokens, type::SEMI_COLON) != nullptr)
         {
             Tokens *return_type = getTypes(tokens);
             pd->returnType = return_type;
-            if (matchAndRemove(tokens, type::SUBTRACT, "parsefunctions") != nullptr && matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)
+            if (matchAndRemove(tokens, type::SUBTRACT) != nullptr && matchAndRemove(tokens, type::GT) != nullptr)
             {
                 states.push_back(handleReturn(tokens));
             }
@@ -901,10 +902,10 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
         {
             pd->returnType = nullptr;
         }
-        if (matchAndRemove(tokens, type::BEGIN, "parsefunctions") != nullptr)
+        if (matchAndRemove(tokens, type::BEGIN) != nullptr)
         {
 
-            while (matchAndRemove(tokens, type::END, "parsefunctions") == nullptr)
+            while (matchAndRemove(tokens, type::END) == nullptr)
             {
                 RemoveEOLS(tokens);
 

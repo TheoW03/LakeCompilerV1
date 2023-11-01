@@ -25,7 +25,7 @@ string gen_string(Node *op, vector<string> &tabs, vector<Scope_dimension *> &sco
 {
     if (op == nullptr)
     {
-        cout << "null \n";
+        // cout << "null \n";
         return "";
     }
 
@@ -697,7 +697,7 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
 
     if (op == nullptr)
     {
-        cout << "null \n";
+        // cout << "null \n";
         return 0;
     }
     if (instanceof <BooleanLiteralNode *>(op))

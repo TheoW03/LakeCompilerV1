@@ -16,9 +16,6 @@
 
 using namespace std;
 
-string LLVM_to_string()
-{
-}
 void gen_LLVM(vector<FunctionNode *> op, string filename)
 {
     // basic hello world in LLVM
