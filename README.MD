@@ -12,7 +12,11 @@ coded by TheoW03, in C++
 //* -> multiply
 // / -> divison
 // +,- -> addition and subtraction
-fn main(string args) returns int { //this is how you call the main method (this is how you do comments), returns for return
+
+// <, > greater than less than
+// >= <=, GTE, LTE
+//  /= not equal
+fn main(args: string) returns int { //this is how you call the main method (this is how you do comments), returns for return
     const float pi = 3.1415; // floats
     int random_var = 100; //integer
     bool turringComplete = true; //i think lol 
@@ -28,21 +32,15 @@ fn main(string args) returns int { //this is how you call the main method (this 
         print("%d", random_var);
     }
     //loops 
-    while(random_var < 1000){
-        random_var = random_var + 1;
-    }
-    for(int i = 0; i < 10; i++){
-        print("%d",i); // for loops (with incrementor)
-    }
-    for(int i = 10; i > 0; i--){
-        print("%d",i); // for loops (with decrementor)
-    }
+    while random_var < 1000 do random_var = random_var + 1;
+    for(int i = 0; i < 10; step i, 1) ->  print("%d",i); 
+    for(int i = 10; i > 0; step i, -1) ->  print("%d",i); //step is "i++" in C. (step VAR, NUM)
     print("%f",random_var); // %f -> float %d -> integer. this is a temp system until I add something better :3
     exit(1); //exit
     return 0;
     
 }
-fn f(int x) : int -> x + 1; //new feature i been thinking of. for a while >:3
+fn f(x: int) : int -> x + 1; //new feature i been thinking of. for a while >:3
 ```
 
 # CLI commands
