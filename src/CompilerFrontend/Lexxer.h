@@ -56,7 +56,20 @@ enum class type
     ELSE,
     FOR_LOOP,
     CHAR,
-    CHAR_LITERAL
+    CHAR_LITERAL,
+    STEP,
+    ELLIPSIS,
+    FROM,
+    ARRAY,
+    OP_BRACKET,
+    CL_BRACKET,
+    SLL,
+    SRR,
+    B_AND,
+    B_OR,
+    THEN,
+    DO,
+    NOT_EQ
 };
 #endif // TYPE
 

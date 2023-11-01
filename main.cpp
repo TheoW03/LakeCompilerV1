@@ -3,11 +3,11 @@
 #include <string>
 #include <vector>
 #include "src/MipsTarget/MipsTarget.h"
-#include "src/ARMTarget/ARMTarget.h"
 #include "src/CompilerFrontend/Lexxer.h"
 #include "src/CompilerFrontend/parser.h" // #define String string
 #include <cmath>
 #include <functional>
+#include "src/LLVMBackend/LLVMTarget.h"
 using namespace std;
 
 #pragma endregion
@@ -68,8 +68,17 @@ void handle_cli(char *argv[], int argc)
 }
 int main(int argc, char *argv[])
 {
-
+    // char *file = "test.lk";
+    // vector<Tokens> a = lex(readFile(file));
+    // printList(a);
+    // vector<FunctionNode *> functions = functionParse(a);
+    // gen_mips_target(functions);
+    // gen_LLVM(functions, "");
     handle_cli(argv, argc);
+
+    // cout << "parsed " << functions[0]->statements.size() << endl;
+
+    // handle_cli(argv, argc);
     // int array[10]; // Simulate an array or data structure
     // Load a value from the array
 

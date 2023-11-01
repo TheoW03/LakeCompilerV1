@@ -239,6 +239,10 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
                 global_string += "beq " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
                 break;
+            case type::NOT_EQ:
+                global_string += "bne " + register1 + " ," + register2 + " , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+                break;
             default:
                 break;
             }
@@ -269,6 +273,10 @@ string handle_boolean(Node *op, Scope_Monitor *&scope_monitor, string &global_st
             case type::GTE:
                 global_string += "slt " + resultReg + "," + register1 + " ," + register2 + "\n";
                 global_string += "bne " + resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "nop \n";
+                break;
+            case type::NOT_EQ:
+                global_string += "beq " + register1 + " ," + register2 + " , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
                 break;
             default:
@@ -504,6 +512,7 @@ float gen_float_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         operations[type::DIVISION] = "div ";
         operations[type::MOD] = "div ";
         operations[type::MULTIPLY] = "mult ";
+
         string registers = "";
         string registers2 = "";
         int a, b;
@@ -787,6 +796,11 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
         operations[type::DIVISION] = "div ";
         operations[type::MOD] = "div ";
         operations[type::MULTIPLY] = "mult ";
+
+        operations[type::SLL] = "sll ";
+        operations[type::SRR] = "srl ";
+        operations[type::B_AND] = "and ";
+        operations[type::B_OR] = "or ";
         string registers = "";
         string registers2 = "";
         int a, b;
@@ -837,6 +851,26 @@ int gen_integer_op(Node *op, Scope_Monitor *&scope_monitor, string &global_strin
             if (pd->token->id == type::MULTIPLY)
             {
                 int n = a * b;
+                return n;
+            }
+            if (pd->token->id == type::SLL)
+            {
+                int n = a >> b;
+                return n;
+            }
+            if (pd->token->id == type::SRR)
+            {
+                int n = a << b;
+                return n;
+            }
+            if (pd->token->id == type::B_AND)
+            {
+                int n = a & b;
+                return n;
+            }
+            if (pd->token->id == type::B_OR)
+            {
+                int n = a | b;
                 return n;
             }
         }

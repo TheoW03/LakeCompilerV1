@@ -8,9 +8,7 @@ fn main(string args) returns int {
   }  
   return 1;
 }
-fn factorial(int n) returns int {
-    if(n < 1){
-        return 1;
-    }
+fn factorial(n: int) returns int {
+    if n < 1 then return 1;
     return n * factorial(n - 1);
 }
