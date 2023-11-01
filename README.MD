@@ -1,8 +1,7 @@
-# Lake
+# Lacus
 
-Compiler, with a MIPS32 target
+Compiler, with a MIPS32 target, and  soon LLVM
 
-coded by TheoW03, in C++ 
 
 # Langauge definition
 
