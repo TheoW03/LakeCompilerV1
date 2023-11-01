@@ -68,7 +68,8 @@ enum class type
     B_AND,
     B_OR,
     THEN,
-    DO
+    DO,
+    NOT_EQ
 };
 #endif // TYPE
 

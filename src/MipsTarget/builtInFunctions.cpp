@@ -32,6 +32,7 @@ void builtInFunction::setup_params(vector<Node *> params, string &gen_string, Sc
 
 Print::Print()
 {
+    // gen_llvm();
 }
 
 void Print::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor *&scope_monitor)

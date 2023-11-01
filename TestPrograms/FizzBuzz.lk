@@ -1,6 +1,6 @@
 
 //output: 0,2,4,6,..,48
-fn main(string args) returns int{
+fn main(args: string) returns int{
     int i = 0;
     while(i < 50){
       int mod =  i % 2;
@@ -17,7 +17,7 @@ fn main(string args) returns int{
       }
       print("%c"m ' ');
       print("%d", i);
-      i++;
+      step i, 1;
       
     }
 }

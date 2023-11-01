@@ -66,7 +66,8 @@ enum class type
     B_AND,
     B_OR,
     THEN,
-    DO
+    DO,
+    NOT_EQ
 
 };
 struct Tokens
@@ -129,6 +130,8 @@ void groupings(vector<Tokens> &token_list, string &buffer)
     op["("] = type::OP_PARENTHISIS;
     op[")"] = type::CL_PARENTHISIS;
     op["=="] = type::BOOL_EQ;
+    op["/="] = type::NOT_EQ;
+
     op["<="] = type::LTE;
     op[">="] = type::GTE;
     op[">"] = type::GT;
@@ -137,6 +140,9 @@ void groupings(vector<Tokens> &token_list, string &buffer)
 
     op["then"] = type::THEN;
     op["do"] = type::DO;
+    op["if"] = type::IF;
+    op["else"] = type::ELSE;
+
     op["{"] = type::BEGIN;
     op["}"] = type::END;
 
@@ -280,11 +286,18 @@ void number(int &state, string str, vector<Tokens> &token_list, string &buffer)
     }
     if (str == "+" || str == "*" || str == "/" || str == "-")
     {
+        if (str == "/")
+        {
+            state = 3;
+        }
+        else
+        {
+            state = 2;
+        }
         if (buffer != "")
         {
             groupings(token_list, buffer);
         }
-        state = 2;
     }
     buffer += str;
 }

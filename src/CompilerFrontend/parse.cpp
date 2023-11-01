@@ -232,11 +232,6 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT, string caller)
 Node *factor(vector<Tokens> &tokens)
 {
 
-    // Tokens *parsedToken = (matchAndRemove(tokens, type::NUMBER, "factor") != nullptr)           ? current
-    //                       : (matchAndRemove(tokens, type::OP_PARENTHISIS, "factor") != nullptr) ? current
-    //                       : (matchAndRemove(tokens, type::WORD, "factor") != nullptr)           ? current
-    //                                                                                             : nullptr;
-
     if (matchAndRemove(tokens, type::NUMBER, "factor") != nullptr)
     {
         string myString = current->buffer;
@@ -530,14 +525,15 @@ Node *parseVar(vector<Tokens> &tokens, Tokens *type, int constant = 0)
 {
 
     Tokens *name = matchAndRemove(tokens, type::WORD, "parseVar");
-    matchAndRemove(tokens, type::EQUALS, "parseVar");
     VaraibleDeclaration *n = new VaraibleDeclaration;
-    n->expression = expression(tokens);
+    n->typeOfVar = type;
     n->varaible = name;
     n->size = 4;
-    n->typeOfVar = type;
     n->constant = constant;
+    matchAndRemove(tokens, type::EQUALS, "parseVar");
+    n->expression = expression(tokens);
     RemoveEOLS(tokens);
+
     return n;
 }
 /**
@@ -551,12 +547,13 @@ BoolExpressionNode *handleBooleanExpression(vector<Tokens> &tokens)
 {
     Node *right = expression(tokens);
 
-    Tokens *op = (matchAndRemove(tokens, type::BOOL_EQ, "parsefunctions") != nullptr) ? current
-                 : (matchAndRemove(tokens, type::LTE, "parsefunctions") != nullptr)   ? current
-                 : (matchAndRemove(tokens, type::GTE, "parsefunctions") != nullptr)   ? current
-                 : (matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)    ? current
-                 : (matchAndRemove(tokens, type::LT, "parseFunctions") != nullptr)    ? current
-                                                                                      : nullptr;
+    Tokens *op = (matchAndRemove(tokens, type::BOOL_EQ, "parsefunctions") != nullptr)  ? current
+                 : (matchAndRemove(tokens, type::LTE, "parsefunctions") != nullptr)    ? current
+                 : (matchAndRemove(tokens, type::GTE, "parsefunctions") != nullptr)    ? current
+                 : (matchAndRemove(tokens, type::GT, "parsefunctions") != nullptr)     ? current
+                 : (matchAndRemove(tokens, type::LT, "parseFunctions") != nullptr)     ? current
+                 : (matchAndRemove(tokens, type::NOT_EQ, "parseFunctions") != nullptr) ? current
+                                                                                       : nullptr;
     Node *left = expression(tokens);
     BoolExpressionNode *a = new BoolExpressionNode;
     a->right = right;
@@ -589,16 +586,26 @@ Node *handleLoops(vector<Tokens> &tokens)
     matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
     a = handleBooleanExpression(tokens);
     matchAndRemove(tokens, type::CL_PARENTHISIS, "a");
-    matchAndRemove(tokens, type::BEGIN, "a");
-    vector<Node *> states;
-    RemoveEOLS(tokens);
+    matchAndRemove(tokens, type::DO, "a");
 
-    while (matchAndRemove(tokens, type::END, "j") == nullptr)
+    vector<Node *> states;
+
+    if (matchAndRemove(tokens, type::BEGIN, "A") == nullptr)
     {
         RemoveEOLS(tokens);
         states.push_back(handleSatements(tokens));
-        RemoveEOLS(tokens);
     }
+    else
+    {
+        while (matchAndRemove(tokens, type::END, "j") == nullptr)
+        {
+            RemoveEOLS(tokens);
+            states.push_back(handleSatements(tokens));
+            RemoveEOLS(tokens);
+        }
+    }
+    RemoveEOLS(tokens);
+
     loop->condition = a;
     loop->statements = states;
 
@@ -613,32 +620,56 @@ Node *handleIfStatements(vector<Tokens> &tokens)
 
     IfSatementNode *ifStatement = new IfSatementNode;
     ifStatement->condition = a;
-    matchAndRemove(tokens, type::CL_PARENTHISIS, "a");
-    matchAndRemove(tokens, type::BEGIN, "a");
+    if (matchAndRemove(tokens, type::CL_PARENTHISIS, "a") == nullptr && matchAndRemove(tokens, type::THEN, "a") == nullptr)
+    {
+        cout << "error" << endl;
+        exit(EXIT_FAILURE);
+        return nullptr;
+    }
+
     vector<Node *> states;
     RemoveEOLS(tokens);
-
-    while (matchAndRemove(tokens, type::END, "j") == nullptr)
+    if (matchAndRemove(tokens, type::BEGIN, "a") != nullptr)
     {
-        RemoveEOLS(tokens);
+        while (matchAndRemove(tokens, type::END, "j") == nullptr)
+        {
+
+            RemoveEOLS(tokens);
+
+            states.push_back(handleSatements(tokens));
+            RemoveEOLS(tokens);
+        }
+    }
+    else
+    {
+
         states.push_back(handleSatements(tokens));
         RemoveEOLS(tokens);
     }
+
     ifStatement->statements = states;
+
     if (matchAndRemove(tokens, type::ELSE, "a") != nullptr)
     {
         ElseNode *elseNode = new ElseNode;
+
         vector<Node *> states;
-        if (matchAndRemove(tokens, type::IF, "a") != nullptr)
+        RemoveEOLS(tokens);
+
+        if (matchAndRemove(tokens, type::BEGIN, "a") == nullptr)
         {
-            states.push_back(handleIfStatements(tokens));
+            RemoveEOLS(tokens);
+            cout << "test" << endl;
+            states.push_back(handleSatements(tokens));
+            RemoveEOLS(tokens);
         }
-        else if (matchAndRemove(tokens, type::BEGIN, "a") != nullptr)
+        else
         {
             while (matchAndRemove(tokens, type::END, "j") == nullptr)
             {
                 RemoveEOLS(tokens);
                 states.push_back(handleSatements(tokens));
+                cout << "test" << endl;
                 RemoveEOLS(tokens);
             }
         }
@@ -663,24 +694,67 @@ Node *handleFor(vector<Tokens> &tokens)
 {
     ForLoopNode *forLoop = new ForLoopNode;
     matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
+
+    vector<Node *> statements;
+
     forLoop->incrimentorVar = handleSatements(tokens);
     RemoveEOLS(tokens);
     forLoop->condition = handleBooleanExpression(tokens);
     RemoveEOLS(tokens);
-    vector<Node *> statements;
-    Node *b = handleSatements(tokens);
+
+    // matchAndRemove(tokens, type::ELLIPSIS, "elisp");
+
+    // BoolExpressionNode *ex = new BoolExpressionNode;
+    // ex->right = vars;
+
+    // ex->left = expression(tokens);
+
+    // Tokens *types = new Tokens;
+    // types->id = type::NOT_EQ;
+    // ex->op = types;
+
+    Node *b = handleSatements(tokens); // step
     RemoveEOLS(tokens);
     matchAndRemove(tokens, type::CL_PARENTHISIS, "a");
-    matchAndRemove(tokens, type::BEGIN, "a");
-    while (matchAndRemove(tokens, type::END, "a") == nullptr)
+
+    if (matchAndRemove(tokens, type::BEGIN, "a") != nullptr)
     {
-        RemoveEOLS(tokens);
+        while (matchAndRemove(tokens, type::END, "a") == nullptr)
+        {
+            RemoveEOLS(tokens);
+            statements.push_back(handleSatements(tokens));
+
+            RemoveEOLS(tokens);
+        }
+    }
+    else
+    {
+        matchAndRemove(tokens, type::SUBTRACT, "a");
+        matchAndRemove(tokens, type::GT, "a");
         statements.push_back(handleSatements(tokens));
         RemoveEOLS(tokens);
     }
+    RemoveEOLS(tokens);
     statements.push_back(b);
-
     forLoop->statements = statements;
+    // matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
+    // RemoveEOLS(tokens);
+    // forLoop->condition = handleBooleanExpression(tokens);
+    // RemoveEOLS(tokens);
+    // vector<Node *> statements;
+    // Node *b = handleSatements(tokens);
+    // RemoveEOLS(tokens);
+    // matchAndRemove(tokens, type::CL_PARENTHISIS, "a");
+    // matchAndRemove(tokens, type::BEGIN, "a");
+    // while (matchAndRemove(tokens, type::END, "a") == nullptr)
+    // {
+    //     RemoveEOLS(tokens);
+    //     statements.push_back(handleSatements(tokens));
+    //     RemoveEOLS(tokens);
+    // }
+    // statements.push_back(b);
+
+    // forLoop->statements = statements;
     return forLoop;
 }
 /**
@@ -689,6 +763,9 @@ Node *handleFor(vector<Tokens> &tokens)
  * @param tokens
  * @return Node*
  */
+// vector<Node *> block_statements(vector<Tokens> &tokens)
+// {
+// }
 Node *handle_step(vector<Tokens> &tokens)
 {
     VaraibleReference *var = new VaraibleReference;

@@ -1,5 +1,5 @@
 //output: HELLO WORLD
-fn main(string args) returns int{
+fn main(args: string) returns int{
     print("%c", 'H');
     print("%c", 'E');
     print("%c", 'L');
