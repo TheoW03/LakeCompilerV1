@@ -1,6 +1,7 @@
 # Lacus
 
 a neo functional paradigm compiled programming language. 
+right now MIPS 32 Assembly, soon LLVM
 
 lacus is latin for lake, and I chose lake to honor my favorite enby-coded character in Animation
 
