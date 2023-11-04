@@ -1,7 +1,13 @@
 # Lacus
 
-Compiler, with a MIPS32 target, and  soon LLVM
+a neo functional paradigm compiled programming language. 
 
+lacus is latin for lake, and I chose lake to honor my favorite enby-coded character in Animation
+
+neo-functional-paradigm: a term I coined to describe a langauge that carries the aesthetic of a functional langauge
+but isnt a functional langauge. 
+
+think of Rust when you think neo-functional programming langauge, Rust uses alot of functional langauge aesthetic. but isnt a functional programming lang. its multi paradigm. 
 
 # Langauge definition
 

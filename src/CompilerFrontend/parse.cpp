@@ -805,6 +805,16 @@ Node *parse_var_statements(vector<Tokens> &tokens, Tokens *a)
         return parseVar(tokens, a);
     }
 }
+Node *handle_array(vector<Tokens> &tokens)
+{
+    ArrayDeclaration *array = new ArrayDeclaration;
+    matchAndRemove(tokens, type::OP_BRACKET);
+    Tokens *type = getTypes(tokens);
+    matchAndRemove(tokens, type::SEMI_COLON);
+    Node *size = expression(tokens);
+    
+    return array;
+}
 Node *handleSatements(vector<Tokens> &tokens)
 {
 #pragma region functionstate
@@ -833,6 +843,7 @@ Node *handleSatements(vector<Tokens> &tokens)
                 : (matchAndRemove(tokens, type::FOR_LOOP) != nullptr) ? current
                 : (matchAndRemove(tokens, type::STEP) != nullptr)     ? current
                 : (matchAndRemove(tokens, type::RETURN) != nullptr)   ? current
+                : (matchAndRemove(tokens, type::ARRAY) != nullptr)    ? current
                                                                       : nullptr;
 
     if (a == nullptr)
@@ -858,6 +869,8 @@ Node *handleSatements(vector<Tokens> &tokens)
         return handleReturn(tokens);
     case type::STEP:
         return handle_step(tokens);
+    case type::ARRAY:
+        return handle_array(tokens);
     default:
         return parse_var_statements(tokens, a);
     }
