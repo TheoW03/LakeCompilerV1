@@ -805,14 +805,17 @@ Node *parse_var_statements(vector<Tokens> &tokens, Tokens *a)
         return parseVar(tokens, a);
     }
 }
-Node *handle_array(vector<Tokens> &tokens)
+Node *handle_array_declaration(vector<Tokens> &tokens)
 {
     ArrayDeclaration *array = new ArrayDeclaration;
     matchAndRemove(tokens, type::OP_BRACKET);
     Tokens *type = getTypes(tokens);
     matchAndRemove(tokens, type::SEMI_COLON);
     Node *size = expression(tokens);
-    
+    matchAndRemove(tokens, type::CL_BRACKET);
+    array->size = size;
+    array->typeOfVar = type;
+    RemoveEOLS(tokens);
     return array;
 }
 Node *handleSatements(vector<Tokens> &tokens)
@@ -870,7 +873,7 @@ Node *handleSatements(vector<Tokens> &tokens)
     case type::STEP:
         return handle_step(tokens);
     case type::ARRAY:
-        return handle_array(tokens);
+        return handle_array_declaration(tokens);
     default:
         return parse_var_statements(tokens, a);
     }
