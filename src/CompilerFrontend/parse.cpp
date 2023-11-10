@@ -122,6 +122,7 @@ struct ArrayRef : public Node
 {
     Tokens *name;
     Node *RefedLocation;
+    Node *value;
 };
 
 struct LoopNode : public Node
@@ -260,7 +261,17 @@ Node *factor(vector<Tokens> &tokens)
     }
     else if (matchAndRemove(tokens, type::WORD) != nullptr)
     {
+        if (matchAndRemove(tokens, type::OP_BRACKET) != nullptr)
+        {
+
+            ArrayRef *arrayRef = new ArrayRef;
+            arrayRef->name = current;
+            arrayRef->RefedLocation = expression(tokens);
+            matchAndRemove(tokens, type::CL_BRACKET);
+            return arrayRef;
+        }
         Node *a = handleCalls(tokens, current);
+
         if (a == nullptr)
         {
             VaraibleReference *var = new VaraibleReference;
@@ -784,6 +795,7 @@ Node *handle_step(vector<Tokens> &tokens)
     var->expression = op;
     return var;
 }
+
 Node *parse_var_statements(vector<Tokens> &tokens, Tokens *a)
 {
     if (a->id == type::WORD)
@@ -792,6 +804,10 @@ Node *parse_var_statements(vector<Tokens> &tokens, Tokens *a)
         if (functionCall != nullptr)
         {
             return functionCall;
+        }
+        if (matchAndRemove(tokens, type::OP_BRACKET) != nullptr)
+        {
+            return parse_arr_Ref(tokens, a);
         }
         return parserVarRef(tokens, a);
     }
@@ -805,6 +821,16 @@ Node *parse_var_statements(vector<Tokens> &tokens, Tokens *a)
         return parseVar(tokens, a);
     }
 }
+Node *parse_arr_Ref(vector<Tokens> &tokens, Tokens *name)
+{
+    ArrayRef *arrayRef = new ArrayRef;
+    arrayRef->name = name;
+    arrayRef->RefedLocation = expression(tokens);
+    matchAndRemove(tokens, type::CL_BRACKET);
+    matchAndRemove(tokens, type::EQUALS);
+    arrayRef->value = expression(tokens);
+    return arrayRef;
+}
 Node *handle_array_declaration(vector<Tokens> &tokens)
 {
     ArrayDeclaration *array = new ArrayDeclaration;
@@ -815,6 +841,7 @@ Node *handle_array_declaration(vector<Tokens> &tokens)
     matchAndRemove(tokens, type::CL_BRACKET);
     array->size = size;
     array->typeOfVar = type;
+    array->varaible = matchAndRemove(tokens, type::WORD);
     RemoveEOLS(tokens);
     return array;
 }
