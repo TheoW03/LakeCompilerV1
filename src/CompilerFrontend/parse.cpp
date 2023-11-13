@@ -20,6 +20,7 @@ struct Node
 {
     virtual ~Node();
     Node *left;
+    int s;
     Node *right;
 };
 
@@ -138,7 +139,7 @@ struct MacroNode : public Node
  * function main(a,b){}
  *
  */
-struct FunctionNode : public Node
+struct FunctionNode :  Node
 {
     Tokens *nameOfFunction;
     vector<VaraibleDeclaration *> params;
