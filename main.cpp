@@ -30,7 +30,10 @@ void handle_cli(char *argv[], int argc)
         }
     }
 
-    vector<FunctionNode *> c = functionParse(a);
+    vector<FunctionNode *> c = parse(a);
+    cout << "in main" << endl;
+    // vector<FunctionNode *> functions = functionParse(tokens);
+
     cout << "parsed successfully" << endl;
     string file1 = "";
     for (int i = 0; i < argc; i++)

@@ -11,14 +11,6 @@ using namespace std;
 
 #pragma region Node
 
-// useless
-enum status
-{
-    N_NULL,
-    NUM,
-    OPERATOR,
-    NODE
-};
 /**
  * @brief C++ OOP is icky so
  *
@@ -27,11 +19,8 @@ enum status
 struct Node
 {
     virtual ~Node();
-    Node() : left(nullptr), right(nullptr) {}
-    struct Node *left;
-    struct Node *right;
-    int value;
-    status s = status::NODE;
+    Node *left;
+    Node *right;
 };
 
 struct VaraibleDeclaration : public Node
@@ -151,7 +140,7 @@ struct MacroNode : public Node
  */
 struct FunctionNode : public Node
 {
-    struct Tokens *nameOfFunction;
+    Tokens *nameOfFunction;
     vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
     Tokens *returnType;
@@ -159,25 +148,9 @@ struct FunctionNode : public Node
 #pragma endregion
 Node *expression(vector<Tokens> &tokens);
 #pragma region ignore
-/**
- * annoying segfault vibes :p unused so ignore
- *
- * @param n
- * @return true
- * @return false
- */
-bool isNull(Node *n)
-{
-    return n->s == status::N_NULL;
-}
-void setNull(Node *n)
-{
-    n->s = status::N_NULL;
-}
+
 #pragma endregion
-// Node parse(vector<Tokens> tokens){
-//     return expression(tokens);
-// }
+
 Tokens *current = new Tokens;
 Node *handleSatements(vector<Tokens> &tokens);
 Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct);
@@ -197,27 +170,14 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT)
     {
         return nullptr;
     }
-    // cout << "caller: " + caller << endl;
-    // cout << "passed: " + tokens[0].dictionary[typeT];
-    // cout << "\n";
-    // cout << "id: " + tokens[0].dictionary[tokens[0].id];
-    // cout << "\n";
-    // cout << "buf: " + tokens[0].buffer + " \n";
     if (tokens[0].id == typeT)
     {
 
         Tokens *t = new Tokens(tokens[0]);
         current = t;
         tokens.erase(tokens.begin());
-        // cout << "matched" << endl;
-        // cout << "=" << endl;
-        // cout << "=" << endl;
         return t;
     }
-    // cout << "unmatched \n";
-    // cout << "=" << endl;
-    // cout << "=" << endl;
-
     return nullptr;
 }
 #pragma region Expression term and factor (for equations)
@@ -229,7 +189,6 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT)
  * @return Node*
  */
 
-// todo: #3 REWRITE
 Node *factor(vector<Tokens> &tokens)
 {
 
@@ -322,41 +281,23 @@ Node *term(vector<Tokens> &tokens)
                  : (matchAndRemove(tokens, type::B_AND) != nullptr)    ? current
                  : (matchAndRemove(tokens, type::B_OR) != nullptr)     ? current
                                                                        : nullptr; // n.value = 0;
-    if (op != nullptr)
+    while (op != nullptr)
     {
-        Node *node = nullptr;
-        while (true)
-        {
-            if (node != nullptr)
-            {
-                op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr)   ? current
-                     : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
-                     : (matchAndRemove(tokens, type::MOD) != nullptr)      ? current
-                     : (matchAndRemove(tokens, type::SLL) != nullptr)      ? current
-                     : (matchAndRemove(tokens, type::SRR) != nullptr)      ? current
-                     : (matchAndRemove(tokens, type::B_AND) != nullptr)    ? current
-                     : (matchAndRemove(tokens, type::B_OR) != nullptr)     ? current
-                                                                           : nullptr; // n.value =
-            }
-            if (op == nullptr)
-            {
-
-                return opNode;
-            }
-            Node *right = new Node;
-            right = factor(tokens);
-            OperatorNode *n = new OperatorNode;
-            n->left = new Node;
-            n->left = opNode;
-            n->right = new Node;
-            n->right = right;
-            n->token = op;
-            opNode = n;
-            node = opNode;
-        }
+        OperatorNode *n = new OperatorNode;
+        n->left = opNode;
+        n->right = factor(tokens);
+        n->token = op;
+        opNode = n;
+        op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr)   ? current
+             : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
+             : (matchAndRemove(tokens, type::MOD) != nullptr)      ? current
+             : (matchAndRemove(tokens, type::SLL) != nullptr)      ? current
+             : (matchAndRemove(tokens, type::SRR) != nullptr)      ? current
+             : (matchAndRemove(tokens, type::B_AND) != nullptr)    ? current
+             : (matchAndRemove(tokens, type::B_OR) != nullptr)     ? current
+                                                                   : nullptr; // n.value = 0;
     }
     return opNode;
-    // do stuff
 }
 
 /**
@@ -372,47 +313,20 @@ Node *expression(vector<Tokens> &tokens)
     Node *opNode = term(tokens);
     Tokens *op = (matchAndRemove(tokens, type::ADDITION) != nullptr)   ? current
                  : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
-                                                                       : nullptr; // n.value = 0;
-    if (op != nullptr)
+                                                                       : nullptr;
+    while (op != nullptr)
     {
-        Node *node = nullptr;
-        while (true)
-        {
-            if (node != nullptr)
-            {
-                op = (matchAndRemove(tokens, type::ADDITION) != nullptr)   ? current
-                     : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
-                                                                           : nullptr; // n.value = 0;
-            }
-            if (op == nullptr)
-            {
-                if (opNode == nullptr)
-                {
-                    // cout << "opNode nulll \n";
-                }
-                return opNode;
-            }
-            Node *right = new Node;
-            right = term(tokens);
-            OperatorNode *n = new OperatorNode;
-            n->left = new Node;
-            n->left = opNode;
-            n->right = new Node;
-            n->right = right;
-            n->token = op;
-            // cout << op->buffer << endl;
 
-            opNode = n;
-            node = opNode;
-            // delete op;
-        }
+        OperatorNode *n = new OperatorNode;
+        n->left = opNode;
+        n->right = term(tokens);
+        n->token = op;
+        opNode = n;
+        op = (matchAndRemove(tokens, type::ADDITION) != nullptr)   ? current
+             : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
+                                                                   : nullptr;
     }
-    // if (opNode == nullptr)
-    // {
-    //     cout << "opNode nulll \n";
-    // }
     return opNode;
-    // do stuff
 }
 #pragma endregion
 #pragma region statements
@@ -444,11 +358,12 @@ Tokens *getTypes(vector<Tokens> &tokens)
     return types;
 }
 // will parse functions
-Node *handleFunctions(vector<Tokens> &tokens)
+FunctionNode *handleFunctions(vector<Tokens> &tokens)
 {
     FunctionNode *f = new FunctionNode;
-    matchAndRemove(tokens, type::FUNCTION);
     Tokens *name = matchAndRemove(tokens, type::WORD);
+    f->nameOfFunction = new Tokens;
+    f->nameOfFunction = name;
     matchAndRemove(tokens, type::OP_PARENTHISIS);
 
     vector<VaraibleDeclaration *> vars;
@@ -464,7 +379,6 @@ Node *handleFunctions(vector<Tokens> &tokens)
         v->varaible = word;
         vars.push_back(v);
     }
-    f->nameOfFunction = name;
     f->params = vars;
     return f;
 }
@@ -496,42 +410,23 @@ void printParams(vector<Tokens *> a)
 Node *parserVarRef(vector<Tokens> &tokens, Tokens *name)
 {
     VaraibleReference *var = new VaraibleReference;
-    Tokens *DecOp = (matchAndRemove(tokens, type::ADDITION) != nullptr)   ? current
-                    : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
-                                                                          : nullptr;
-
     var->varaible = name;
-    if (DecOp != nullptr)
-    {
-        OperatorNode *n = new OperatorNode;
-        IntegerNode *num = new IntegerNode;
-        num->num = "1";
-        VaraibleReference *vars = new VaraibleReference;
-        vars->varaible = name;
-        n->left = num;
-        n->right = vars;
-        n->token = DecOp;
-        var->expression = n;
-    }
-    else
-    {
-        matchAndRemove(tokens, type::EQUALS);
-        var->expression = expression(tokens);
-    }
+    matchAndRemove(tokens, type::EQUALS);
+    var->expression = expression(tokens);
     return var;
 }
-/**
- * @brief just me testing, ignore
- *
- * @param tokens
- * @return Node*
- */
-Node *testParse(vector<Tokens> &tokens)
-{
-    FunctionNode *f = static_cast<FunctionNode *>(handleFunctions(tokens));
-    // printParams(f->params);
-    return f;
-}
+// /**
+//  * @brief just me testing, ignore
+//  *
+//  * @param tokens
+//  * @return Node*
+//  */
+// Node *testParse(vector<Tokens> &tokens)
+// {
+//     FunctionNode *f = static_cast<FunctionNode *>(handleFunctions(tokens));
+//     // printParams(f->params);
+//     return f;
+// }
 
 Node *parseVar(vector<Tokens> &tokens, Tokens *type, int constant = 0)
 {
@@ -713,18 +608,6 @@ Node *handleFor(vector<Tokens> &tokens)
     RemoveEOLS(tokens);
     forLoop->condition = handleBooleanExpression(tokens);
     RemoveEOLS(tokens);
-
-    // matchAndRemove(tokens, type::ELLIPSIS, "elisp");
-
-    // BoolExpressionNode *ex = new BoolExpressionNode;
-    // ex->right = vars;
-
-    // ex->left = expression(tokens);
-
-    // Tokens *types = new Tokens;
-    // types->id = type::NOT_EQ;
-    // ex->op = types;
-
     Node *b = handleSatements(tokens); // step
     RemoveEOLS(tokens);
     matchAndRemove(tokens, type::CL_PARENTHISIS);
@@ -766,7 +649,7 @@ Node *handleFor(vector<Tokens> &tokens)
     // }
     // statements.push_back(b);
 
-    // forLoop->statements = statements;
+    // forLoop->statements = ;
     return forLoop;
 }
 /**
@@ -795,6 +678,16 @@ Node *handle_step(vector<Tokens> &tokens)
     var->expression = op;
     return var;
 }
+Node *parse_arr_Ref(vector<Tokens> &tokens, Tokens *name)
+{
+    ArrayRef *arrayRef = new ArrayRef;
+    arrayRef->name = name;
+    arrayRef->RefedLocation = expression(tokens);
+    matchAndRemove(tokens, type::CL_BRACKET);
+    matchAndRemove(tokens, type::EQUALS);
+    arrayRef->value = expression(tokens);
+    return arrayRef;
+}
 
 Node *parse_var_statements(vector<Tokens> &tokens, Tokens *a)
 {
@@ -821,16 +714,7 @@ Node *parse_var_statements(vector<Tokens> &tokens, Tokens *a)
         return parseVar(tokens, a);
     }
 }
-Node *parse_arr_Ref(vector<Tokens> &tokens, Tokens *name)
-{
-    ArrayRef *arrayRef = new ArrayRef;
-    arrayRef->name = name;
-    arrayRef->RefedLocation = expression(tokens);
-    matchAndRemove(tokens, type::CL_BRACKET);
-    matchAndRemove(tokens, type::EQUALS);
-    arrayRef->value = expression(tokens);
-    return arrayRef;
-}
+
 Node *handle_array_declaration(vector<Tokens> &tokens)
 {
     ArrayDeclaration *array = new ArrayDeclaration;
@@ -922,10 +806,8 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
     while (matchAndRemove(tokens, type::FUNCTION) != nullptr)
     {
 
-        FunctionNode *f;
         vector<Node *> states;
-        Node *func = handleFunctions(tokens);
-        FunctionNode *pd = dynamic_cast<FunctionNode *>(func);
+        FunctionNode *pd = handleFunctions(tokens);
         if (matchAndRemove(tokens, type::RETURNS) != nullptr)
         {
 
@@ -958,9 +840,9 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
         }
         pd->statements = states;
         functionNodes.push_back(pd);
+        // delete pd;
         RemoveEOLS(tokens);
     }
-
     return functionNodes;
 }
 #pragma endregion
@@ -978,27 +860,11 @@ Node *testExpressionParse(vector<Tokens> &tokens)
     return expression(tokens);
 }
 /**
- * the entry point for parsing
- * i will eventually upgrade it to a list
  */
 
 vector<FunctionNode *> parse(vector<Tokens> &tokens)
 {
+
     return functionParse(tokens);
-
-    // Tokens *var = matchAndRemove(tokens, type::WORD);
-    // matchAndRemove(tokens, type::EQUALS);
-    // Node *a = expression(tokens);
-    // // varaibleNode *c = new varaibleNode;
-    // // c->expression = a;
-    // // c->varailbe = var;
-
-    // if (a == nullptr)
-    // {
-    //     // cout << "null \n";
-    //     return nullptr;
-    // }
-
-    // return a;
 }
 #pragma endregion

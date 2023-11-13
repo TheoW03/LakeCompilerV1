@@ -345,7 +345,11 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
     {
 
         // FILE* fp = fopen("output.s", "w");
+
         FunctionNode *pd = dynamic_cast<FunctionNode *>(op[i]);
+        if (op[i] == nullptr)
+        {
+        }
 
         vector<Node *> state = pd->statements;
         map<string, Varaible *> map;

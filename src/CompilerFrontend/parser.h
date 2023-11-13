@@ -6,32 +6,28 @@ using namespace std;
 
 #define OFFSET 65536
 
-#ifndef STAT_H
-#define STAT_H
-enum status
-{
-    N_NULL,
-    NUM,
-    OPERATOR
-};
-#endif
 #ifndef NODE_H
 #define NODE_H
 
 struct Node
 {
-    struct Node *left;
-    struct Node *right;
-    status s;
+    Node *left;
+    Node *right;
     virtual ~Node();
-    Node() : left(nullptr), right(nullptr) {}
 };
+#endif
+
+#ifndef VAR_REF_H
+#define VAR_REF_H
 struct VaraibleReference : public Node
 {
     Node *expression;
     Tokens *varaible;
 };
+#endif
 
+#ifndef VAR_DEC_H
+#define VAR_DEC_H
 struct VaraibleDeclaration : public Node
 {
     Node *expression;
@@ -40,31 +36,54 @@ struct VaraibleDeclaration : public Node
     int size;
     int constant;
 };
+#endif
 
+#ifndef BOOL_EXPR_NODE_H
+#define BOOL_EXPR_NODE_H
 struct BoolExpressionNode : public Node
 {
     Node *right;
     Node *left;
     Tokens *op;
 };
+#endif
+
+#ifndef BOOL_LITERAL_NODE_H
+#define BOOL_LITERAL_NODE_H
 struct BooleanLiteralNode : public Node
 {
     Tokens *value;
 };
+#endif
+
+#ifndef LOOP_NODE_H
+#define LOOP_NODE_H
 struct LoopNode : public Node
 {
     BoolExpressionNode *condition;
     vector<Node *> statements;
 };
+#endif
+
+#ifndef ELSE_NODE_H
+#define ELSE_NODE_H
 struct ElseNode : public Node
 {
 
     vector<Node *> statements;
 };
+#endif
+
+#ifndef CHAR_NODE_H
+#define CHAR_NODE_H
 struct CharNode : public Node
 {
     string character;
 };
+#endif
+
+#ifndef IF_STATEMENT_NODE_H
+#define IF_STATEMENT_NODE_H
 struct IfSatementNode : public Node
 {
 
@@ -72,59 +91,83 @@ struct IfSatementNode : public Node
     vector<Node *> statements;
     ElseNode *Else;
 };
+#endif
+
+#ifndef FUNC_CALL_NODE_H
+#define FUNC_CALL_NODE_H
 struct funcCallNode : public Node
 {
     Tokens *funcCall;
     vector<Node *> params;
 };
+#endif
 
+#ifndef FLOAT_NODE_H
+#define FLOAT_NODE_H
 struct FloatNode : public Node
 {
     string num;
 };
+#endif
 
+#ifndef INT_NODE_H
+#define INT_NODE_H
 struct IntegerNode : public Node
 {
     string num;
 };
+#endif
+
+#ifndef STRING_NODE_H
+#define STRING_NODE_H
 struct StringNode : public Node
 {
     string stringBuffer;
 };
+#endif
+
+#ifndef OP_NODE_H
+#define OP_NODE_H
 struct OperatorNode : public Node
 {
     struct Tokens *token;
 };
+#endif
+#ifndef STATE_NODE_H
+#define STATE_NODE_H
 struct StatementNode : public Node
 {
     struct Node *expression;
     struct Tokens *nameOfVar;
 };
+#endif
+#ifndef RETURN_STATEMENT_H
+#define RETURN_STATEMENT_H
 struct ReturnStatment : public Node
 {
     Node *expression;
 };
-// struct ConstantVarNode : public Node
-// {
-//     Node *expression;
-//     Tokens *varailbe;
-//     Tokens *typeOfVar;
-//     int size;
-// };
+#endif
+
+#ifndef FUNCTION_NODE_H
+#define FUNCTION_NODE_H
 struct FunctionNode : public Node
 {
-    struct Tokens *nameOfFunction;
+    Tokens *nameOfFunction;
     vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
     Tokens *returnType;
 };
+#endif
+#ifndef FOR_LOOP_NODE_H
+#define FOR_LOOP_NODE_H
 struct ForLoopNode : public Node
 {
     Node *incrimentorVar;
     BoolExpressionNode *condition;
     vector<Node *> statements;
 };
-#endif // NODE_H
+#endif
 
 vector<FunctionNode *> parse(vector<Tokens> &tokens);
 
