@@ -139,7 +139,7 @@ struct MacroNode : public Node
  * function main(a,b){}
  *
  */
-struct FunctionNode : Node
+struct FunctionNode : public Node
 {
     Tokens nameOfFunction;
     vector<VaraibleDeclaration *> params;

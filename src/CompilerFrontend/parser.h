@@ -153,7 +153,7 @@ struct ReturnStatment : public Node
 
 #ifndef FUNCTION_NODE_H
 #define FUNCTION_NODE_H
-struct FunctionNode : Node
+struct FunctionNode : public Node
 {
     Tokens nameOfFunction;
     vector<VaraibleDeclaration *> params;

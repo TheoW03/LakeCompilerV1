@@ -24,7 +24,7 @@ struct Scope_Monitor
 {
     vector<Scope_dimension *> scope;
     map<string, FunctionNode *> f;
-    RegisterAllocation *rg;
+    RegisterAllocation rg;
 };
 
 int nextRegister = -1;

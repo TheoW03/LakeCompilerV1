@@ -415,8 +415,8 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         Scope_Monitor *monitor = new Scope_Monitor;
         monitor->scope = scope;
         monitor->f = f;
-        RegisterAllocation *rg = new RegisterAllocation();
-        rg->reset_registers();
+        RegisterAllocation rg;
+        rg.reset_registers();
         monitor->rg = rg;
 
         for (size_t i = 0; i < state.size(); i++)
