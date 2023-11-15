@@ -10,7 +10,7 @@ using namespace std;
 
 struct Varaible
 {
-    Tokens *varType;
+    Tokens varType;
     int stackNum;
     int constant;
 };
@@ -106,10 +106,10 @@ Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
     {
         map<string, Varaible *> b = scope[i]->vars;
 
-        if (b.find(var->varaible->buffer) != b.end())
+        if (b.find(var->varaible.buffer) != b.end())
         {
 
-            return b[var->varaible->buffer];
+            return b[var->varaible.buffer];
         }
     }
     return nullptr;
@@ -124,14 +124,14 @@ Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension *> &scope,
     for (int i = 0; i < scope.size(); i++)
     {
         map<string, Varaible *> b = scope[i]->vars;
-        if (b.find(var->varaible->buffer) != b.end())
+        if (b.find(var->varaible.buffer) != b.end())
         {
 
-            cerr << var->varaible->buffer << " has been declared twice" << endl;
+            cerr << var->varaible.buffer << " has been declared twice" << endl;
             exit(1);
             return nullptr;
         }
     }
-    scope[scope.size() - 1]->vars[var->varaible->buffer] = a;
+    scope[scope.size() - 1]->vars[var->varaible.buffer] = a;
     return a;
 }

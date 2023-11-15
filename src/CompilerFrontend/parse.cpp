@@ -4,6 +4,7 @@
 #include "../../src/CompilerFrontend/Lexxer.h"
 #include <typeinfo>
 #include <sstream>
+#include <optional>
 
 #define OFFSET 65536
 
@@ -20,15 +21,14 @@ struct Node
 {
     virtual ~Node();
     Node *left;
-    int s;
     Node *right;
 };
 
 struct VaraibleDeclaration : public Node
 {
     Node *expression;
-    Tokens *varaible;
-    Tokens *typeOfVar;
+    Tokens varaible;
+    Tokens typeOfVar;
     int size;
     int constant;
 };
@@ -52,7 +52,7 @@ struct CharNode : public Node
 
 struct BooleanLiteralNode : public Node
 {
-    Tokens *value;
+    Tokens value;
 };
 struct ReturnStatment : public Node
 {
@@ -62,7 +62,7 @@ struct BoolExpressionNode : public Node
 {
     Node *right;
     Node *left;
-    Tokens *op;
+    optional<Tokens> op;
 };
 struct ElseNode : public Node
 {
@@ -79,7 +79,7 @@ struct IfSatementNode : public Node
 struct VaraibleReference : public Node
 {
     Node *expression;
-    Tokens *varaible;
+    Tokens varaible;
 };
 struct ForLoopNode : public Node
 {
@@ -94,23 +94,23 @@ struct ForLoopNode : public Node
  */
 struct OperatorNode : public Node
 {
-    struct Tokens *token;
+    Tokens token;
 };
 
 struct StatementNode : public Node
 {
     struct Node *expression;
-    struct Tokens *nameOfVar;
+    struct Tokens nameOfVar;
 };
 struct ArrayDeclaration : public Node
 {
     Node *size;
-    Tokens *varaible;
-    Tokens *typeOfVar;
+    Tokens varaible;
+    Tokens typeOfVar;
 };
 struct ArrayRef : public Node
 {
-    Tokens *name;
+    Tokens name;
     Node *RefedLocation;
     Node *value;
 };
@@ -126,12 +126,12 @@ struct LoopNode : public Node
  */
 struct funcCallNode : public Node
 {
-    Tokens *funcCall;
+    Tokens funcCall;
     vector<Node *> params;
 };
 struct MacroNode : public Node
 {
-    Tokens *macro;
+    Tokens macro;
     Node *statement;
 };
 /**
@@ -139,12 +139,12 @@ struct MacroNode : public Node
  * function main(a,b){}
  *
  */
-struct FunctionNode :  Node
+struct FunctionNode : Node
 {
-    Tokens *nameOfFunction;
+    Tokens nameOfFunction;
     vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
-    Tokens *returnType;
+    optional<Tokens> returnType;
 };
 #pragma endregion
 Node *expression(vector<Tokens> &tokens);
@@ -152,9 +152,9 @@ Node *expression(vector<Tokens> &tokens);
 
 #pragma endregion
 
-Tokens *current = new Tokens;
+optional<Tokens> current;
 Node *handleSatements(vector<Tokens> &tokens);
-Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct);
+Node *handleCalls(vector<Tokens> &tokens, Tokens checkIfFunct);
 
 /**
  * @brief I could use a stack, but a stack coesnt have peek lol
@@ -165,21 +165,22 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct);
  * @param caller
  * @return Tokens*
  */
-Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT)
+
+optional<Tokens> matchAndRemove(vector<Tokens> &tokens, type typeT)
 {
     if (tokens.empty())
     {
-        return nullptr;
+        return nullopt;
     }
     if (tokens[0].id == typeT)
     {
 
-        Tokens *t = new Tokens(tokens[0]);
+        Tokens t = tokens[0];
         current = t;
         tokens.erase(tokens.begin());
         return t;
     }
-    return nullptr;
+    return nullopt;
 }
 #pragma region Expression term and factor (for equations)
 /**
@@ -193,13 +194,13 @@ Tokens *matchAndRemove(vector<Tokens> &tokens, type typeT)
 Node *factor(vector<Tokens> &tokens)
 {
 
-    if (matchAndRemove(tokens, type::NUMBER) != nullptr)
+    if (matchAndRemove(tokens, type::NUMBER).has_value())
     {
-        string myString = current->buffer;
+        string myString = current.value().buffer;
         if (myString.find(".") == string::npos)
         {
             IntegerNode *intNode = new IntegerNode;
-            intNode->num = current->buffer;
+            intNode->num = current.value().buffer;
             return intNode;
         }
         int fPoint = (int)(stof(myString) * OFFSET);
@@ -207,50 +208,50 @@ Node *factor(vector<Tokens> &tokens)
         floatNode->num = to_string(fPoint);
         return floatNode;
     }
-    else if (matchAndRemove(tokens, type::OP_PARENTHISIS) != nullptr)
+    else if (matchAndRemove(tokens, type::OP_PARENTHISIS).has_value())
     {
         Node *exp = expression(tokens);
         matchAndRemove(tokens, type::CL_PARENTHISIS);
         return exp;
     }
-    else if (matchAndRemove(tokens, type::STRING_LITERAL) != nullptr)
+    else if (matchAndRemove(tokens, type::STRING_LITERAL).has_value())
     {
         StringNode *s = new StringNode;
-        s->stringBuffer = current->buffer;
+        s->stringBuffer = current.value().buffer;
         return s;
     }
-    else if (matchAndRemove(tokens, type::WORD) != nullptr)
+    else if (matchAndRemove(tokens, type::WORD).has_value())
     {
-        if (matchAndRemove(tokens, type::OP_BRACKET) != nullptr)
+        if (matchAndRemove(tokens, type::OP_BRACKET).has_value())
         {
 
             ArrayRef *arrayRef = new ArrayRef;
-            arrayRef->name = current;
+            arrayRef->name = current.value();
             arrayRef->RefedLocation = expression(tokens);
             matchAndRemove(tokens, type::CL_BRACKET);
             return arrayRef;
         }
-        Node *a = handleCalls(tokens, current);
+        Node *a = handleCalls(tokens, current.value());
 
         if (a == nullptr)
         {
             VaraibleReference *var = new VaraibleReference;
-            var->varaible = current;
+            var->varaible = current.value();
             return var;
         }
         return a;
     }
-    else if (matchAndRemove(tokens, type::TRUE) != nullptr || matchAndRemove(tokens, type::FALSE) != nullptr)
+    else if (matchAndRemove(tokens, type::TRUE).has_value() || matchAndRemove(tokens, type::FALSE).has_value())
     {
         BooleanLiteralNode *boolean = new BooleanLiteralNode;
-        boolean->value = current;
+        boolean->value = current.value();
         return boolean;
     }
-    else if (matchAndRemove(tokens, type::CHAR_LITERAL) != nullptr)
+    else if (matchAndRemove(tokens, type::CHAR_LITERAL).has_value())
     {
         CharNode *integer = new CharNode;
 
-        string s = current->buffer;
+        string s = current.value().buffer;
         char myChar = s[0]; // This gets the first character (index 0)
         integer->character = to_string((int)myChar);
         return integer;
@@ -274,29 +275,37 @@ Node *term(vector<Tokens> &tokens)
     Node *n = new Node;
     Node *opNode = new Node;
     opNode = factor(tokens);
-    Tokens *op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr)   ? current
-                 : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
-                 : (matchAndRemove(tokens, type::MOD) != nullptr)      ? current
-                 : (matchAndRemove(tokens, type::SLL) != nullptr)      ? current
-                 : (matchAndRemove(tokens, type::SRR) != nullptr)      ? current
-                 : (matchAndRemove(tokens, type::B_AND) != nullptr)    ? current
-                 : (matchAndRemove(tokens, type::B_OR) != nullptr)     ? current
-                                                                       : nullptr; // n.value = 0;
-    while (op != nullptr)
+    optional<Tokens> op = (matchAndRemove(tokens, type::MULTIPLY).has_value())   ? current
+                          : (matchAndRemove(tokens, type::DIVISION).has_value()) ? current
+                          : (matchAndRemove(tokens, type::MOD).has_value())      ? current
+                          : (matchAndRemove(tokens, type::SLL).has_value())      ? current
+                          : (matchAndRemove(tokens, type::SRR).has_value())      ? current
+                          : (matchAndRemove(tokens, type::B_AND).has_value())    ? current
+                          : (matchAndRemove(tokens, type::B_OR).has_value())     ? current
+                                                                                 : nullopt;
+    // Tokens op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr)   ? current
+    //             : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
+    //             : (matchAndRemove(tokens, type::MOD) != nullptr)      ? current
+    //             : (matchAndRemove(tokens, type::SLL) != nullptr)      ? current
+    //             : (matchAndRemove(tokens, type::SRR) != nullptr)      ? current
+    //             : (matchAndRemove(tokens, type::B_AND) != nullptr)    ? current
+    //             : (matchAndRemove(tokens, type::B_OR).has_value())     ? current
+    //                                                                   : nullopt;
+    while (op.has_value())
     {
         OperatorNode *n = new OperatorNode;
         n->left = opNode;
         n->right = factor(tokens);
-        n->token = op;
+        n->token = op.value();
         opNode = n;
-        op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr)   ? current
-             : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
-             : (matchAndRemove(tokens, type::MOD) != nullptr)      ? current
-             : (matchAndRemove(tokens, type::SLL) != nullptr)      ? current
-             : (matchAndRemove(tokens, type::SRR) != nullptr)      ? current
-             : (matchAndRemove(tokens, type::B_AND) != nullptr)    ? current
-             : (matchAndRemove(tokens, type::B_OR) != nullptr)     ? current
-                                                                   : nullptr; // n.value = 0;
+        op = (matchAndRemove(tokens, type::MULTIPLY).has_value())   ? current
+             : (matchAndRemove(tokens, type::DIVISION).has_value()) ? current
+             : (matchAndRemove(tokens, type::MOD).has_value())      ? current
+             : (matchAndRemove(tokens, type::SLL).has_value())      ? current
+             : (matchAndRemove(tokens, type::SRR).has_value())      ? current
+             : (matchAndRemove(tokens, type::B_AND).has_value())    ? current
+             : (matchAndRemove(tokens, type::B_OR).has_value())     ? current
+                                                                    : nullopt;
     }
     return opNode;
 }
@@ -312,20 +321,20 @@ Node *expression(vector<Tokens> &tokens)
     Node *n = new Node;
     // Node* opNode = new Node;
     Node *opNode = term(tokens);
-    Tokens *op = (matchAndRemove(tokens, type::ADDITION) != nullptr)   ? current
-                 : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
-                                                                       : nullptr;
-    while (op != nullptr)
+    optional<Tokens> op = (matchAndRemove(tokens, type::ADDITION).has_value())   ? current
+                          : (matchAndRemove(tokens, type::SUBTRACT).has_value()) ? current
+                                                                                 : nullopt;
+    while (op.has_value())
     {
 
         OperatorNode *n = new OperatorNode;
         n->left = opNode;
         n->right = term(tokens);
-        n->token = op;
+        n->token = op.value();
         opNode = n;
-        op = (matchAndRemove(tokens, type::ADDITION) != nullptr)   ? current
-             : (matchAndRemove(tokens, type::SUBTRACT) != nullptr) ? current
-                                                                   : nullptr;
+        op = (matchAndRemove(tokens, type::ADDITION).has_value())   ? current
+             : (matchAndRemove(tokens, type::SUBTRACT).has_value()) ? current
+                                                                    : nullopt;
     }
     return opNode;
 }
@@ -338,46 +347,38 @@ Node *expression(vector<Tokens> &tokens)
  */
 void RemoveEOLS(vector<Tokens> &list)
 {
-    while (true)
-    {
-        Tokens *e = matchAndRemove(list, type::END_OF_LINE);
-
-        if (e == nullptr)
-        {
-            return;
-        }
-    }
+    while (matchAndRemove(list, type::END_OF_LINE).has_value())
+        ;
 }
-Tokens *getTypes(vector<Tokens> &tokens)
+optional<Tokens> getTypes(vector<Tokens> &tokens)
 {
-    Tokens *types = (matchAndRemove(tokens, type::FLOAT) != nullptr)    ? current
-                    : (matchAndRemove(tokens, type::INT) != nullptr)    ? current
-                    : (matchAndRemove(tokens, type::BOOL) != nullptr)   ? current
-                    : (matchAndRemove(tokens, type::STRING) != nullptr) ? current
-                    : (matchAndRemove(tokens, type::CHAR) != nullptr)   ? current
-                                                                        : nullptr;
-    return types;
+
+    return (matchAndRemove(tokens, type::FLOAT).has_value())    ? current
+           : (matchAndRemove(tokens, type::INT).has_value())    ? current
+           : (matchAndRemove(tokens, type::BOOL).has_value())   ? current
+           : (matchAndRemove(tokens, type::STRING).has_value()) ? current
+           : (matchAndRemove(tokens, type::CHAR).has_value())   ? current
+                                                                : nullopt;
 }
 // will parse functions
 FunctionNode *handleFunctions(vector<Tokens> &tokens)
 {
     FunctionNode *f = new FunctionNode;
-    Tokens *name = matchAndRemove(tokens, type::WORD);
-    f->nameOfFunction = new Tokens;
-    f->nameOfFunction = name;
+    optional<Tokens> name = matchAndRemove(tokens, type::WORD);
+    f->nameOfFunction = name.value();
     matchAndRemove(tokens, type::OP_PARENTHISIS);
 
     vector<VaraibleDeclaration *> vars;
 
-    while (matchAndRemove(tokens, type::CL_PARENTHISIS) == nullptr)
+    while (!matchAndRemove(tokens, type::CL_PARENTHISIS).has_value())
     {
-        Tokens *word = matchAndRemove(tokens, type::WORD);
+        optional<Tokens> word = matchAndRemove(tokens, type::WORD);
         matchAndRemove(tokens, type::SEMI_COLON);
-        Tokens *typeVar = getTypes(tokens);
+        optional<Tokens> typeVar = getTypes(tokens);
         matchAndRemove(tokens, type::COMMA);
         VaraibleDeclaration *v = new VaraibleDeclaration;
-        v->typeOfVar = typeVar;
-        v->varaible = word;
+        v->typeOfVar = typeVar.value();
+        v->varaible = word.value();
         vars.push_back(v);
     }
     f->params = vars;
@@ -386,7 +387,7 @@ FunctionNode *handleFunctions(vector<Tokens> &tokens)
 
 Node *handleMacros(vector<Tokens> &list)
 {
-    Tokens *name = matchAndRemove(list, type::WORD);
+    optional<Tokens> name = matchAndRemove(list, type::WORD);
     Node *statements;
     statements = expression(list);
     if (statements == nullptr)
@@ -394,7 +395,7 @@ Node *handleMacros(vector<Tokens> &list)
         statements = handleSatements(list);
     }
     MacroNode *a = new MacroNode;
-    a->macro = name;
+    a->macro = name.value();
     a->statement = statements;
     RemoveEOLS(list);
     return a;
@@ -408,7 +409,7 @@ void printParams(vector<Tokens *> a)
     }
 }
 
-Node *parserVarRef(vector<Tokens> &tokens, Tokens *name)
+Node *parserVarRef(vector<Tokens> &tokens, Tokens name)
 {
     VaraibleReference *var = new VaraibleReference;
     var->varaible = name;
@@ -429,10 +430,10 @@ Node *parserVarRef(vector<Tokens> &tokens, Tokens *name)
 //     return f;
 // }
 
-Node *parseVar(vector<Tokens> &tokens, Tokens *type, int constant = 0)
+Node *parseVar(vector<Tokens> &tokens, Tokens type, int constant = 0)
 {
 
-    Tokens *name = matchAndRemove(tokens, type::WORD);
+    Tokens name = matchAndRemove(tokens, type::WORD).value();
     VaraibleDeclaration *n = new VaraibleDeclaration;
     n->typeOfVar = type;
     n->varaible = name;
@@ -455,13 +456,13 @@ BoolExpressionNode *handleBooleanExpression(vector<Tokens> &tokens)
 {
     Node *right = expression(tokens);
 
-    Tokens *op = (matchAndRemove(tokens, type::BOOL_EQ) != nullptr)  ? current
-                 : (matchAndRemove(tokens, type::LTE) != nullptr)    ? current
-                 : (matchAndRemove(tokens, type::GTE) != nullptr)    ? current
-                 : (matchAndRemove(tokens, type::GT) != nullptr)     ? current
-                 : (matchAndRemove(tokens, type::LT) != nullptr)     ? current
-                 : (matchAndRemove(tokens, type::NOT_EQ) != nullptr) ? current
-                                                                     : nullptr;
+    optional<Tokens> op = (matchAndRemove(tokens, type::BOOL_EQ).has_value())  ? current
+                          : (matchAndRemove(tokens, type::LTE).has_value())    ? current
+                          : (matchAndRemove(tokens, type::GTE).has_value())    ? current
+                          : (matchAndRemove(tokens, type::GT).has_value())     ? current
+                          : (matchAndRemove(tokens, type::LT).has_value())     ? current
+                          : (matchAndRemove(tokens, type::NOT_EQ).has_value()) ? current
+                                                                               : nullopt;
     Node *left = expression(tokens);
     BoolExpressionNode *a = new BoolExpressionNode;
     a->right = right;
@@ -470,16 +471,16 @@ BoolExpressionNode *handleBooleanExpression(vector<Tokens> &tokens)
     return a;
 }
 
-Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct)
+Node *handleCalls(vector<Tokens> &tokens, Tokens checkIfFunct)
 {
     funcCallNode *f1 = new funcCallNode;
     f1->funcCall = checkIfFunct;
-    if (matchAndRemove(tokens, type::OP_PARENTHISIS) == nullptr)
+    if (!matchAndRemove(tokens, type::OP_PARENTHISIS).has_value())
     {
         return nullptr;
     }
     vector<Node *> vars;
-    while (matchAndRemove(tokens, type::CL_PARENTHISIS) == nullptr)
+    while (!matchAndRemove(tokens, type::CL_PARENTHISIS).has_value())
     {
         vars.push_back(expression(tokens));
         matchAndRemove(tokens, type::COMMA);
@@ -498,14 +499,14 @@ Node *handleLoops(vector<Tokens> &tokens)
 
     vector<Node *> states;
 
-    if (matchAndRemove(tokens, type::BEGIN) == nullptr)
+    if (!matchAndRemove(tokens, type::BEGIN).has_value())
     {
         RemoveEOLS(tokens);
         states.push_back(handleSatements(tokens));
     }
     else
     {
-        while (matchAndRemove(tokens, type::END) == nullptr)
+        while (!matchAndRemove(tokens, type::END).has_value())
         {
             RemoveEOLS(tokens);
             states.push_back(handleSatements(tokens));
@@ -528,7 +529,7 @@ Node *handleIfStatements(vector<Tokens> &tokens)
 
     IfSatementNode *ifStatement = new IfSatementNode;
     ifStatement->condition = a;
-    if (matchAndRemove(tokens, type::CL_PARENTHISIS) == nullptr && matchAndRemove(tokens, type::THEN) == nullptr)
+    if (!matchAndRemove(tokens, type::CL_PARENTHISIS).has_value() && !matchAndRemove(tokens, type::THEN).has_value())
     {
         cout << "error" << endl;
         exit(EXIT_FAILURE);
@@ -537,9 +538,9 @@ Node *handleIfStatements(vector<Tokens> &tokens)
 
     vector<Node *> states;
     RemoveEOLS(tokens);
-    if (matchAndRemove(tokens, type::BEGIN) != nullptr)
+    if (matchAndRemove(tokens, type::BEGIN).has_value())
     {
-        while (matchAndRemove(tokens, type::END) == nullptr)
+        while (!matchAndRemove(tokens, type::END).has_value())
         {
 
             RemoveEOLS(tokens);
@@ -557,14 +558,14 @@ Node *handleIfStatements(vector<Tokens> &tokens)
 
     ifStatement->statements = states;
 
-    if (matchAndRemove(tokens, type::ELSE) != nullptr)
+    if (matchAndRemove(tokens, type::ELSE).has_value())
     {
         ElseNode *elseNode = new ElseNode;
 
         vector<Node *> states;
         RemoveEOLS(tokens);
 
-        if (matchAndRemove(tokens, type::BEGIN) == nullptr)
+        if (!matchAndRemove(tokens, type::BEGIN).has_value())
         {
             RemoveEOLS(tokens);
             cout << "test" << endl;
@@ -573,7 +574,7 @@ Node *handleIfStatements(vector<Tokens> &tokens)
         }
         else
         {
-            while (matchAndRemove(tokens, type::END) == nullptr)
+            while (!matchAndRemove(tokens, type::END).has_value())
             {
                 RemoveEOLS(tokens);
                 states.push_back(handleSatements(tokens));
@@ -613,9 +614,9 @@ Node *handleFor(vector<Tokens> &tokens)
     RemoveEOLS(tokens);
     matchAndRemove(tokens, type::CL_PARENTHISIS);
 
-    if (matchAndRemove(tokens, type::BEGIN) != nullptr)
+    if (matchAndRemove(tokens, type::BEGIN).has_value())
     {
-        while (matchAndRemove(tokens, type::END) == nullptr)
+        while (!matchAndRemove(tokens, type::END).has_value())
         {
             RemoveEOLS(tokens);
             statements.push_back(handleSatements(tokens));
@@ -666,20 +667,20 @@ Node *handle_step(vector<Tokens> &tokens)
 {
     VaraibleReference *var = new VaraibleReference;
     // Node *word = expression(tokens);
-    Tokens *word = matchAndRemove(tokens, type::WORD);
+    Tokens word = matchAndRemove(tokens, type::WORD).value();
     var->varaible = word;
     OperatorNode *op = new OperatorNode;
 
     matchAndRemove(tokens, type::COMMA);
     op->left = factor(tokens);
     op->right = var;
-    Tokens *toke = new Tokens;
-    toke->id = type::ADDITION;
+    Tokens toke;
+    toke.id = type::ADDITION;
     op->token = toke;
     var->expression = op;
     return var;
 }
-Node *parse_arr_Ref(vector<Tokens> &tokens, Tokens *name)
+Node *parse_arr_Ref(vector<Tokens> &tokens, Tokens name)
 {
     ArrayRef *arrayRef = new ArrayRef;
     arrayRef->name = name;
@@ -690,24 +691,24 @@ Node *parse_arr_Ref(vector<Tokens> &tokens, Tokens *name)
     return arrayRef;
 }
 
-Node *parse_var_statements(vector<Tokens> &tokens, Tokens *a)
+Node *parse_var_statements(vector<Tokens> &tokens, Tokens a)
 {
-    if (a->id == type::WORD)
+    if (a.id == type::WORD)
     {
         Node *functionCall = handleCalls(tokens, a);
         if (functionCall != nullptr)
         {
             return functionCall;
         }
-        if (matchAndRemove(tokens, type::OP_BRACKET) != nullptr)
+        if (matchAndRemove(tokens, type::OP_BRACKET).has_value())
         {
             return parse_arr_Ref(tokens, a);
         }
         return parserVarRef(tokens, a);
     }
-    else if (a->id == type::CONSTANT)
+    else if (a.id == type::CONSTANT)
     {
-        a = getTypes(tokens);
+        a = getTypes(tokens).value();
         return parseVar(tokens, a, 1);
     }
     else
@@ -720,48 +721,47 @@ Node *handle_array_declaration(vector<Tokens> &tokens)
 {
     ArrayDeclaration *array = new ArrayDeclaration;
     matchAndRemove(tokens, type::OP_BRACKET);
-    Tokens *type = getTypes(tokens);
+    Tokens type = getTypes(tokens).value();
     matchAndRemove(tokens, type::SEMI_COLON);
     Node *size = expression(tokens);
     matchAndRemove(tokens, type::CL_BRACKET);
     array->size = size;
     array->typeOfVar = type;
-    array->varaible = matchAndRemove(tokens, type::WORD);
+    array->varaible = matchAndRemove(tokens, type::WORD).value();
     RemoveEOLS(tokens);
     return array;
 }
 Node *handleSatements(vector<Tokens> &tokens)
 {
 #pragma region functionstate
-    if (matchAndRemove(tokens, type::MACRO) != nullptr)
+    if (matchAndRemove(tokens, type::MACRO).has_value())
     {
         return handleMacros(tokens);
     }
-    Tokens *checkIfFunct = (matchAndRemove(tokens, type::PRINT) != nullptr)  ? current
-                           : (matchAndRemove(tokens, type::EXIT) != nullptr) ? current
-                                                                             : nullptr;
-    if (checkIfFunct != nullptr)
-    {
-        return handleCalls(tokens, checkIfFunct);
-    }
+    optional<Tokens> checkIfFunct = (matchAndRemove(tokens, type::PRINT).has_value())  ? current
+                                    : (matchAndRemove(tokens, type::EXIT).has_value()) ? current
+                                                                                       : nullopt;
+    if (checkIfFunct.has_value())
+        return handleCalls(tokens, checkIfFunct.value());
+
 #pragma endregion
 #pragma region varstates
-    Tokens *a = (matchAndRemove(tokens, type::WORD) != nullptr)       ? current
-                : (matchAndRemove(tokens, type::CONSTANT) != nullptr) ? current
-                : (matchAndRemove(tokens, type::FLOAT) != nullptr)    ? current
-                : (matchAndRemove(tokens, type::INT) != nullptr)      ? current
-                : (matchAndRemove(tokens, type::BOOL) != nullptr)     ? current
-                : (matchAndRemove(tokens, type::STRING) != nullptr)   ? current
-                : (matchAndRemove(tokens, type::CHAR) != nullptr)     ? current
-                : (matchAndRemove(tokens, type::IF) != nullptr)       ? current
-                : (matchAndRemove(tokens, type::LOOP) != nullptr)     ? current
-                : (matchAndRemove(tokens, type::FOR_LOOP) != nullptr) ? current
-                : (matchAndRemove(tokens, type::STEP) != nullptr)     ? current
-                : (matchAndRemove(tokens, type::RETURN) != nullptr)   ? current
-                : (matchAndRemove(tokens, type::ARRAY) != nullptr)    ? current
-                                                                      : nullptr;
+    optional<Tokens> a = (matchAndRemove(tokens, type::WORD).has_value())       ? current
+                         : (matchAndRemove(tokens, type::CONSTANT).has_value()) ? current
+                         : (matchAndRemove(tokens, type::FLOAT).has_value())    ? current
+                         : (matchAndRemove(tokens, type::INT).has_value())      ? current
+                         : (matchAndRemove(tokens, type::BOOL).has_value())     ? current
+                         : (matchAndRemove(tokens, type::STRING).has_value())   ? current
+                         : (matchAndRemove(tokens, type::CHAR).has_value())     ? current
+                         : (matchAndRemove(tokens, type::IF).has_value())       ? current
+                         : (matchAndRemove(tokens, type::LOOP).has_value())     ? current
+                         : (matchAndRemove(tokens, type::FOR_LOOP).has_value()) ? current
+                         : (matchAndRemove(tokens, type::STEP).has_value())     ? current
+                         : (matchAndRemove(tokens, type::RETURN).has_value())   ? current
+                         : (matchAndRemove(tokens, type::ARRAY).has_value())    ? current
+                                                                                : nullopt;
 
-    if (a == nullptr)
+    if (!a.has_value())
     {
 
         cout << "undefined statement" << endl;
@@ -772,7 +772,7 @@ Node *handleSatements(vector<Tokens> &tokens)
         exit(0);
         return nullptr;
     }
-    switch (a->id)
+    switch (a.value().id)
     {
     case type::IF:
         return handleIfStatements(tokens);
@@ -787,7 +787,7 @@ Node *handleSatements(vector<Tokens> &tokens)
     case type::ARRAY:
         return handle_array_declaration(tokens);
     default:
-        return parse_var_statements(tokens, a);
+        return parse_var_statements(tokens, a.value());
     }
 
 #pragma endregion
@@ -804,34 +804,32 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
 {
 
     vector<FunctionNode *> functionNodes;
-    while (matchAndRemove(tokens, type::FUNCTION) != nullptr)
+    while (matchAndRemove(tokens, type::FUNCTION).has_value())
     {
 
         vector<Node *> states;
         FunctionNode *pd = handleFunctions(tokens);
-        if (matchAndRemove(tokens, type::RETURNS) != nullptr)
+        if (matchAndRemove(tokens, type::RETURNS).has_value())
         {
 
-            Tokens *return_type = getTypes(tokens);
-            pd->returnType = return_type;
+            pd->returnType = getTypes(tokens);
         }
-        else if (matchAndRemove(tokens, type::SEMI_COLON) != nullptr)
+        else if (matchAndRemove(tokens, type::SEMI_COLON).has_value())
         {
-            Tokens *return_type = getTypes(tokens);
-            pd->returnType = return_type;
-            if (matchAndRemove(tokens, type::SUBTRACT) != nullptr && matchAndRemove(tokens, type::GT) != nullptr)
+            pd->returnType = getTypes(tokens);
+            if (matchAndRemove(tokens, type::SUBTRACT).has_value() && matchAndRemove(tokens, type::GT).has_value())
             {
                 states.push_back(handleReturn(tokens));
             }
         }
         else
         {
-            pd->returnType = nullptr;
+            pd->returnType = nullopt;
         }
-        if (matchAndRemove(tokens, type::BEGIN) != nullptr)
+        if (matchAndRemove(tokens, type::BEGIN).has_value())
         {
 
-            while (matchAndRemove(tokens, type::END) == nullptr)
+            while (!matchAndRemove(tokens, type::END).has_value())
             {
                 RemoveEOLS(tokens);
 
@@ -862,6 +860,10 @@ Node *testExpressionParse(vector<Tokens> &tokens)
 }
 /**
  */
+// unique_ptr<Node> test_Expression(vector<Tokens> &tokens)
+// {
+
+// }
 
 vector<FunctionNode *> parse(vector<Tokens> &tokens)
 {

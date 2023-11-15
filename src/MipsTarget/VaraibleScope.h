@@ -11,7 +11,7 @@ using namespace std;
 #define VARAIBLE_H
 struct Varaible
 {
-    Tokens *varType;
+    Tokens varType;
     int stackNum;
     int constant;
 };
