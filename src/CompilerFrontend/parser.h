@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <optional>
 #include "../../src/CompilerFrontend/Lexxer.h"
 using namespace std;
 
@@ -12,6 +13,7 @@ using namespace std;
 struct Node
 {
     Node *left;
+    // int s;
     Node *right;
     virtual ~Node();
 };
@@ -22,7 +24,7 @@ struct Node
 struct VaraibleReference : public Node
 {
     Node *expression;
-    Tokens *varaible;
+    Tokens varaible;
 };
 #endif
 
@@ -30,9 +32,9 @@ struct VaraibleReference : public Node
 #define VAR_DEC_H
 struct VaraibleDeclaration : public Node
 {
-    Node *expression;
-    Tokens *varaible;
-    Tokens *typeOfVar;
+    Node* expression;
+    Tokens varaible;
+    Tokens typeOfVar;
     int size;
     int constant;
 };
@@ -44,7 +46,7 @@ struct BoolExpressionNode : public Node
 {
     Node *right;
     Node *left;
-    Tokens *op;
+    optional<Tokens> op;
 };
 #endif
 
@@ -97,7 +99,7 @@ struct IfSatementNode : public Node
 #define FUNC_CALL_NODE_H
 struct funcCallNode : public Node
 {
-    Tokens *funcCall;
+    Tokens funcCall;
     vector<Node *> params;
 };
 #endif
@@ -130,7 +132,7 @@ struct StringNode : public Node
 #define OP_NODE_H
 struct OperatorNode : public Node
 {
-    struct Tokens *token;
+    struct Tokens token;
 };
 #endif
 #ifndef STATE_NODE_H
@@ -138,7 +140,7 @@ struct OperatorNode : public Node
 struct StatementNode : public Node
 {
     struct Node *expression;
-    struct Tokens *nameOfVar;
+    Tokens nameOfVar;
 };
 #endif
 #ifndef RETURN_STATEMENT_H
@@ -153,10 +155,10 @@ struct ReturnStatment : public Node
 #define FUNCTION_NODE_H
 struct FunctionNode : public Node
 {
-    Tokens *nameOfFunction;
+    Tokens nameOfFunction;
     vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
-    Tokens *returnType;
+    optional<Tokens> returnType;
 };
 #endif
 #ifndef FOR_LOOP_NODE_H

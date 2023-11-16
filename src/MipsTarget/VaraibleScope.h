@@ -11,7 +11,7 @@ using namespace std;
 #define VARAIBLE_H
 struct Varaible
 {
-    Tokens *varType;
+    Tokens varType;
     int stackNum;
     int constant;
 };
@@ -31,7 +31,7 @@ struct Scope_Monitor
 {
     vector<Scope_dimension *> scope;
     map<string, FunctionNode *> f;
-    RegisterAllocation *rg;
+    RegisterAllocation rg;
     // Registers *registers;
 };
 #endif
