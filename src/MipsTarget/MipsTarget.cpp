@@ -74,7 +74,7 @@ void gen_function(vector<Node *> state, int &stackNum)
     }
 }
 
-void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scope_monitor, ofstream &outfile)
+void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope_monitor, ofstream &outfile)
 {
     map<type, builtInFunction *> functions;
 
@@ -86,7 +86,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(statement);
         stack_number += 4;
 
-        Varaible *type1 = add_to_var(pd, scope_monitor->scope, stack_number);
+        Varaible *type1 = add_to_var(pd, scope_monitor.scope, stack_number);
         if (type1 == nullptr)
         {
             return;
@@ -102,7 +102,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
     else if (instanceof <VaraibleReference *>(statement))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(statement);
-        vector<Scope_dimension *> Scope_dimension = scope_monitor->scope;
+        vector<Scope_dimension *> Scope_dimension = scope_monitor.scope;
 
         Varaible *type1 = get_varaible(pd, Scope_dimension);
 
@@ -144,13 +144,13 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         {
             vector<Node *> para = pd->params;
 
-            if (scope_monitor->f.find(pd->funcCall.buffer) == scope_monitor->f.end())
+            if (scope_monitor.f.find(pd->funcCall.buffer) == scope_monitor.f.end())
             {
                 cerr << pd->funcCall.buffer + " is not a function" << endl;
                 exit(EXIT_FAILURE);
                 return;
             }
-            vector<VaraibleDeclaration *> param = scope_monitor->f[pd->funcCall.buffer]->params;
+            vector<VaraibleDeclaration *> param = scope_monitor.f[pd->funcCall.buffer]->params;
             global_string = "";
             handle_function_calls(param, para, scope_monitor, global_string);
             global_string += "sw $ra,4($sp) \n";
@@ -177,7 +177,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         global_string = "";
         int ifBranch = getnOfBranch();
         increase_numofbranch();
-        allocate_Scope(scope_monitor->scope);
+        allocate_Scope(scope_monitor.scope);
         for (size_t i = 0; i < pd->statements.size(); i++)
         {
 
@@ -186,11 +186,11 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         increase_numofbranch();
         int elseBranch = getnOfBranch();
         increase_numofbranch();
-        deallocate_Scope(scope_monitor->scope);
+        deallocate_Scope(scope_monitor.scope);
         if (pd->Else != nullptr)
         {
             // cout << scope_monitor->scope.size() << endl;
-            allocate_Scope(scope_monitor->scope);
+            allocate_Scope(scope_monitor.scope);
             global_string = "j L" + to_string(elseBranch) + "#a \n";
             wf(outfile, global_string);
             global_string = "";
@@ -210,7 +210,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
             global_string = "L" + to_string(elseBranch) + ": \n";
             wf(outfile, global_string);
             global_string = "";
-            deallocate_Scope(scope_monitor->scope);
+            deallocate_Scope(scope_monitor.scope);
         }
         delete pd;
     }
@@ -238,13 +238,13 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         string condition = global_string;
         increase_numofbranch();
         global_string = "";
-        allocate_Scope(scope_monitor->scope);
+        allocate_Scope(scope_monitor.scope);
         for (size_t i = 0; i < pd->statements.size(); i++)
         {
 
             statementsGen(pd->statements[i], function, scope_monitor, outfile); // write a new function for this T~T
         }
-        deallocate_Scope(scope_monitor->scope);
+        deallocate_Scope(scope_monitor.scope);
         global_string += "L" + to_string(b) + ": \n # condition";
         wf(outfile, global_string);
         wf(outfile, condition);
@@ -257,9 +257,9 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
     {
         global_string = "";
         ForLoopNode *pd = dynamic_cast<ForLoopNode *>(statement);
-        allocate_Scope(scope_monitor->scope);
+        allocate_Scope(scope_monitor.scope);
         statementsGen(pd->incrimentorVar, function, scope_monitor, outfile); // write a new function for this T~T
-        allocate_Scope(scope_monitor->scope);
+        allocate_Scope(scope_monitor.scope);
         increase_numofbranch();
         int b = getnOfBranch();
         global_string += "b L" + to_string(b) + "\n";
@@ -283,8 +283,8 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
         wf(outfile, condition);
 
         global_string = "";
-        deallocate_Scope(scope_monitor->scope);
-        deallocate_Scope(scope_monitor->scope);
+        deallocate_Scope(scope_monitor.scope);
+        deallocate_Scope(scope_monitor.scope);
         delete pd;
     }
     else if (instanceof <ReturnStatment *>(statement))
@@ -324,11 +324,6 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor *&scop
 void gen_mips_target(vector<FunctionNode *> op, string filename)
 {
     map<string, Node *> vars;
-    map<type, builtInFunction *> functions;
-
-    functions[type::PRINT] = new Print();
-    functions[type::EXIT] = new Exit();
-
     map<string, FunctionNode *> f;
     f["."] = nullptr;
 
@@ -412,12 +407,17 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
             reset_arg_register();
             wf(outfile, add);
         }
-        Scope_Monitor *monitor = new Scope_Monitor;
-        monitor->scope = scope;
-        monitor->f = f;
+        // Scope_Monitor *monitor = new Scope_Monitor;
+        Scope_Monitor monitor;
+        monitor.f = f;
         RegisterAllocation rg;
         rg.reset_registers();
-        monitor->rg = rg;
+        monitor.rg = rg;
+        monitor.scope = scope;
+        // monitor->scope = scope;
+        // monitor->f = f;
+
+        // monitor->rg = rg;
 
         for (size_t i = 0; i < state.size(); i++)
         {
