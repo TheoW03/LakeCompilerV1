@@ -250,7 +250,6 @@ Node *factor(vector<Tokens> &tokens)
     else if (matchAndRemove(tokens, type::CHAR_LITERAL).has_value())
     {
         CharNode *integer = new CharNode;
-
         string s = current.value().buffer;
         char myChar = s[0]; // This gets the first character (index 0)
         integer->character = to_string((int)myChar);
@@ -271,10 +270,7 @@ Node *factor(vector<Tokens> &tokens)
 Node *term(vector<Tokens> &tokens)
 {
 
-    // n.value = 0;
-    Node *n = new Node;
-    Node *opNode = new Node;
-    opNode = factor(tokens);
+    Node *opNode = factor(tokens);
     optional<Tokens> op = (matchAndRemove(tokens, type::MULTIPLY).has_value())   ? current
                           : (matchAndRemove(tokens, type::DIVISION).has_value()) ? current
                           : (matchAndRemove(tokens, type::MOD).has_value())      ? current
@@ -283,17 +279,11 @@ Node *term(vector<Tokens> &tokens)
                           : (matchAndRemove(tokens, type::B_AND).has_value())    ? current
                           : (matchAndRemove(tokens, type::B_OR).has_value())     ? current
                                                                                  : nullopt;
-    // Tokens op = (matchAndRemove(tokens, type::MULTIPLY) != nullptr)   ? current
-    //             : (matchAndRemove(tokens, type::DIVISION) != nullptr) ? current
-    //             : (matchAndRemove(tokens, type::MOD) != nullptr)      ? current
-    //             : (matchAndRemove(tokens, type::SLL) != nullptr)      ? current
-    //             : (matchAndRemove(tokens, type::SRR) != nullptr)      ? current
-    //             : (matchAndRemove(tokens, type::B_AND) != nullptr)    ? current
-    //             : (matchAndRemove(tokens, type::B_OR).has_value())     ? current
-    //                                                                   : nullopt;
+
     while (op.has_value())
     {
         OperatorNode *n = new OperatorNode;
+
         n->left = opNode;
         n->right = factor(tokens);
         n->token = op.value();
@@ -318,8 +308,6 @@ Node *term(vector<Tokens> &tokens)
  */
 Node *expression(vector<Tokens> &tokens)
 {
-    Node *n = new Node;
-    // Node* opNode = new Node;
     Node *opNode = term(tokens);
     optional<Tokens> op = (matchAndRemove(tokens, type::ADDITION).has_value())   ? current
                           : (matchAndRemove(tokens, type::SUBTRACT).has_value()) ? current
@@ -336,6 +324,7 @@ Node *expression(vector<Tokens> &tokens)
              : (matchAndRemove(tokens, type::SUBTRACT).has_value()) ? current
                                                                     : nullopt;
     }
+
     return opNode;
 }
 #pragma endregion
@@ -468,6 +457,7 @@ BoolExpressionNode *handleBooleanExpression(vector<Tokens> &tokens)
     a->right = right;
     a->left = left;
     a->op = op;
+
     return a;
 }
 
@@ -477,6 +467,7 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens checkIfFunct)
     f1->funcCall = checkIfFunct;
     if (!matchAndRemove(tokens, type::OP_PARENTHISIS).has_value())
     {
+        delete f1;
         return nullptr;
     }
     vector<Node *> vars;
@@ -491,9 +482,8 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens checkIfFunct)
 Node *handleLoops(vector<Tokens> &tokens)
 {
     LoopNode *loop = new LoopNode;
-    BoolExpressionNode *a = new BoolExpressionNode;
     matchAndRemove(tokens, type::OP_PARENTHISIS);
-    a = handleBooleanExpression(tokens);
+    BoolExpressionNode *a = handleBooleanExpression(tokens);
     matchAndRemove(tokens, type::CL_PARENTHISIS);
     matchAndRemove(tokens, type::DO);
 
@@ -523,16 +513,16 @@ Node *handleLoops(vector<Tokens> &tokens)
 
 Node *handleIfStatements(vector<Tokens> &tokens)
 {
-    BoolExpressionNode *a = new BoolExpressionNode;
     matchAndRemove(tokens, type::OP_PARENTHISIS);
-    a = handleBooleanExpression(tokens);
-
+    BoolExpressionNode *a = handleBooleanExpression(tokens);
     IfSatementNode *ifStatement = new IfSatementNode;
     ifStatement->condition = a;
     if (!matchAndRemove(tokens, type::CL_PARENTHISIS).has_value() && !matchAndRemove(tokens, type::THEN).has_value())
     {
+        delete ifStatement;
         cout << "error" << endl;
         exit(EXIT_FAILURE);
+
         return nullptr;
     }
 
@@ -568,7 +558,6 @@ Node *handleIfStatements(vector<Tokens> &tokens)
         if (!matchAndRemove(tokens, type::BEGIN).has_value())
         {
             RemoveEOLS(tokens);
-            cout << "test" << endl;
             states.push_back(handleSatements(tokens));
             RemoveEOLS(tokens);
         }

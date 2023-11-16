@@ -67,7 +67,7 @@ void gen_function(vector<Node *> state, int &stackNum)
             stackNum += 4;
             gen_function(pd->statements, stackNum);
         }
-        else if (instanceof <VaraibleDeclaration *>(state[i]))
+        else if (instanceof <VaraibleDeclaration *>(state[i]) || instanceof <ArrayDeclaration *>(state[i]))
         {
             stackNum += 4;
         }
@@ -89,11 +89,13 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         Varaible *type1 = add_to_var(pd, scope_monitor.scope, stack_number);
         if (type1 == nullptr)
         {
+            delete pd;
             return;
         }
         global_string = "";
         string reg = "";
         update_var_values(type1->varType, pd->expression, global_string, reg, scope_monitor);
+
         global_string += "sw " + reg + "," + to_string(type1->stackNum) + "($fp) \n";
         wf(outfile, global_string);
         global_string = "";
@@ -109,12 +111,14 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         if (type1 == nullptr)
         {
             cerr << pd->varaible.buffer + " doesnt exist as a var" << endl;
+            delete pd;
             exit(1);
             return;
         }
         if (type1->constant == 1)
         {
             cout << pd->varaible.buffer << " is constant" << endl;
+            delete pd;
             exit(1);
             return;
         }
@@ -124,6 +128,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         global_string += "sw " + reg + "," + to_string(type1->stackNum) + "($fp) \n";
         wf(outfile, global_string);
         global_string = "";
+
         delete pd;
     }
     else if (instanceof <funcCallNode *>(statement))
@@ -305,6 +310,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         global_string += "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
         wf(outfile, global_string);
         global_string = "";
+
         delete pd;
     }
 }
@@ -435,6 +441,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
             string exitStuff = "li $v0, 10 \n syscall # exited program pop into QtSpim and it should work";
             wf(outfile, exitStuff);
         }
+        delete pd;
     }
     outfile.close();
 }

@@ -48,7 +48,10 @@ void handle_cli(char *argv[], int argc)
 }
 int main(int argc, char *argv[])
 {
-    // gen_LLVM(functions, "");
+    // gen_LLVM(functions, "");'
+    // char *file = argv[1];
+    // vector<Tokens> a = lex(readFile(file));
+    // testExpressionParse(a);
     handle_cli(argv, argc);
     return 0;
 }

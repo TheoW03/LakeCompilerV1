@@ -32,7 +32,7 @@ struct VaraibleReference : public Node
 #define VAR_DEC_H
 struct VaraibleDeclaration : public Node
 {
-    Node* expression;
+    Node *expression;
     Tokens varaible;
     Tokens typeOfVar;
     int size;
@@ -171,6 +171,26 @@ struct ForLoopNode : public Node
 };
 #endif
 
+#ifndef ARRAY_DEC_H
+#define ARRAY_DEC_H
+
+struct ArrayDeclaration : public Node
+{
+    Node *size;
+    Tokens varaible;
+    Tokens typeOfVar;
+};
+#endif
+
+#ifndef ARRAY_REF_H
+#define ARRAY_REF_H
+struct ArrayRef : public Node
+{
+    Tokens name;
+    Node *RefedLocation;
+    Node *value;
+};
+#endif
 vector<FunctionNode *> parse(vector<Tokens> &tokens);
 
 Node *term(vector<Tokens> &tokens);
