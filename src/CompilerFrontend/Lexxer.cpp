@@ -157,6 +157,9 @@ void groupings(vector<Tokens> &token_list, string &buffer)
     op["float"] = type::FLOAT;
     op["char"] = type::CHAR;
     op["bool"] = type::BOOL;
+    op["true"] = type::TRUE;
+    op["false"] = type::FALSE;
+
     op["string"] = type::STRING;
 
     op["while"] = type::LOOP;

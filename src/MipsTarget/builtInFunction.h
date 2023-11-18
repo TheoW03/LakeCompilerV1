@@ -20,7 +20,7 @@ public:
     virtual void execute_code_integer(string &gen_string, RegisterAllocation register_context, string registers);
     virtual void execute_code_float(string &gen_string, RegisterAllocation register_context, string registers);
     virtual void execute_code_char(string &gen_string, RegisterAllocation register_context, string registers);
-    virtual void setup_params(vector<Node *> params, string &gen_string, Scope_Monitor &scope_monitor);
+    virtual void setup_params(vector<unique_ptr<Node>> params, string &gen_string, Scope_Monitor &scope_monitor);
 };
 
 #endif
@@ -35,7 +35,7 @@ public:
     void execute_code_float(string &gen_string, RegisterAllocation register_context, string registers);
     void execute_code_char(string &gen_string, RegisterAllocation register_context, string registers);
 
-    void setup_params(vector<Node *> params, string &gen_string, Scope_Monitor &scope_monitor);
+    void setup_params(vector<unique_ptr<Node>> params, string &gen_string, Scope_Monitor &scope_monitor);
 };
 #endif
 
@@ -48,6 +48,6 @@ public:
     void execute_code_integer(string &gen_string, RegisterAllocation register_context, string registers);
     void execute_code_float(string &gen_string, RegisterAllocation register_context, string registers);
     void execute_code_char(string &gen_string, RegisterAllocation register_context, string registers);
-    void setup_params(vector<Node *> params, string &gen_string, Scope_Monitor &scope_monitor);
+    void setup_params(vector<unique_ptr<Node>> params, string &gen_string, Scope_Monitor &scope_monitor);
 };
 #endif

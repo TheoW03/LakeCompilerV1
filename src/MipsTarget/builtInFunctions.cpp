@@ -23,7 +23,7 @@ void builtInFunction::execute_code_float(string &gen_string, RegisterAllocation 
 void builtInFunction::execute_code_char(string &gen_string, RegisterAllocation register_context, string registers)
 {
 }
-void builtInFunction::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor &scope_monitor)
+void builtInFunction::setup_params(vector<unique_ptr<Node>> params, string &gen_string, Scope_Monitor &scope_monitor)
 {
 }
 #pragma endregion
@@ -35,9 +35,9 @@ Print::Print()
     // gen_llvm();
 }
 
-void Print::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor &scope_monitor)
+void Print::setup_params(vector<unique_ptr<Node>> params, string &gen_string, Scope_Monitor &scope_monitor)
 {
-    if (instanceof <StringNode *>(params[0]))
+    if (instanceof <StringNode *>(params[0].get()))
     {
 
         // change to a parser for the 1st param later
@@ -45,11 +45,11 @@ void Print::setup_params(vector<Node *> params, string &gen_string, Scope_Monito
         // this is very temporary and will try to add better system once i think of it
         // or once i add support for strings/string concat
 
-        StringNode *a = dynamic_cast<StringNode *>(params[0]);
+        StringNode *a = dynamic_cast<StringNode *>(params[0].get());
         if (a->stringBuffer == "%d")
         {
             string reg = "";
-            int b = gen_integer_op(params[1], scope_monitor, gen_string, reg);
+            int b = gen_integer_op(move(params[1]), scope_monitor, gen_string, reg);
             if (reg == "")
             {
                 reg = scope_monitor.rg.allocate_register(0);
@@ -60,7 +60,7 @@ void Print::setup_params(vector<Node *> params, string &gen_string, Scope_Monito
         else if (a->stringBuffer == "%f")
         {
             string reg = "";
-            int b = gen_float_op(params[1], scope_monitor, gen_string, reg);
+            int b = gen_float_op(move(params[1]), scope_monitor, gen_string, reg);
             if (reg == "")
             {
                 reg = scope_monitor.rg.allocate_register(0);
@@ -70,7 +70,7 @@ void Print::setup_params(vector<Node *> params, string &gen_string, Scope_Monito
         }
         else if (a->stringBuffer == "%c")
         {
-            string reg = gen_char_op(params[1], scope_monitor, gen_string);
+            string reg = gen_char_op(move(params[1]), scope_monitor, gen_string);
             execute_code_char(gen_string, scope_monitor.rg, reg);
         }
     }
@@ -125,7 +125,7 @@ Exit::Exit()
 {
 }
 
-void Exit::setup_params(vector<Node *> params, string &gen_string, Scope_Monitor &scope_monitor)
+void Exit::setup_params(vector<unique_ptr<Node>> params, string &gen_string, Scope_Monitor &scope_monitor)
 {
     if (params.size() == 0)
     {

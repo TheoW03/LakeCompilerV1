@@ -2,7 +2,7 @@
 #include <string>
 #include <map>
 #include <vector>
-
+#include <memory>
 #include <sys/stat.h>
 #include <fstream>
 #include <typeinfo>
@@ -94,7 +94,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         }
         global_string = "";
         string reg = "";
-        update_var_values(type1->varType, pd->expression, global_string, reg, scope_monitor);
+        update_var_values(type1->varType, move(pd->expression), global_string, reg, scope_monitor);
 
         global_string += "sw " + reg + "," + to_string(type1->stackNum) + "($fp) \n";
         wf(outfile, global_string);
@@ -129,7 +129,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         }
         global_string = "";
         string reg = "";
-        update_var_values(type1->varType, pd->expression, global_string, reg, scope_monitor);
+        update_var_values(type1->varType, move(pd->expression), global_string, reg, scope_monitor);
         global_string += "sw " + reg + "," + to_string(type1->stackNum) + "($fp) \n";
         wf(outfile, global_string);
         global_string = "";
@@ -141,18 +141,18 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         funcCallNode *pd = dynamic_cast<funcCallNode *>(statement);
         if (functions.find(pd->funcCall.id) != functions.end())
         {
-            vector<Node *> para = pd->params;
+            vector<unique_ptr<Node>> para = move(pd->params);
             builtInFunction *func = functions[pd->funcCall.id];
             if (func != nullptr)
             {
                 string gen_string = "";
-                func->setup_params(para, gen_string, scope_monitor);
+                func->setup_params(move(para), gen_string, scope_monitor);
                 wf(outfile, gen_string);
             }
         }
         else
         {
-            vector<Node *> para = pd->params;
+            vector<unique_ptr<Node>> para = move(pd->params);
 
             if (scope_monitor.f.find(pd->funcCall.buffer) == scope_monitor.f.end())
             {
@@ -161,9 +161,10 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
                 return;
             }
             vector<VaraibleDeclaration *> param = scope_monitor.f[pd->funcCall.buffer]->params;
-            string a = scope_monitor.f[pd->funcCall.buffer]->hashed_functioName;
+            string a = scope_monitor.f[pd->funcCall.buffer]->nameOfFunction.buffer;
             global_string = "";
-            handle_function_calls(param, para, scope_monitor, global_string);
+
+            handle_function_calls(param, move(para), scope_monitor, global_string);
             global_string += "sw $ra,4($sp) \n";
             global_string += "jal " + a + "\n";
             global_string += "lw $ra,4($sp) \n";
@@ -181,7 +182,9 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         {
             return;
         }
-        handle_boolean(pd->condition, scope_monitor, global_string);
+
+        // handle_boolean(pd->condition, scope_monitor, global_string);
+
         reset_registers();
         wf(outfile, global_string);
 
@@ -243,7 +246,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         wf(outfile, global_string);
         global_string = "";
 
-        handle_boolean(pd->condition, scope_monitor, global_string, 1);
+        // handle_boolean(pd->condition, scope_monitor, global_string, 1);
         reset_registers();
 
         string condition = global_string;
@@ -279,7 +282,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         wf(outfile, global_string);
         global_string = "";
 
-        handle_boolean(pd->condition, scope_monitor, global_string, 1);
+        // handle_boolean(pd->condition, scope_monitor, global_string, 1);
         string condition = global_string;
         increase_numofbranch();
         global_string = "";
@@ -311,7 +314,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         global_string = "";
         string reg = "";
 
-        update_var_values(function->returnType.value(), pd->expression, global_string, reg, scope_monitor);
+        update_var_values(function->returnType.value(), move(pd->expression), global_string, reg, scope_monitor);
         global_string += "move $v0 ," + reg + "\n";
         global_string += "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
         wf(outfile, global_string);
@@ -366,7 +369,8 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         {
         }
         // cout << "test" << endl;
-
+        cout << "hello wolrd" << endl;
+        cout << pd->statements.size() << endl;
         vector<Node *> state = pd->statements;
 
         // map<string, Varaible *> map;
@@ -387,9 +391,10 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         }
         else
         {
-            string function_name = pd->hashed_functioName + ": \n";
+            string function_name = pd->nameOfFunction.buffer + ": \n";
             wf(outfile, function_name);
         }
+
         vector<VaraibleDeclaration *> params = pd->params;
         if (pd->nameOfFunction.buffer != "main")
         {
