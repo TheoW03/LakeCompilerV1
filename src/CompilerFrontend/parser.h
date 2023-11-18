@@ -15,6 +15,8 @@ struct Node
     Node *left;
     // int s;
     Node *right;
+    unique_ptr<Node> safe_right;
+    unique_ptr<Node> safe_left;
     virtual ~Node();
 };
 #endif
@@ -158,6 +160,8 @@ struct FunctionNode : public Node
     Tokens nameOfFunction;
     vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
+    string hashed_functioName; // the name that is asm
+
     optional<Tokens> returnType;
 };
 #endif
@@ -209,3 +213,4 @@ Node *parseVar(vector<Tokens> &tokens, Tokens *name);
 Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct);
 Node *handleSatements(vector<Tokens> &tokens);
 Node *testExpressionParse(vector<Tokens> &tokens);
+unique_ptr<Node> safe_parse(vector<Tokens> &tokens);

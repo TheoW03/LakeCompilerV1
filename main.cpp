@@ -46,12 +46,27 @@ void handle_cli(char *argv[], int argc)
 
     cout << "compiled successfully" << endl;
 }
+void inorderTraversal(const unique_ptr<Node> &root)
+{
+    if (root != nullptr)
+    {
+        inorderTraversal(root->safe_left);
+        inorderTraversal(root->safe_right);
+        if (dynamic_cast<IntegerNode *>(root.get()) != nullptr)
+        {
+            cout << "hello world" << endl;
+        }
+    }
+}
 int main(int argc, char *argv[])
 {
     // gen_LLVM(functions, "");'
-    // char *file = argv[1];
-    // vector<Tokens> a = lex(readFile(file));
+    char *file = argv[1];
+    vector<Tokens> a = lex(readFile(file));
+    unique_ptr<Node> op = safe_parse(a);
+    inorderTraversal(op);
     // testExpressionParse(a);
-    handle_cli(argv, argc);
+    // handle_cli(argv, argc);
+
     return 0;
 }

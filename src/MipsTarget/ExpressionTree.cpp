@@ -73,14 +73,14 @@ string handle_boolean(Node *op, Scope_Monitor &scope_monitor, string &global_str
             exit(EXIT_FAILURE);
             return 0;
         }
-        FunctionNode *function = scope_monitor.f[pd->funcCall.buffer];
 
+        FunctionNode *function = scope_monitor.f[pd->funcCall.buffer];
         vector<VaraibleDeclaration *> called_params = function->params;
         handle_function_calls(called_params, pd->params, scope_monitor, global_string);
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + pd->funcCall.buffer + "\n";
+        global_string += "jal " + function->hashed_functioName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         scope_monitor.rg.return_save(global_string);
@@ -430,7 +430,7 @@ float gen_float_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + pd->funcCall.buffer + "\n";
+        global_string += "jal " + function->hashed_functioName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         global_string += "move $fp, $sp \n";
@@ -618,17 +618,17 @@ string gen_char_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
             exit(EXIT_FAILURE);
             return 0;
         }
-        FunctionNode *f1 = scope_monitor.f[pd->funcCall.buffer];
+        FunctionNode *function = scope_monitor.f[pd->funcCall.buffer];
 
-        vector<VaraibleDeclaration *> param = f1->params;
+        vector<VaraibleDeclaration *> param = function->params;
         handle_function_calls(param, pd->params, scope_monitor, global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + pd->funcCall.buffer + "\n";
+        global_string += "jal " + function->hashed_functioName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         global_string += "move $fp, $sp \n";
-        Tokens returnType = f1->returnType.value();
+        Tokens returnType = function->returnType.value();
         if (returnType.id == type::FLOAT)
         {
             cout << "error: float isnt accepted here" << endl;
@@ -734,7 +734,7 @@ int gen_integer_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + pd->funcCall.buffer + "\n";
+        global_string += "jal " + f1->hashed_functioName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         global_string += "move $fp, $sp \n";

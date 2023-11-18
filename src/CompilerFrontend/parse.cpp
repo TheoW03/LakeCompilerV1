@@ -22,6 +22,9 @@ struct Node
     virtual ~Node();
     Node *left;
     Node *right;
+
+    unique_ptr<Node> safe_right;
+    unique_ptr<Node> safe_left;
 };
 
 struct VaraibleDeclaration : public Node
@@ -142,6 +145,7 @@ struct MacroNode : public Node
 struct FunctionNode : public Node
 {
     Tokens nameOfFunction;
+    string hashed_functioName; // the name that is asm
     vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
     optional<Tokens> returnType;
@@ -327,6 +331,80 @@ Node *expression(vector<Tokens> &tokens)
 
     return opNode;
 }
+unique_ptr<Node> safe_expression(vector<Tokens> &tokens);
+unique_ptr<Node> safe_factor(vector<Tokens> &tokens)
+{
+    if (matchAndRemove(tokens, type::NUMBER).has_value())
+    {
+        auto intNode = make_unique<IntegerNode>();
+        intNode->num = current.value().buffer;
+        return intNode;
+    }
+    else if (matchAndRemove(tokens, type::OP_PARENTHISIS).has_value())
+    {
+        unique_ptr<Node> exp = safe_expression(tokens);
+        matchAndRemove(tokens, type::CL_PARENTHISIS);
+        return exp;
+    }
+    return nullptr;
+}
+unique_ptr<Node> safe_term(vector<Tokens> &tokens)
+{
+    unique_ptr<Node> opNode = safe_factor(tokens);
+    optional<Tokens> op = (matchAndRemove(tokens, type::MULTIPLY).has_value())   ? current
+                          : (matchAndRemove(tokens, type::DIVISION).has_value()) ? current
+                          : (matchAndRemove(tokens, type::MOD).has_value())      ? current
+                          : (matchAndRemove(tokens, type::SLL).has_value())      ? current
+                          : (matchAndRemove(tokens, type::SRR).has_value())      ? current
+                          : (matchAndRemove(tokens, type::B_AND).has_value())    ? current
+                          : (matchAndRemove(tokens, type::B_OR).has_value())     ? current
+                                                                                 : nullopt;
+
+    while (op.has_value())
+    {
+        auto n = make_unique<OperatorNode>();
+        n->safe_left = move(opNode);
+        n->safe_right = safe_factor(tokens);
+        n->token = op.value();
+        opNode = move(n);
+        op = (matchAndRemove(tokens, type::MULTIPLY).has_value())   ? current
+             : (matchAndRemove(tokens, type::DIVISION).has_value()) ? current
+             : (matchAndRemove(tokens, type::MOD).has_value())      ? current
+             : (matchAndRemove(tokens, type::SLL).has_value())      ? current
+             : (matchAndRemove(tokens, type::SRR).has_value())      ? current
+             : (matchAndRemove(tokens, type::B_AND).has_value())    ? current
+             : (matchAndRemove(tokens, type::B_OR).has_value())     ? current
+                                                                    : nullopt;
+    }
+
+    return opNode;
+}
+unique_ptr<Node> safe_expression(vector<Tokens> &tokens)
+{
+
+    unique_ptr<Node> opNode = safe_term(tokens);
+    optional<Tokens> op = (matchAndRemove(tokens, type::ADDITION).has_value())   ? current
+                          : (matchAndRemove(tokens, type::SUBTRACT).has_value()) ? current
+                                                                                 : nullopt;
+
+    while (op.has_value())
+    {
+        auto n = make_unique<OperatorNode>();
+        n->safe_left = move(opNode);
+        n->safe_right = safe_term(tokens);
+        n->token = op.value();
+        opNode = move(n);
+        op = (matchAndRemove(tokens, type::ADDITION).has_value())   ? current
+             : (matchAndRemove(tokens, type::SUBTRACT).has_value()) ? current
+                                                                    : nullopt;
+    }
+
+    return opNode;
+}
+unique_ptr<Node> safe_parse(vector<Tokens> &tokens)
+{
+    return safe_expression(tokens);
+}
 #pragma endregion
 #pragma region statements
 /**
@@ -355,6 +433,8 @@ FunctionNode *handleFunctions(vector<Tokens> &tokens)
     FunctionNode *f = new FunctionNode;
     optional<Tokens> name = matchAndRemove(tokens, type::WORD);
     f->nameOfFunction = name.value();
+    string function_nameHashed = name.value().buffer;
+    f->hashed_functioName = function_nameHashed + "_lacus";
     matchAndRemove(tokens, type::OP_PARENTHISIS);
 
     vector<VaraibleDeclaration *> vars;
@@ -483,7 +563,7 @@ Node *handleLoops(vector<Tokens> &tokens)
 {
     LoopNode *loop = new LoopNode;
     matchAndRemove(tokens, type::OP_PARENTHISIS);
-    BoolExpressionNode *a = handleBooleanExpression(tokens);
+    loop->condition = handleBooleanExpression(tokens);
     matchAndRemove(tokens, type::CL_PARENTHISIS);
     matchAndRemove(tokens, type::DO);
 
@@ -505,7 +585,6 @@ Node *handleLoops(vector<Tokens> &tokens)
     }
     RemoveEOLS(tokens);
 
-    loop->condition = a;
     loop->statements = states;
 
     return loop;
@@ -514,8 +593,8 @@ Node *handleLoops(vector<Tokens> &tokens)
 Node *handleIfStatements(vector<Tokens> &tokens)
 {
     matchAndRemove(tokens, type::OP_PARENTHISIS);
-    BoolExpressionNode *a = handleBooleanExpression(tokens);
     IfSatementNode *ifStatement = new IfSatementNode;
+    BoolExpressionNode *a = handleBooleanExpression(tokens);
     ifStatement->condition = a;
     if (!matchAndRemove(tokens, type::CL_PARENTHISIS).has_value() && !matchAndRemove(tokens, type::THEN).has_value())
     {

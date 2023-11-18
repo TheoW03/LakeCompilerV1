@@ -101,6 +101,11 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         global_string = "";
         delete pd;
     }
+    else if (instanceof <ArrayDeclaration *>(statement))
+    {
+        ArrayDeclaration *pd = dynamic_cast<ArrayDeclaration *>(statement);
+        delete pd;
+    }
     else if (instanceof <VaraibleReference *>(statement))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(statement);
@@ -156,10 +161,11 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
                 return;
             }
             vector<VaraibleDeclaration *> param = scope_monitor.f[pd->funcCall.buffer]->params;
+            string a = scope_monitor.f[pd->funcCall.buffer]->hashed_functioName;
             global_string = "";
             handle_function_calls(param, para, scope_monitor, global_string);
             global_string += "sw $ra,4($sp) \n";
-            global_string += "jal " + pd->funcCall.buffer + "\n";
+            global_string += "jal " + a + "\n";
             global_string += "lw $ra,4($sp) \n";
             global_string += "move $fp, $sp \n";
             wf(outfile, global_string);
@@ -354,26 +360,36 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
     for (size_t i = 0; i < op.size(); i++)
     {
 
-        // FILE* fp = fopen("output.s", "w");
-
         FunctionNode *pd = dynamic_cast<FunctionNode *>(op[i]);
+
         if (op[i] == nullptr)
         {
         }
+        // cout << "test" << endl;
 
         vector<Node *> state = pd->statements;
-        map<string, Varaible *> map;
+
+        // map<string, Varaible *> map;
+
         vector<Scope_dimension *> scope;
         // Scope_dimension *scope_structure = new Scope_dimension;
         max_size = 44;
         stack_number = 44;
-        map["."] = 0;
+        // map["."] = 0;
         // scope_structure->vars = map;
         allocate_Scope(scope);
 
         // where to iterate on list of vectors
-        string function_name = pd->nameOfFunction.buffer + ": \n";
-        wf(outfile, function_name);
+        if (pd->nameOfFunction.buffer == "main")
+        {
+            string function_name = pd->nameOfFunction.buffer + ": \n";
+            wf(outfile, function_name);
+        }
+        else
+        {
+            string function_name = pd->hashed_functioName + ": \n";
+            wf(outfile, function_name);
+        }
         vector<VaraibleDeclaration *> params = pd->params;
         if (pd->nameOfFunction.buffer != "main")
         {
