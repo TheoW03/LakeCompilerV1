@@ -149,7 +149,7 @@ string handle_boolean(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string 
         // VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op.get());
         // type a = map[pd1->varailbe->buffer]->varType->id;
-        Varaible *var = get_varaible(pd, scope_monitor.scope);
+        Varaible *var = get_varaible(pd, (scope_monitor.scope));
         if (var == nullptr)
         {
             cerr << pd->varaible.buffer + " doesnt exist as a var" << endl;
@@ -685,7 +685,7 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op.get());
 
         string reg = scope_monitor.rg.allocate_register(0);
-        Varaible *var = get_varaible(pd, scope_monitor.scope);
+        Varaible *var = get_varaible(pd, (scope_monitor.scope));
 
         if (var == nullptr)
         {
@@ -785,7 +785,7 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     if (instanceof <VaraibleReference *>(op.get()))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op.get());
-        Varaible *var = get_varaible(pd, scope_monitor.scope);
+        Varaible *var = get_varaible(pd, (scope_monitor.scope));
         if (var == nullptr)
         {
             cerr << pd->varaible.buffer + " doesnt exist as a var" << endl;

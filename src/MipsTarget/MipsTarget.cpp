@@ -86,7 +86,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(statement);
         stack_number += 4;
 
-        Varaible *type1 = add_to_var(pd, scope_monitor.scope, stack_number);
+        Varaible *type1 = add_to_var(pd, (scope_monitor.scope), stack_number);
         if (type1 == nullptr)
         {
             delete pd;
@@ -109,9 +109,9 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
     else if (instanceof <VaraibleReference *>(statement))
     {
         VaraibleReference *pd = dynamic_cast<VaraibleReference *>(statement);
-        vector<Scope_dimension *> Scope_dimension = scope_monitor.scope;
+        // vector<unique_ptr<Scope_dimension>> scopes = scope_monitor.scope;
 
-        Varaible *type1 = get_varaible(pd, Scope_dimension);
+        Varaible *type1 = get_varaible(pd, (scope_monitor.scope));
 
         if (type1 == nullptr)
         {
@@ -191,7 +191,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         global_string = "";
         int ifBranch = getnOfBranch();
         increase_numofbranch();
-        allocate_Scope(scope_monitor.scope);
+        allocate_Scope((scope_monitor.scope));
         for (size_t i = 0; i < pd->statements.size(); i++)
         {
 
@@ -200,11 +200,11 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         increase_numofbranch();
         int elseBranch = getnOfBranch();
         increase_numofbranch();
-        deallocate_Scope(scope_monitor.scope);
+        deallocate_Scope((scope_monitor.scope));
         if (pd->Else != nullptr)
         {
             // cout << scope_monitor->scope.size() << endl;
-            allocate_Scope(scope_monitor.scope);
+            allocate_Scope((scope_monitor.scope));
             global_string = "j L" + to_string(elseBranch) + "#a \n";
             wf(outfile, global_string);
             global_string = "";
@@ -224,7 +224,7 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
             global_string = "L" + to_string(elseBranch) + ": \n";
             wf(outfile, global_string);
             global_string = "";
-            deallocate_Scope(scope_monitor.scope);
+            deallocate_Scope((scope_monitor.scope));
         }
         delete pd;
     }
@@ -252,13 +252,13 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         string condition = global_string;
         increase_numofbranch();
         global_string = "";
-        allocate_Scope(scope_monitor.scope);
+        allocate_Scope((scope_monitor.scope));
         for (size_t i = 0; i < pd->statements.size(); i++)
         {
 
             statementsGen(pd->statements[i], function, scope_monitor, outfile); // write a new function for this T~T
         }
-        deallocate_Scope(scope_monitor.scope);
+        deallocate_Scope((scope_monitor.scope));
         global_string += "L" + to_string(b) + ": \n # condition";
         wf(outfile, global_string);
         wf(outfile, condition);
@@ -271,9 +271,9 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
     {
         global_string = "";
         ForLoopNode *pd = dynamic_cast<ForLoopNode *>(statement);
-        allocate_Scope(scope_monitor.scope);
+        allocate_Scope((scope_monitor.scope));
         statementsGen(pd->incrimentorVar, function, scope_monitor, outfile); // write a new function for this T~T
-        allocate_Scope(scope_monitor.scope);
+        allocate_Scope((scope_monitor.scope));
         increase_numofbranch();
         int b = getnOfBranch();
         global_string += "b L" + to_string(b) + "\n";
@@ -297,8 +297,8 @@ void statementsGen(Node *statement, FunctionNode *function, Scope_Monitor &scope
         wf(outfile, condition);
 
         global_string = "";
-        deallocate_Scope(scope_monitor.scope);
-        deallocate_Scope(scope_monitor.scope);
+        deallocate_Scope((scope_monitor.scope));
+        deallocate_Scope((scope_monitor.scope));
         delete pd;
     }
     else if (instanceof <ReturnStatment *>(statement))
@@ -375,13 +375,14 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
 
         // map<string, Varaible *> map;
 
-        vector<Scope_dimension *> scope;
+        vector<Scope_dimension> scope;
+        allocate_Scope(scope);
+
         // Scope_dimension *scope_structure = new Scope_dimension;
         max_size = 44;
         stack_number = 44;
         // map["."] = 0;
         // scope_structure->vars = map;
-        allocate_Scope(scope);
 
         // where to iterate on list of vectors
         if (pd->nameOfFunction.buffer == "main")
@@ -423,7 +424,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
             for (size_t i = 0; i < params.size(); i++)
             {
                 stack_number += 4;
-                var.push_back(add_to_var(params[i], scope, stack_number));
+                var.push_back(add_to_var(params[i], (scope), stack_number));
                 // prepare_interptMips(params[i], map, 4);
             }
             string add;
@@ -440,7 +441,7 @@ void gen_mips_target(vector<FunctionNode *> op, string filename)
         RegisterAllocation rg;
         rg.reset_registers();
         monitor.rg = rg;
-        monitor.scope = scope;
+        monitor.scope = move(scope);
         // monitor->scope = scope;
         // monitor->f = f;
 

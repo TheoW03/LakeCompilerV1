@@ -65,8 +65,7 @@ struct ReturnStatment : public Node
 };
 struct BoolExpressionNode : public Node
 {
-    // Node *right;
-    // Node *left;
+
     optional<Tokens> op;
 };
 struct ElseNode : public Node
