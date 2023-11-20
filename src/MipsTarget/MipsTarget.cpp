@@ -72,6 +72,7 @@ void gen_function(vector<Node *> state, int &stackNum)
             stackNum += 4;
         }
     }
+    
 }
 
 void statementsGen(Node *statement, shared_ptr<FunctionNode> function, Scope_Monitor &scope_monitor, ofstream &outfile)
@@ -262,7 +263,7 @@ void statementsGen(Node *statement, shared_ptr<FunctionNode> function, Scope_Mon
         wf(outfile, global_string);
         wf(outfile, condition);
         global_string = "";
-        // delete pd;
+        delete pd;
         // wf(outfile, global_string);
     }
     else if (instanceof <ForLoopNode *>(statement))
