@@ -74,7 +74,7 @@ string handle_boolean(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string 
             return 0;
         }
 
-        FunctionNode *function = scope_monitor.f[pd->funcCall.buffer];
+        FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
         vector<VaraibleDeclaration *> called_params = function->params;
         // vector<unique_ptr<Node>> a = pd->params;
 
@@ -425,7 +425,7 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
             exit(EXIT_FAILURE);
             return 0;
         }
-        FunctionNode *function = scope_monitor.f[pd->funcCall.buffer];
+        FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
 
         vector<VaraibleDeclaration *> called_params = function->params;
         vector<unique_ptr<Node>> a;
@@ -619,7 +619,7 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
             exit(EXIT_FAILURE);
             return 0;
         }
-        FunctionNode *function = scope_monitor.f[pd->funcCall.buffer];
+        FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
 
         vector<VaraibleDeclaration *> param = function->params;
         std::vector<Node *> called_params_raw;
@@ -730,7 +730,7 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
             exit(EXIT_FAILURE);
             return 0;
         }
-        FunctionNode *f1 = scope_monitor.f[pd->funcCall.buffer];
+        FunctionNode *f1 = (scope_monitor.f[pd->funcCall.buffer]);
         if (!f1->returnType.has_value())
         {
             cout << pd->funcCall.buffer + "no return type" << endl;

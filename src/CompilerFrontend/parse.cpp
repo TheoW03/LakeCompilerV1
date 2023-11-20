@@ -149,6 +149,7 @@ struct FunctionNode : public Node
     // string hashed_functioName; // the name that is asm
     vector<VaraibleDeclaration *> params;
     vector<Node *> statements;
+    // vector<unique_ptr<Node>> statements;
     optional<Tokens> returnType;
 };
 #pragma endregion
@@ -431,9 +432,10 @@ optional<Tokens> getTypes(vector<Tokens> &tokens)
                                                                 : nullopt;
 }
 // will parse functions
-FunctionNode *handleFunctions(vector<Tokens> &tokens)
+unique_ptr<FunctionNode> handleFunctions(vector<Tokens> &tokens)
 {
-    FunctionNode *f = new FunctionNode;
+    // FunctionNode *f = new FunctionNode;
+    unique_ptr<FunctionNode> f = make_unique<FunctionNode>();
     optional<Tokens> name = matchAndRemove(tokens, type::WORD);
     f->nameOfFunction = name.value();
     string function_nameHashed = name.value().buffer;
@@ -454,7 +456,7 @@ FunctionNode *handleFunctions(vector<Tokens> &tokens)
         vars.push_back(v);
     }
     f->params = vars;
-    return f;
+    return move(f);
 }
 
 // Node *handleMacros(vector<Tokens> &list)
@@ -876,15 +878,15 @@ Node *handleSatements(vector<Tokens> &tokens)
  * @param tokens
  * @return Node*
  */
-vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
+vector<unique_ptr<FunctionNode>> functionParse(vector<Tokens> &tokens)
 {
 
-    vector<FunctionNode *> functionNodes;
+    vector<unique_ptr<FunctionNode>> functionNodes;
     while (matchAndRemove(tokens, type::FUNCTION).has_value())
     {
 
         vector<Node *> states;
-        FunctionNode *pd = handleFunctions(tokens);
+        unique_ptr<FunctionNode> pd = handleFunctions(tokens);
         if (matchAndRemove(tokens, type::RETURNS).has_value())
         {
 
@@ -914,7 +916,7 @@ vector<FunctionNode *> functionParse(vector<Tokens> &tokens)
             }
         }
         pd->statements = states;
-        functionNodes.push_back(pd);
+        functionNodes.push_back(move(pd));
         // delete pd;
         RemoveEOLS(tokens);
     }
@@ -941,7 +943,7 @@ unique_ptr<Node> testExpressionParse(vector<Tokens> &tokens)
 
 // }
 
-vector<FunctionNode *> parse(vector<Tokens> &tokens)
+vector<unique_ptr<FunctionNode>> parse(vector<Tokens> &tokens)
 {
 
     return functionParse(tokens);
