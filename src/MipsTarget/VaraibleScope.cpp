@@ -122,6 +122,9 @@ Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension> &scope)
 Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension> &scope, int stack_number)
 {
     Varaible *a = new Varaible;
+    if (var == nullptr)
+    {
+    }
 
     a->constant = var->constant;
     a->stackNum = stack_number;
@@ -137,6 +140,8 @@ Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension> &scope, i
             return nullptr;
         }
     }
+    cout << "null" << endl;
+
     scope[scope.size() - 1].vars[var->varaible.buffer] = a;
     return a;
 }

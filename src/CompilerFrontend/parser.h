@@ -55,7 +55,7 @@ struct BoolExpressionNode : public Node
 #define BOOL_LITERAL_NODE_H
 struct BooleanLiteralNode : public Node
 {
-    Tokens *value;
+    Tokens value;
 };
 #endif
 
@@ -63,8 +63,8 @@ struct BooleanLiteralNode : public Node
 #define LOOP_NODE_H
 struct LoopNode : public Node
 {
-    BoolExpressionNode *condition;
-    vector<Node *> statements;
+    unique_ptr<BoolExpressionNode> condition;
+    vector<shared_ptr<Node>> statements;
 };
 #endif
 
@@ -73,7 +73,7 @@ struct LoopNode : public Node
 struct ElseNode : public Node
 {
 
-    vector<Node *> statements;
+    vector<shared_ptr<Node>> statements;
 };
 #endif
 
@@ -90,9 +90,9 @@ struct CharNode : public Node
 struct IfSatementNode : public Node
 {
 
-    BoolExpressionNode *condition;
-    vector<Node *> statements;
-    ElseNode *Else;
+    unique_ptr<BoolExpressionNode> condition;
+    vector<shared_ptr<Node>> statements;
+    unique_ptr<ElseNode> Else;
 };
 #endif
 
@@ -157,10 +157,9 @@ struct ReturnStatment : public Node
 struct FunctionNode : public Node
 {
     Tokens nameOfFunction;
-    vector<VaraibleDeclaration *> params;
-    vector<Node *> statements;
-    // string hashed_functioName; // the name that is asm
-
+    vector<unique_ptr<VaraibleDeclaration>> params;
+    vector<shared_ptr<Node>> statements;
+    string hashed_functionName; // the name that is asm
     optional<Tokens> returnType;
 };
 #endif
@@ -168,9 +167,9 @@ struct FunctionNode : public Node
 #define FOR_LOOP_NODE_H
 struct ForLoopNode : public Node
 {
-    Node *incrimentorVar;
-    BoolExpressionNode *condition;
-    vector<Node *> statements;
+    unique_ptr<Node> incrimentorVar;
+    unique_ptr<BoolExpressionNode> condition;
+    vector<shared_ptr<Node>> statements;
 };
 #endif
 

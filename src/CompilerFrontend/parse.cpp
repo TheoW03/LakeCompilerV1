@@ -71,14 +71,14 @@ struct BoolExpressionNode : public Node
 struct ElseNode : public Node
 {
 
-    vector<Node *> statements;
+    vector<shared_ptr<Node>> statements;
 };
 struct IfSatementNode : public Node
 {
 
-    BoolExpressionNode *condition;
-    vector<Node *> statements;
-    ElseNode *Else;
+    unique_ptr<BoolExpressionNode> condition;
+    vector<shared_ptr<Node>> statements;
+    unique_ptr<ElseNode> Else;
 };
 struct VaraibleReference : public Node
 {
@@ -87,9 +87,9 @@ struct VaraibleReference : public Node
 };
 struct ForLoopNode : public Node
 {
-    Node *incrimentorVar;
-    BoolExpressionNode *condition;
-    vector<Node *> statements;
+    unique_ptr<Node> incrimentorVar;
+    unique_ptr<BoolExpressionNode> condition;
+    vector<shared_ptr<Node>> statements;
 };
 
 /**
@@ -108,7 +108,7 @@ struct StatementNode : public Node
 };
 struct ArrayDeclaration : public Node
 {
-    Node *size;
+    unique_ptr<Node> size;
     Tokens varaible;
     Tokens typeOfVar;
 };
@@ -121,8 +121,8 @@ struct ArrayRef : public Node
 
 struct LoopNode : public Node
 {
-    BoolExpressionNode *condition;
-    vector<Node *> statements;
+    unique_ptr<BoolExpressionNode> condition;
+    vector<shared_ptr<Node>> statements;
 };
 /**
  * @brief calls
@@ -146,10 +146,10 @@ struct MacroNode : public Node
 struct FunctionNode : public Node
 {
     Tokens nameOfFunction;
-    // string hashed_functioName; // the name that is asm
-    vector<VaraibleDeclaration *> params;
-    vector<Node *> statements;
-    // vector<unique_ptr<Node>> statements;
+    vector<unique_ptr<VaraibleDeclaration>> params;
+    vector<shared_ptr<Node>> statements;
+    string hashed_functionName; // the name that is asm
+
     optional<Tokens> returnType;
 };
 #pragma endregion
@@ -159,8 +159,8 @@ unique_ptr<Node> expression(vector<Tokens> &tokens);
 #pragma endregion
 
 optional<Tokens> current;
-Node *handleSatements(vector<Tokens> &tokens);
-Node *handleCalls(vector<Tokens> &tokens, Tokens checkIfFunct);
+unique_ptr<Node> handleSatements(vector<Tokens> &tokens);
+unique_ptr<Node> handleCalls(vector<Tokens> &tokens, Tokens checkIfFunct);
 
 /**
  * @brief I could use a stack, but a stack coesnt have peek lol
@@ -238,16 +238,15 @@ unique_ptr<Node> factor(vector<Tokens> &tokens)
             matchAndRemove(tokens, type::CL_BRACKET);
             return arrayRef;
         }
-        // Node *a = handleCalls(tokens, current.value());
+        unique_ptr<Node> a = move(handleCalls(tokens, current.value()));
 
-        // if (a == nullptr)
-        // {
-        // VaraibleReference *var = new VaraibleReference;
-        unique_ptr<VaraibleReference> var = make_unique<VaraibleReference>();
-        var->varaible = current.value();
-        return var;
-        // }
-        // return a;
+        if (a == nullptr)
+        {
+            unique_ptr<VaraibleReference> var = make_unique<VaraibleReference>();
+            var->varaible = current.value();
+            return var;
+        }
+        return a;
     }
     else if (matchAndRemove(tokens, type::TRUE).has_value() || matchAndRemove(tokens, type::FALSE).has_value())
     {
@@ -335,80 +334,7 @@ unique_ptr<Node> expression(vector<Tokens> &tokens)
 
     return opNode;
 }
-// unique_ptr<Node> safe_expression(vector<Tokens> &tokens);
-// unique_ptr<Node> safe_factor(vector<Tokens> &tokens)
-// {
-//     if (matchAndRemove(tokens, type::NUMBER).has_value())
-//     {
-//         auto intNode = make_unique<IntegerNode>();
-//         intNode->num = current.value().buffer;
-//         return intNode;
-//     }
-//     else if (matchAndRemove(tokens, type::OP_PARENTHISIS).has_value())
-//     {
-//         unique_ptr<Node> exp = safe_expression(tokens);
-//         matchAndRemove(tokens, type::CL_PARENTHISIS);
-//         return exp;
-//     }
-//     return nullptr;
-// }
-// unique_ptr<Node> safe_term(vector<Tokens> &tokens)
-// {
-//     unique_ptr<Node> opNode = safe_factor(tokens);
-//     optional<Tokens> op = (matchAndRemove(tokens, type::MULTIPLY).has_value())   ? current
-//                           : (matchAndRemove(tokens, type::DIVISION).has_value()) ? current
-//                           : (matchAndRemove(tokens, type::MOD).has_value())      ? current
-//                           : (matchAndRemove(tokens, type::SLL).has_value())      ? current
-//                           : (matchAndRemove(tokens, type::SRR).has_value())      ? current
-//                           : (matchAndRemove(tokens, type::B_AND).has_value())    ? current
-//                           : (matchAndRemove(tokens, type::B_OR).has_value())     ? current
-//                                                                                  : nullopt;
 
-//     while (op.has_value())
-//     {
-//         auto n = make_unique<OperatorNode>();
-//         n->safe_left = move(opNode);
-//         n->safe_right = safe_factor(tokens);
-//         n->token = op.value();
-//         opNode = move(n);
-//         op = (matchAndRemove(tokens, type::MULTIPLY).has_value())   ? current
-//              : (matchAndRemove(tokens, type::DIVISION).has_value()) ? current
-//              : (matchAndRemove(tokens, type::MOD).has_value())      ? current
-//              : (matchAndRemove(tokens, type::SLL).has_value())      ? current
-//              : (matchAndRemove(tokens, type::SRR).has_value())      ? current
-//              : (matchAndRemove(tokens, type::B_AND).has_value())    ? current
-//              : (matchAndRemove(tokens, type::B_OR).has_value())     ? current
-//                                                                     : nullopt;
-//     }
-
-//     return opNode;
-// }
-// unique_ptr<Node> safe_expression(vector<Tokens> &tokens)
-// {
-
-//     unique_ptr<Node> opNode = safe_term(tokens);
-//     optional<Tokens> op = (matchAndRemove(tokens, type::ADDITION).has_value())   ? current
-//                           : (matchAndRemove(tokens, type::SUBTRACT).has_value()) ? current
-//                                                                                  : nullopt;
-
-//     while (op.has_value())
-//     {
-//         auto n = make_unique<OperatorNode>();
-//         n->safe_left = move(opNode);
-//         n->safe_right = safe_term(tokens);
-//         n->token = op.value();
-//         opNode = move(n);
-//         op = (matchAndRemove(tokens, type::ADDITION).has_value())   ? current
-//              : (matchAndRemove(tokens, type::SUBTRACT).has_value()) ? current
-//                                                                     : nullopt;
-//     }
-
-//     return opNode;
-// }
-// unique_ptr<Node> safe_parse(vector<Tokens> &tokens)
-// {
-//     return safe_expression(tokens);
-// }
 #pragma endregion
 #pragma region statements
 /**
@@ -442,7 +368,7 @@ unique_ptr<FunctionNode> handleFunctions(vector<Tokens> &tokens)
     // f->hashed_functioName = function_nameHashed + "_lacus";
     matchAndRemove(tokens, type::OP_PARENTHISIS);
 
-    vector<VaraibleDeclaration *> vars;
+    vector<unique_ptr<VaraibleDeclaration>> vars;
 
     while (!matchAndRemove(tokens, type::CL_PARENTHISIS).has_value())
     {
@@ -450,65 +376,29 @@ unique_ptr<FunctionNode> handleFunctions(vector<Tokens> &tokens)
         matchAndRemove(tokens, type::SEMI_COLON);
         optional<Tokens> typeVar = getTypes(tokens);
         matchAndRemove(tokens, type::COMMA);
-        VaraibleDeclaration *v = new VaraibleDeclaration;
+        unique_ptr<VaraibleDeclaration> v = make_unique<VaraibleDeclaration>();
         v->typeOfVar = typeVar.value();
         v->varaible = word.value();
-        vars.push_back(v);
+        vars.push_back(move(v));
     }
-    f->params = vars;
+    f->params = move(vars);
     return move(f);
 }
 
-// Node *handleMacros(vector<Tokens> &list)
-// {
-//     optional<Tokens> name = matchAndRemove(list, type::WORD);
-//     Node *statements;
-//     statements = expression(list);
-//     if (statements == nullptr)
-//     {
-//         statements = handleSatements(list);
-//     }
-//     MacroNode *a = new MacroNode;
-//     a->macro = name.value();
-//     a->statement = statements;
-//     RemoveEOLS(list);
-//     return a;
-// }
-void printParams(vector<Tokens *> a)
+unique_ptr<Node> parserVarRef(vector<Tokens> &tokens, Tokens name)
 {
-    cout << "params" << endl;
-    for (size_t i = 0; i < a.size(); i++)
-    {
-        cout << a[i]->dictionary[a[i]->id] + "(" + a[i]->buffer + ") \n";
-    }
-}
-
-Node *parserVarRef(vector<Tokens> &tokens, Tokens name)
-{
-    VaraibleReference *var = new VaraibleReference;
+    unique_ptr<VaraibleReference> var = make_unique<VaraibleReference>();
     var->varaible = name;
     matchAndRemove(tokens, type::EQUALS);
     var->expression = expression(tokens);
     return var;
 }
-// /**
-//  * @brief just me testing, ignore
-//  *
-//  * @param tokens
-//  * @return Node*
-//  */
-// Node *testParse(vector<Tokens> &tokens)
-// {
-//     FunctionNode *f = static_cast<FunctionNode *>(handleFunctions(tokens));
-//     // printParams(f->params);
-//     return f;
-// }
 
-Node *parseVar(vector<Tokens> &tokens, Tokens type, int constant = 0)
+unique_ptr<VaraibleDeclaration> parseVar(vector<Tokens> &tokens, Tokens type, int constant = 0)
 {
 
     Tokens name = matchAndRemove(tokens, type::WORD).value();
-    VaraibleDeclaration *n = new VaraibleDeclaration;
+    unique_ptr<VaraibleDeclaration> n = make_unique<VaraibleDeclaration>();
     n->typeOfVar = type;
     n->varaible = name;
     n->size = 4;
@@ -526,7 +416,7 @@ Node *parseVar(vector<Tokens> &tokens, Tokens type, int constant = 0)
  * @param checkIfFunct
  * @return Node*
  */
-BoolExpressionNode *handleBooleanExpression(vector<Tokens> &tokens)
+unique_ptr<BoolExpressionNode> handleBooleanExpression(vector<Tokens> &tokens)
 {
     unique_ptr<Node> right = expression(tokens);
 
@@ -538,21 +428,20 @@ BoolExpressionNode *handleBooleanExpression(vector<Tokens> &tokens)
                           : (matchAndRemove(tokens, type::NOT_EQ).has_value()) ? current
                                                                                : nullopt;
     unique_ptr<Node> left = expression(tokens);
-    BoolExpressionNode *a = new BoolExpressionNode;
+    unique_ptr<BoolExpressionNode> a = make_unique<BoolExpressionNode>();
     a->right = move(right);
     a->left = move(left);
     a->op = op;
-
     return a;
 }
 
-Node *handleCalls(vector<Tokens> &tokens, Tokens checkIfFunct)
+unique_ptr<Node> handleCalls(vector<Tokens> &tokens, Tokens checkIfFunct)
 {
-    funcCallNode *f1 = new funcCallNode;
+    // funcCallNode *f1 = new funcCallNode;
+    unique_ptr<funcCallNode> f1 = make_unique<funcCallNode>();
     f1->funcCall = checkIfFunct;
     if (!matchAndRemove(tokens, type::OP_PARENTHISIS).has_value())
     {
-        delete f1;
         return nullptr;
     }
     vector<unique_ptr<Node>> vars;
@@ -561,19 +450,18 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens checkIfFunct)
         vars.push_back(move(expression(tokens)));
         matchAndRemove(tokens, type::COMMA);
     }
-    // f1->params = move(vars);
     f1->params = move(vars);
     return f1;
 }
-Node *handleLoops(vector<Tokens> &tokens)
+unique_ptr<Node> handleLoops(vector<Tokens> &tokens)
 {
-    LoopNode *loop = new LoopNode;
+    unique_ptr<LoopNode> loop = make_unique<LoopNode>();
     matchAndRemove(tokens, type::OP_PARENTHISIS);
     loop->condition = handleBooleanExpression(tokens);
     matchAndRemove(tokens, type::CL_PARENTHISIS);
     matchAndRemove(tokens, type::DO);
 
-    vector<Node *> states;
+    vector<shared_ptr<Node>> states;
 
     if (!matchAndRemove(tokens, type::BEGIN).has_value())
     {
@@ -596,22 +484,21 @@ Node *handleLoops(vector<Tokens> &tokens)
     return loop;
 }
 
-Node *handleIfStatements(vector<Tokens> &tokens)
+unique_ptr<Node> handleIfStatements(vector<Tokens> &tokens)
 {
     matchAndRemove(tokens, type::OP_PARENTHISIS);
-    IfSatementNode *ifStatement = new IfSatementNode;
-    BoolExpressionNode *a = handleBooleanExpression(tokens);
-    ifStatement->condition = a;
+    unique_ptr<IfSatementNode> ifStatement = make_unique<IfSatementNode>();
+    unique_ptr<BoolExpressionNode> a = move(handleBooleanExpression(tokens));
+    ifStatement->condition = move(a);
     if (!matchAndRemove(tokens, type::CL_PARENTHISIS).has_value() && !matchAndRemove(tokens, type::THEN).has_value())
     {
-        delete ifStatement;
         cout << "error" << endl;
         exit(EXIT_FAILURE);
 
         return nullptr;
     }
 
-    vector<Node *> states;
+    vector<shared_ptr<Node>> states;
     RemoveEOLS(tokens);
     if (matchAndRemove(tokens, type::BEGIN).has_value())
     {
@@ -631,13 +518,12 @@ Node *handleIfStatements(vector<Tokens> &tokens)
         RemoveEOLS(tokens);
     }
 
-    ifStatement->statements = states;
+    ifStatement->statements = move(states);
 
     if (matchAndRemove(tokens, type::ELSE).has_value())
     {
-        ElseNode *elseNode = new ElseNode;
-
-        vector<Node *> states;
+        unique_ptr<ElseNode> elseNode = make_unique<ElseNode>();
+        vector<shared_ptr<Node>> states;
         RemoveEOLS(tokens);
 
         if (!matchAndRemove(tokens, type::BEGIN).has_value())
@@ -656,8 +542,8 @@ Node *handleIfStatements(vector<Tokens> &tokens)
                 RemoveEOLS(tokens);
             }
         }
-        elseNode->statements = states;
-        ifStatement->Else = elseNode;
+        elseNode->statements = move(states);
+        ifStatement->Else = move(elseNode);
     }
     else
     {
@@ -667,24 +553,23 @@ Node *handleIfStatements(vector<Tokens> &tokens)
     return ifStatement;
 }
 
-Node *handleReturn(vector<Tokens> &tokens)
+unique_ptr<Node> handleReturn(vector<Tokens> &tokens)
 {
-    ReturnStatment *returns = new ReturnStatment;
+    unique_ptr<ReturnStatment> returns = make_unique<ReturnStatment>();
     returns->expression = expression(tokens);
     return returns;
 }
-Node *handleFor(vector<Tokens> &tokens)
+unique_ptr<ForLoopNode> handleFor(vector<Tokens> &tokens)
 {
-    ForLoopNode *forLoop = new ForLoopNode;
+    unique_ptr<ForLoopNode> forLoop = make_unique<ForLoopNode>();
     matchAndRemove(tokens, type::OP_PARENTHISIS);
 
-    vector<Node *> statements;
-
-    forLoop->incrimentorVar = handleSatements(tokens);
+    vector<shared_ptr<Node>> statements;
+    forLoop->incrimentorVar = move(handleSatements(tokens));
     RemoveEOLS(tokens);
-    forLoop->condition = handleBooleanExpression(tokens);
+    forLoop->condition = move(handleBooleanExpression(tokens));
     RemoveEOLS(tokens);
-    Node *b = handleSatements(tokens); // step
+    unique_ptr<Node> b = move(handleSatements(tokens)); // step
     RemoveEOLS(tokens);
     matchAndRemove(tokens, type::CL_PARENTHISIS);
 
@@ -706,8 +591,8 @@ Node *handleFor(vector<Tokens> &tokens)
         RemoveEOLS(tokens);
     }
     RemoveEOLS(tokens);
-    statements.push_back(b);
-    forLoop->statements = statements;
+    statements.push_back(move(b));
+    forLoop->statements = move(statements);
     // matchAndRemove(tokens, type::OP_PARENTHISIS, "a");
     // RemoveEOLS(tokens);
     // forLoop->condition = handleBooleanExpression(tokens);
@@ -737,20 +622,20 @@ Node *handleFor(vector<Tokens> &tokens)
 // vector<Node *> block_statements(vector<Tokens> &tokens)
 // {
 // }
-Node *handle_step(vector<Tokens> &tokens)
+unique_ptr<Node> handle_step(vector<Tokens> &tokens)
 {
-    VaraibleReference *var = new VaraibleReference;
+
+    // VaraibleReference *var = new VaraibleReference;
+    unique_ptr<VaraibleReference> var = make_unique<VaraibleReference>();
     unique_ptr<VaraibleReference> var2 = make_unique<VaraibleReference>();
 
-    // Node *word = expression(tokens);
+    // // Node *word = expression(tokens);
     Tokens word = matchAndRemove(tokens, type::WORD).value();
     var->varaible = word;
     var2->varaible = word;
-    // OperatorNode *op = new OperatorNode;
     unique_ptr<OperatorNode> op = make_unique<OperatorNode>();
-
     matchAndRemove(tokens, type::COMMA);
-    op->left = factor(tokens);
+    op->left = move(expression(tokens));
     op->right = move(var2);
     Tokens toke;
     toke.id = type::ADDITION;
@@ -758,9 +643,9 @@ Node *handle_step(vector<Tokens> &tokens)
     var->expression = move(op);
     return var;
 }
-Node *parse_arr_Ref(vector<Tokens> &tokens, Tokens name)
+unique_ptr<Node> parse_arr_Ref(vector<Tokens> &tokens, Tokens name)
 {
-    ArrayRef *arrayRef = new ArrayRef;
+    unique_ptr<ArrayRef> arrayRef = make_unique<ArrayRef>();
     arrayRef->name = name;
     arrayRef->RefedLocation = expression(tokens);
     matchAndRemove(tokens, type::CL_BRACKET);
@@ -769,11 +654,11 @@ Node *parse_arr_Ref(vector<Tokens> &tokens, Tokens name)
     return arrayRef;
 }
 
-Node *parse_var_statements(vector<Tokens> &tokens, Tokens a)
+unique_ptr<Node> parse_var_statements(vector<Tokens> &tokens, Tokens a)
 {
     if (a.id == type::WORD)
     {
-        Node *functionCall = handleCalls(tokens, a);
+        unique_ptr<Node> functionCall = move(handleCalls(tokens, a));
         if (functionCall != nullptr)
         {
             return functionCall;
@@ -795,21 +680,21 @@ Node *parse_var_statements(vector<Tokens> &tokens, Tokens a)
     }
 }
 
-Node *handle_array_declaration(vector<Tokens> &tokens)
+unique_ptr<Node> handle_array_declaration(vector<Tokens> &tokens)
 {
-    ArrayDeclaration *array = new ArrayDeclaration;
-    // matchAndRemove(tokens, type::OP_BRACKET);
-    // Tokens type = getTypes(tokens).value();
-    // matchAndRemove(tokens, type::SEMI_COLON);
-    // Node *size = expression(tokens);
-    // matchAndRemove(tokens, type::CL_BRACKET);
-    // array->size = size;
-    // array->typeOfVar = type;
-    // array->varaible = matchAndRemove(tokens, type::WORD).value();
-    // RemoveEOLS(tokens);
+    unique_ptr<ArrayDeclaration> array = make_unique<ArrayDeclaration>();
+    matchAndRemove(tokens, type::OP_BRACKET);
+    Tokens type = getTypes(tokens).value();
+    matchAndRemove(tokens, type::SEMI_COLON);
+    unique_ptr<Node> size = move(expression(tokens));
+    matchAndRemove(tokens, type::CL_BRACKET);
+    array->size = move(size);
+    array->typeOfVar = type;
+    array->varaible = matchAndRemove(tokens, type::WORD).value();
+    RemoveEOLS(tokens);
     return array;
 }
-Node *handleSatements(vector<Tokens> &tokens)
+unique_ptr<Node> handleSatements(vector<Tokens> &tokens)
 {
 #pragma region functionstate
     //     if (matchAndRemove(tokens, type::MACRO).has_value())
@@ -885,7 +770,7 @@ vector<unique_ptr<FunctionNode>> functionParse(vector<Tokens> &tokens)
     while (matchAndRemove(tokens, type::FUNCTION).has_value())
     {
 
-        vector<Node *> states;
+        vector<shared_ptr<Node>> states;
         unique_ptr<FunctionNode> pd = handleFunctions(tokens);
         if (matchAndRemove(tokens, type::RETURNS).has_value())
         {
@@ -915,9 +800,8 @@ vector<unique_ptr<FunctionNode>> functionParse(vector<Tokens> &tokens)
                 RemoveEOLS(tokens);
             }
         }
-        pd->statements = states;
+        pd->statements = move(states);
         functionNodes.push_back(move(pd));
-        // delete pd;
         RemoveEOLS(tokens);
     }
     return functionNodes;

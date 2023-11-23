@@ -19,7 +19,7 @@ int getnOfBranch()
 {
     return nOfBranch;
 }
-void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string);
+void handle_function_calls(vector<unique_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string);
 
 string gen_string(unique_ptr<Node> op, vector<string> &tabs, vector<Scope_dimension *> &scope, string &global_string)
 {
@@ -75,10 +75,10 @@ string handle_boolean(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string 
         }
 
         FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
-        vector<VaraibleDeclaration *> called_params = function->params;
+        vector<unique_ptr<VaraibleDeclaration>> called_params = move(function->params);
         // vector<unique_ptr<Node>> a = pd->params;
 
-        handle_function_calls(called_params, move(pd->params), scope_monitor, global_string);
+        handle_function_calls(move(called_params), move(pd->params), scope_monitor, global_string);
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
@@ -131,7 +131,7 @@ string handle_boolean(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string 
     {
         BooleanLiteralNode *pd = dynamic_cast<BooleanLiteralNode *>(op.get());
         string reg = scope_monitor.rg.allocate_register(1);
-        if (pd->value->id == type::TRUE)
+        if (pd->value.id == type::TRUE)
         {
             global_string += "li " + reg + ", 1 \n";
         }
@@ -207,12 +207,12 @@ string handle_boolean(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string 
         if (isLoop == 1)
         {
             register1 = handle_boolean(move(pd->right), scope_monitor, global_string, isLoop);
-            register2 = handle_boolean(move(pd->right), scope_monitor, global_string, isLoop);
+            register2 = handle_boolean(move(pd->left), scope_monitor, global_string, isLoop);
         }
         else
         {
             register1 = handle_boolean(move(pd->right), scope_monitor, global_string);
-            register2 = handle_boolean(move(pd->right), scope_monitor, global_string);
+            register2 = handle_boolean(move(pd->left), scope_monitor, global_string);
         }
 
         string resultReg = scope_monitor.rg.allocate_register(0);
@@ -427,13 +427,13 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         }
         FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
 
-        vector<VaraibleDeclaration *> called_params = function->params;
+        vector<unique_ptr<VaraibleDeclaration>> called_params = move(function->params);
         vector<unique_ptr<Node>> a;
         for (int i = 0; i < pd->params.size(); i++)
         {
             a.push_back(move(pd->params[i]));
         }
-        handle_function_calls(called_params, move(a), scope_monitor, global_string);
+        handle_function_calls(move(called_params), move(a), scope_monitor, global_string);
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
@@ -621,15 +621,9 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         }
         FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
 
-        vector<VaraibleDeclaration *> param = function->params;
-        std::vector<Node *> called_params_raw;
-        for (const auto &param : pd->params)
-        {
-            called_params_raw.push_back(param.get());
-        }
-
+        vector<unique_ptr<VaraibleDeclaration>> param = move(function->params);
         // handle_function_calls(param, called_params_raw, scope_monitor, global_string);
-        // handle_function_calls(param, pd->params, scope_monitor, global_string);
+        handle_function_calls(move(param), move(pd->params), scope_monitor, global_string);
         global_string += "sw $ra,4($sp) \n";
 
         global_string += "jal " + function->nameOfFunction.buffer + "\n";
@@ -737,9 +731,9 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
             exit(EXIT_FAILURE);
             return 0;
         }
-        vector<VaraibleDeclaration *> param = f1->params;
+        vector<unique_ptr<VaraibleDeclaration>> param = move(f1->params);
         Tokens returnTypes = f1->returnType.value();
-        handle_function_calls(param, move(pd->params), scope_monitor, global_string);
+        handle_function_calls(move(param), move(pd->params), scope_monitor, global_string);
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
@@ -944,7 +938,7 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     }
     return 0;
 }
-void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string)
+void handle_function_calls(vector<unique_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string)
 {
 
     for (int i = 0; i < function_params.size(); i++)
