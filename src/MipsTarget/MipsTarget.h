@@ -14,4 +14,4 @@
 using namespace std;
 
 #pragma once
-void gen_mips_target(vector<FunctionNode *> op, string filename = "");
+void gen_mips_target(vector<unique_ptr<FunctionNode>> op, string filename = "");

@@ -30,7 +30,7 @@ void handle_cli(char *argv[], int argc)
         }
     }
 
-    vector<FunctionNode *> c = parse(a);
+    vector<unique_ptr<FunctionNode>> c = move(parse(a));
 
     cout << "parsed successfully" << endl;
     string file1 = "";
@@ -42,7 +42,7 @@ void handle_cli(char *argv[], int argc)
             file1 = argv[i + 1];
         }
     }
-    gen_mips_target(c, file1);
+    gen_mips_target(move(c), file1);
 
     cout << "compiled successfully" << endl;
 }
@@ -51,7 +51,11 @@ int main(int argc, char *argv[])
     // gen_LLVM(functions, "");'
     // char *file = argv[1];
     // vector<Tokens> a = lex(readFile(file));
+    // unique_ptr<Node> op = safe_parse(a);
+    // Node op = nullptr
+    // inorderTraversal(op);
     // testExpressionParse(a);
     handle_cli(argv, argc);
+
     return 0;
 }

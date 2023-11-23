@@ -19,10 +19,13 @@ struct Scope_dimension
 {
     map<string, Varaible *> vars;
     int stack_allocation;
+    Scope_dimension()
+    {
+    }
 };
 struct Scope_Monitor
 {
-    vector<Scope_dimension *> scope;
+    vector<unique_ptr<Scope_dimension>> scope;
     map<string, FunctionNode *> f;
     RegisterAllocation rg;
 };
@@ -88,23 +91,25 @@ void reset_arg_register()
 {
     nextArgRegister = -1;
 }
-void allocate_Scope(vector<Scope_dimension *> &scope)
+void allocate_Scope(vector<Scope_dimension> &scope)
 {
 
-    Scope_dimension *a = new Scope_dimension;
+    // Scope_dimension *a = new Scope_dimension;
+    // unique_ptr<Scope_dimension> a = make_unique<Scope_dimension>();
+    Scope_dimension a;
     map<string, Varaible *> b;
-    a->vars = b;
+    a.vars = b;
     scope.push_back(a);
 }
-void deallocate_Scope(vector<Scope_dimension *> &scope)
+void deallocate_Scope(vector<Scope_dimension> &scope)
 {
-    scope.erase(scope.end() - 1);
+    scope.pop_back();
 }
-Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
+Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension> &scope)
 {
     for (int i = 0; i < scope.size(); i++)
     {
-        map<string, Varaible *> b = scope[i]->vars;
+        map<string, Varaible *> b = scope[i].vars;
 
         if (b.find(var->varaible.buffer) != b.end())
         {
@@ -114,16 +119,19 @@ Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension *> &scope)
     }
     return nullptr;
 }
-Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension *> &scope, int stack_number)
+Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension> &scope, int stack_number)
 {
     Varaible *a = new Varaible;
+    if (var == nullptr)
+    {
+    }
 
     a->constant = var->constant;
     a->stackNum = stack_number;
     a->varType = var->typeOfVar;
     for (int i = 0; i < scope.size(); i++)
     {
-        map<string, Varaible *> b = scope[i]->vars;
+        map<string, Varaible *> b = scope[i].vars;
         if (b.find(var->varaible.buffer) != b.end())
         {
 
@@ -132,6 +140,7 @@ Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension *> &scope,
             return nullptr;
         }
     }
-    scope[scope.size() - 1]->vars[var->varaible.buffer] = a;
+
+    scope[scope.size() - 1].vars[var->varaible.buffer] = a;
     return a;
 }

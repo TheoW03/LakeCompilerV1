@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <memory>
+
 #include "../../src/CompilerFrontend/Lexxer.h"
 using namespace std;
 
@@ -12,9 +14,9 @@ using namespace std;
 
 struct Node
 {
-    Node *left;
-    // int s;
-    Node *right;
+    unique_ptr<Node> right;
+    unique_ptr<Node> left; // int s;
+
     virtual ~Node();
 };
 #endif
@@ -23,7 +25,7 @@ struct Node
 #define VAR_REF_H
 struct VaraibleReference : public Node
 {
-    Node *expression;
+    unique_ptr<Node> expression;
     Tokens varaible;
 };
 #endif
@@ -32,7 +34,7 @@ struct VaraibleReference : public Node
 #define VAR_DEC_H
 struct VaraibleDeclaration : public Node
 {
-    Node *expression;
+    unique_ptr<Node> expression;
     Tokens varaible;
     Tokens typeOfVar;
     int size;
@@ -44,8 +46,7 @@ struct VaraibleDeclaration : public Node
 #define BOOL_EXPR_NODE_H
 struct BoolExpressionNode : public Node
 {
-    Node *right;
-    Node *left;
+
     optional<Tokens> op;
 };
 #endif
@@ -54,7 +55,7 @@ struct BoolExpressionNode : public Node
 #define BOOL_LITERAL_NODE_H
 struct BooleanLiteralNode : public Node
 {
-    Tokens *value;
+    Tokens value;
 };
 #endif
 
@@ -62,8 +63,8 @@ struct BooleanLiteralNode : public Node
 #define LOOP_NODE_H
 struct LoopNode : public Node
 {
-    BoolExpressionNode *condition;
-    vector<Node *> statements;
+    unique_ptr<BoolExpressionNode> condition;
+    vector<shared_ptr<Node>> statements;
 };
 #endif
 
@@ -72,7 +73,7 @@ struct LoopNode : public Node
 struct ElseNode : public Node
 {
 
-    vector<Node *> statements;
+    vector<shared_ptr<Node>> statements;
 };
 #endif
 
@@ -89,9 +90,9 @@ struct CharNode : public Node
 struct IfSatementNode : public Node
 {
 
-    BoolExpressionNode *condition;
-    vector<Node *> statements;
-    ElseNode *Else;
+    unique_ptr<BoolExpressionNode> condition;
+    vector<shared_ptr<Node>> statements;
+    unique_ptr<ElseNode> Else;
 };
 #endif
 
@@ -100,7 +101,7 @@ struct IfSatementNode : public Node
 struct funcCallNode : public Node
 {
     Tokens funcCall;
-    vector<Node *> params;
+    vector<unique_ptr<Node>> params;
 };
 #endif
 
@@ -147,7 +148,7 @@ struct StatementNode : public Node
 #define RETURN_STATEMENT_H
 struct ReturnStatment : public Node
 {
-    Node *expression;
+    unique_ptr<Node> expression;
 };
 #endif
 
@@ -156,8 +157,9 @@ struct ReturnStatment : public Node
 struct FunctionNode : public Node
 {
     Tokens nameOfFunction;
-    vector<VaraibleDeclaration *> params;
-    vector<Node *> statements;
+    vector<shared_ptr<VaraibleDeclaration>> params;
+    vector<shared_ptr<Node>> statements;
+    string hashed_functionName; // the name that is asm
     optional<Tokens> returnType;
 };
 #endif
@@ -165,9 +167,9 @@ struct FunctionNode : public Node
 #define FOR_LOOP_NODE_H
 struct ForLoopNode : public Node
 {
-    Node *incrimentorVar;
-    BoolExpressionNode *condition;
-    vector<Node *> statements;
+    unique_ptr<Node> incrimentorVar;
+    unique_ptr<BoolExpressionNode> condition;
+    vector<shared_ptr<Node>> statements;
 };
 #endif
 
@@ -176,7 +178,7 @@ struct ForLoopNode : public Node
 
 struct ArrayDeclaration : public Node
 {
-    Node *size;
+    unique_ptr<Node> size;
     Tokens varaible;
     Tokens typeOfVar;
 };
@@ -187,11 +189,11 @@ struct ArrayDeclaration : public Node
 struct ArrayRef : public Node
 {
     Tokens name;
-    Node *RefedLocation;
-    Node *value;
+    unique_ptr<Node> RefedLocation;
+    unique_ptr<Node> value;
 };
 #endif
-vector<FunctionNode *> parse(vector<Tokens> &tokens);
+vector<unique_ptr<FunctionNode>> parse(vector<Tokens> &tokens);
 
 Node *term(vector<Tokens> &tokens);
 Node *factor(vector<Tokens> &tokens);
@@ -204,8 +206,9 @@ Node *handleFunctions(vector<Tokens> &tokens);
 void printParams(vector<Tokens *> a);
 Node *testParse(vector<Tokens> &tokens);
 
-vector<FunctionNode *> functionParse(vector<Tokens> &tokens);
+vector<unique_ptr<FunctionNode>> functionParse(vector<Tokens> &tokens);
 Node *parseVar(vector<Tokens> &tokens, Tokens *name);
 Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct);
 Node *handleSatements(vector<Tokens> &tokens);
 Node *testExpressionParse(vector<Tokens> &tokens);
+// unique_ptr<Node> safe_parse(vector<Tokens> &tokens);

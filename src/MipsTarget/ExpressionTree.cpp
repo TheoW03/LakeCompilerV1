@@ -19,9 +19,9 @@ int getnOfBranch()
 {
     return nOfBranch;
 }
-void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector<Node *> params, Scope_Monitor &scope_monitor, string &global_string);
+void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string);
 
-string gen_string(Node *op, vector<string> &tabs, vector<Scope_dimension *> &scope, string &global_string)
+string gen_string(unique_ptr<Node> op, vector<string> &tabs, vector<Scope_dimension *> &scope, string &global_string)
 {
     if (op == nullptr)
     {
@@ -29,34 +29,34 @@ string gen_string(Node *op, vector<string> &tabs, vector<Scope_dimension *> &sco
         return "";
     }
 
-    if (instanceof <StringNode *>(op))
-    {
-        StringNode *pd = dynamic_cast<StringNode *>(op);
-        // instanceof1<stringNode *>(op);
-        // allocate size
+    // if (instanceof <StringNode *>(op))
+    // {
+    //     StringNode *pd = dynamic_cast<StringNode *>(op);
+    //     // instanceof1<stringNode *>(op);
+    //     // allocate size
 
-        /*
-          li $v0,9      # allocate syscall code.
-        li $a0,64    # 64 bytes allocated in heap.
-        syscall
-        sw $v0, p   # pointer p to  heap space
+    //     /*
+    //       li $v0,9      # allocate syscall code.
+    //     li $a0,64    # 64 bytes allocated in heap.
+    //     syscall
+    //     sw $v0, p   # pointer p to  heap space
 
-        li $t0,'a'      # first byte 'a' char
-        sb $t0,0($v0)
-        li $t0,'b'      # second byte 'b' char
-        sb $t0,1($v0)
-        li $t0, 'c'
-        sb $t0, 2($v0)
-        li $t0, 'd'
-        sb $t0, 3($v0)
+    //     li $t0,'a'      # first byte 'a' char
+    //     sb $t0,0($v0)
+    //     li $t0,'b'      # second byte 'b' char
+    //     sb $t0,1($v0)
+    //     li $t0, 'c'
+    //     sb $t0, 2($v0)
+    //     li $t0, 'd'
+    //     sb $t0, 3($v0)
 
-        */
-        // and yehs
-    }
+    //     */
+    //     // and yehs
+    // }
     return "";
 }
 
-string handle_boolean(Node *op, Scope_Monitor &scope_monitor, string &global_string, int isLoop = 0)
+string handle_boolean(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &global_string, int isLoop = 0)
 {
     if (op == nullptr)
     {
@@ -64,23 +64,25 @@ string handle_boolean(Node *op, Scope_Monitor &scope_monitor, string &global_str
         return "";
         // c++ moment. casually coding and bam "cout is ambigous " T~T
     }
-    if (instanceof <funcCallNode *>(op))
+    if (instanceof <funcCallNode *>(op.get()))
     {
-        funcCallNode *pd = dynamic_cast<funcCallNode *>(op);
+        funcCallNode *pd = dynamic_cast<funcCallNode *>(op.get());
         if (scope_monitor.f.find(pd->funcCall.buffer) == scope_monitor.f.end())
         {
             cerr << pd->funcCall.buffer + " is not a function" << endl;
             exit(EXIT_FAILURE);
             return 0;
         }
-        FunctionNode *function = scope_monitor.f[pd->funcCall.buffer];
 
-        vector<VaraibleDeclaration *> called_params = function->params;
-        handle_function_calls(called_params, pd->params, scope_monitor, global_string);
+        FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
+        vector<shared_ptr<VaraibleDeclaration>> called_params = (function->params);
+        // vector<unique_ptr<Node>> a = pd->params;
+
+        handle_function_calls((called_params), move(pd->params), scope_monitor, global_string);
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + pd->funcCall.buffer + "\n";
+        global_string += "jal " + function->hashed_functionName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         scope_monitor.rg.return_save(global_string);
@@ -99,9 +101,9 @@ string handle_boolean(Node *op, Scope_Monitor &scope_monitor, string &global_str
         }
         return register_result;
     }
-    if (instanceof <IntegerNode *>(op))
+    if (instanceof <IntegerNode *>(op.get()))
     {
-        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op.get());
         // cout << "works in num \n";
         string reg = scope_monitor.rg.allocate_register(1);
         // string reg = allocateReg();
@@ -109,27 +111,27 @@ string handle_boolean(Node *op, Scope_Monitor &scope_monitor, string &global_str
         global_string += "li " + reg + "," + to_string(num) + "\n";
         return reg;
     }
-    if (instanceof <CharNode *>(op))
+    if (instanceof <CharNode *>(op.get()))
     {
-        CharNode *pd = dynamic_cast<CharNode *>(op);
+        CharNode *pd = dynamic_cast<CharNode *>(op.get());
         // cout << "works in num \n";
         string reg = scope_monitor.rg.allocate_register(1);
         int num = (int)stoi(pd->character) * OFFSET;
         global_string += "li " + reg + "," + to_string(num) + "\n";
         return reg;
     }
-    if (instanceof <FloatNode *>(op))
+    if (instanceof <FloatNode *>(op.get()))
     {
-        FloatNode *pd = dynamic_cast<FloatNode *>(op);
+        FloatNode *pd = dynamic_cast<FloatNode *>(op.get());
         string reg = scope_monitor.rg.allocate_register(1);
         global_string += "li " + reg + "," + pd->num + "\n";
         return reg;
     }
-    if (instanceof <BooleanLiteralNode *>(op))
+    if (instanceof <BooleanLiteralNode *>(op.get()))
     {
-        BooleanLiteralNode *pd = dynamic_cast<BooleanLiteralNode *>(op);
+        BooleanLiteralNode *pd = dynamic_cast<BooleanLiteralNode *>(op.get());
         string reg = scope_monitor.rg.allocate_register(1);
-        if (pd->value->id == type::TRUE)
+        if (pd->value.id == type::TRUE)
         {
             global_string += "li " + reg + ", 1 \n";
         }
@@ -141,13 +143,13 @@ string handle_boolean(Node *op, Scope_Monitor &scope_monitor, string &global_str
         return reg;
     }
     // varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
-    if (instanceof <VaraibleReference *>(op))
+    if (instanceof <VaraibleReference *>(op.get()))
     {
 
         // VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
-        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
+        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op.get());
         // type a = map[pd1->varailbe->buffer]->varType->id;
-        Varaible *var = get_varaible(pd, scope_monitor.scope);
+        Varaible *var = get_varaible(pd, (scope_monitor.scope));
         if (var == nullptr)
         {
             cerr << pd->varaible.buffer + " doesnt exist as a var" << endl;
@@ -180,9 +182,9 @@ string handle_boolean(Node *op, Scope_Monitor &scope_monitor, string &global_str
         global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
         return reg;
     }
-    if (instanceof <BoolExpressionNode *>(op))
+    if (instanceof <BoolExpressionNode *>(op.get()))
     {
-        BoolExpressionNode *pd = dynamic_cast<BoolExpressionNode *>(op);
+        BoolExpressionNode *pd = dynamic_cast<BoolExpressionNode *>(op.get());
         if (!pd->op.has_value())
         {
             if (isLoop == 1)
@@ -197,20 +199,20 @@ string handle_boolean(Node *op, Scope_Monitor &scope_monitor, string &global_str
         Tokens op = pd->op.value();
         if (op.id != type::BOOL_EQ)
         {
-            if (instanceof <BooleanLiteralNode *>(pd->left) || instanceof <BooleanLiteralNode *>(pd->right))
+            if (instanceof <BooleanLiteralNode *>(pd->left.get()) || instanceof <BooleanLiteralNode *>(pd->right.get()))
             {
                 return "";
             }
         }
         if (isLoop == 1)
         {
-            register1 = handle_boolean(pd->right, scope_monitor, global_string, isLoop);
-            register2 = handle_boolean(pd->left, scope_monitor, global_string, isLoop);
+            register1 = handle_boolean(move(pd->right), scope_monitor, global_string, isLoop);
+            register2 = handle_boolean(move(pd->left), scope_monitor, global_string, isLoop);
         }
         else
         {
-            register1 = handle_boolean(pd->right, scope_monitor, global_string);
-            register2 = handle_boolean(pd->left, scope_monitor, global_string);
+            register1 = handle_boolean(move(pd->right), scope_monitor, global_string);
+            register2 = handle_boolean(move(pd->left), scope_monitor, global_string);
         }
 
         string resultReg = scope_monitor.rg.allocate_register(0);
@@ -394,43 +396,48 @@ string handle_boolean(Node *op, Scope_Monitor &scope_monitor, string &global_str
     return "";
 }
 
-float gen_float_op(Node *op, Scope_Monitor &scope_monitor, string &global_string, string &register_result)
+float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &global_string, string &register_result)
 {
 
     if (op == nullptr)
     {
         return 0.0f;
     }
-    if (instanceof <funcCallNode *>(op))
-    {
-        funcCallNode *pd = dynamic_cast<funcCallNode *>(op);
-        register_result = "$v0";
+    // if (instanceof <funcCallNode *>(op.get()))
+    // {
+    //     funcCallNode *pd = dynamic_cast<funcCallNode *>(op.get());
+    //     register_result = "$v0";
 
+    //     if (scope_monitor.f.find(pd->funcCall.buffer) == scope_monitor.f.end())
+    //     {
+    //         cerr << pd->funcCall.buffer + " is not a function" << endl;
+    //         exit(EXIT_FAILURE);
+    //         return 0;
+    //     }
+    // }
+    if (instanceof <funcCallNode *>(op.get()))
+    {
+        funcCallNode *pd = dynamic_cast<funcCallNode *>(op.get());
+        register_result = "$v0";
         if (scope_monitor.f.find(pd->funcCall.buffer) == scope_monitor.f.end())
         {
             cerr << pd->funcCall.buffer + " is not a function" << endl;
             exit(EXIT_FAILURE);
             return 0;
         }
-    }
-    if (instanceof <funcCallNode *>(op))
-    {
-        funcCallNode *pd = dynamic_cast<funcCallNode *>(op);
-        register_result = "$v0";
-        if (scope_monitor.f.find(pd->funcCall.buffer) == scope_monitor.f.end())
-        {
-            cerr << pd->funcCall.buffer + " is not a function" << endl;
-            exit(EXIT_FAILURE);
-            return 0;
-        }
-        FunctionNode *function = scope_monitor.f[pd->funcCall.buffer];
+        FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
 
-        vector<VaraibleDeclaration *> called_params = function->params;
-        handle_function_calls(called_params, pd->params, scope_monitor, global_string);
+        vector<shared_ptr<VaraibleDeclaration>> called_params = move(function->params);
+        vector<unique_ptr<Node>> a;
+        for (int i = 0; i < pd->params.size(); i++)
+        {
+            a.push_back(move(pd->params[i]));
+        }
+        handle_function_calls(move(called_params), move(a), scope_monitor, global_string);
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + pd->funcCall.buffer + "\n";
+        global_string += "jal " + function->hashed_functionName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         global_string += "move $fp, $sp \n";
@@ -451,35 +458,35 @@ float gen_float_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
         }
         return 0;
     }
-    if (instanceof <BooleanLiteralNode *>(op))
+    if (instanceof <BooleanLiteralNode *>(op.get()))
     {
         cout << "boolean literal not accepted in integer, use 1 or 0" << endl;
         exit(EXIT_FAILURE);
     }
-    if (instanceof <IntegerNode *>(op))
+    if (instanceof <IntegerNode *>(op.get()))
     {
-        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op.get());
         register_result = "";
         int num = stoi(pd->num) * OFFSET;
         return num;
     }
-    if (instanceof <FloatNode *>(op))
+    if (instanceof <FloatNode *>(op.get()))
     {
-        FloatNode *pd = dynamic_cast<FloatNode *>(op);
+        FloatNode *pd = dynamic_cast<FloatNode *>(op.get());
         register_result = "";
         return stoi(pd->num);
     }
-    if (instanceof <CharNode *>(op))
+    if (instanceof <CharNode *>(op.get()))
     {
-        CharNode *pd = dynamic_cast<CharNode *>(op);
+        CharNode *pd = dynamic_cast<CharNode *>(op.get());
         int ch = stoi(pd->character);
         int num = (int)ch * OFFSET;
         register_result = "";
         return num;
     }
-    if (instanceof <VaraibleReference *>(op))
+    if (instanceof <VaraibleReference *>(op.get()))
     {
-        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
+        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op.get());
         Varaible *var = get_varaible(pd, scope_monitor.scope);
         if (var == nullptr)
         {
@@ -507,9 +514,9 @@ float gen_float_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
 
         return 0;
     }
-    if (instanceof <OperatorNode *>(op))
+    if (instanceof <OperatorNode *>(op.get()))
     {
-        OperatorNode *pd = dynamic_cast<OperatorNode *>(op);
+        OperatorNode *pd = dynamic_cast<OperatorNode *>(op.get());
         map<type, string> operations;
         operations[type::ADDITION] = "add ";
         operations[type::SUBTRACT] = "sub ";
@@ -520,16 +527,10 @@ float gen_float_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
         string registers = "";
         string registers2 = "";
         int a, b;
-        if (instanceof <funcCallNode *>(op->right) && (instanceof <VaraibleReference *>(op->left)))
-        {
-            b = gen_float_op(op->right, scope_monitor, global_string, registers2);
-            a = gen_float_op(op->left, scope_monitor, global_string, registers);
-        }
-        else
-        {
-            a = gen_float_op(op->left, scope_monitor, global_string, registers);
-            b = gen_float_op(op->right, scope_monitor, global_string, registers2);
-        }
+
+        a = gen_float_op(move(op->left), scope_monitor, global_string, registers);
+        b = gen_float_op(move(op->right), scope_monitor, global_string, registers2);
+
         if (registers2 == "" && registers == "")
         {
             if (pd->token.id == type::ADDITION)
@@ -601,16 +602,16 @@ float gen_float_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
     return 0;
 }
 
-string gen_char_op(Node *op, Scope_Monitor &scope_monitor, string &global_string)
+string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &global_string)
 {
     if (op == nullptr)
     {
         // cout << "null \n";
         return "";
     }
-    if (instanceof <funcCallNode *>(op))
+    if (instanceof <funcCallNode *>(op.get()))
     {
-        funcCallNode *pd = dynamic_cast<funcCallNode *>(op);
+        funcCallNode *pd = dynamic_cast<funcCallNode *>(op.get());
 
         if (scope_monitor.f.find(pd->funcCall.buffer) == scope_monitor.f.end())
         {
@@ -618,17 +619,18 @@ string gen_char_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
             exit(EXIT_FAILURE);
             return 0;
         }
-        FunctionNode *f1 = scope_monitor.f[pd->funcCall.buffer];
+        FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
 
-        vector<VaraibleDeclaration *> param = f1->params;
-        handle_function_calls(param, pd->params, scope_monitor, global_string);
+        vector<shared_ptr<VaraibleDeclaration>> param = move(function->params);
+        // handle_function_calls(param, called_params_raw, scope_monitor, global_string);
+        handle_function_calls(move(param), move(pd->params), scope_monitor, global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + pd->funcCall.buffer + "\n";
+        global_string += "jal " + function->hashed_functionName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         global_string += "move $fp, $sp \n";
-        Tokens returnType = f1->returnType.value();
+        Tokens returnType = function->returnType.value();
         if (returnType.id == type::FLOAT)
         {
             cout << "error: float isnt accepted here" << endl;
@@ -636,24 +638,25 @@ string gen_char_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
         }
         string register_result = scope_monitor.rg.allocate_register(1);
         global_string += "move " + register_result + ", $v0 \n";
-
+        // delete pd;
         return register_result;
     }
-    if (instanceof <BooleanLiteralNode *>(op))
+    if (instanceof <BooleanLiteralNode *>(op.get()))
     {
         cout << "boolean literal not accepted in integer, use 1 or 0" << endl;
         exit(EXIT_FAILURE);
     }
-    if (instanceof <CharNode *>(op))
+    if (instanceof <CharNode *>(op.get()))
     {
-        CharNode *pd = dynamic_cast<CharNode *>(op);
+        CharNode *pd = dynamic_cast<CharNode *>(op.get());
         string reg = scope_monitor.rg.allocate_register(0);
         global_string += "li " + reg + "," + pd->character + "\n";
+        // delete pd;
         return reg;
     }
-    if (instanceof <IntegerNode *>(op))
+    if (instanceof <IntegerNode *>(op.get()))
     {
-        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op.get());
         string reg = scope_monitor.rg.allocate_register(0);
         if (stoi(pd->num) > 255)
         {
@@ -662,20 +665,21 @@ string gen_char_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
             return "";
         }
         global_string += "li " + reg + "," + pd->num + "\n";
+        // delete pd;
         return reg;
     }
-    if (instanceof <FloatNode *>(op))
+    if (instanceof <FloatNode *>(op.get()))
     {
         cerr << "char only accepts an 8 bit unsigned integer or letter not floats" << endl;
         exit(1);
         return "";
     }
-    if (instanceof <VaraibleReference *>(op))
+    if (instanceof <VaraibleReference *>(op.get()))
     {
-        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
+        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op.get());
 
         string reg = scope_monitor.rg.allocate_register(0);
-        Varaible *var = get_varaible(pd, scope_monitor.scope);
+        Varaible *var = get_varaible(pd, (scope_monitor.scope));
 
         if (var == nullptr)
         {
@@ -690,13 +694,13 @@ string gen_char_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
             return "";
         }
         global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
-
+        delete pd;
         return reg;
     }
     return "";
 }
 
-int gen_integer_op(Node *op, Scope_Monitor &scope_monitor, string &global_string, string &register_result)
+int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &global_string, string &register_result)
 {
 
     if (op == nullptr)
@@ -704,37 +708,36 @@ int gen_integer_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
         // cout << "null \n";
         return 0;
     }
-    if (instanceof <BooleanLiteralNode *>(op))
+    if (instanceof <BooleanLiteralNode *>(op.get()))
     {
         cout << "boolean literal not accepted in integer, use 1 or 0" << endl;
         exit(EXIT_FAILURE);
     }
-    if (instanceof <funcCallNode *>(op))
+    if (instanceof <funcCallNode *>(op.get()))
     {
-        funcCallNode *pd = dynamic_cast<funcCallNode *>(op);
+        funcCallNode *pd = dynamic_cast<funcCallNode *>(op.get());
         // register_result = "$v0";
 
         if (scope_monitor.f.find(pd->funcCall.buffer) == scope_monitor.f.end())
         {
-            cerr << pd->funcCall.buffer + " is not a function" << endl;
+            cerr << pd->funcCall.buffer + " is not aaa function" << endl;
             exit(EXIT_FAILURE);
             return 0;
         }
-        FunctionNode *f1 = scope_monitor.f[pd->funcCall.buffer];
+        FunctionNode *f1 = (scope_monitor.f[pd->funcCall.buffer]);
         if (!f1->returnType.has_value())
         {
             cout << pd->funcCall.buffer + "no return type" << endl;
             exit(EXIT_FAILURE);
             return 0;
         }
-        vector<VaraibleDeclaration *> param = f1->params;
+        vector<shared_ptr<VaraibleDeclaration>> param = (f1->params);
         Tokens returnTypes = f1->returnType.value();
-        handle_function_calls(param, pd->params, scope_monitor, global_string);
-
+        handle_function_calls((param), move(pd->params), scope_monitor, global_string);
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + pd->funcCall.buffer + "\n";
+        global_string += "jal " + f1->hashed_functionName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         global_string += "move $fp, $sp \n";
@@ -749,31 +752,38 @@ int gen_integer_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
         }
         return 0;
     }
-    if (instanceof <IntegerNode *>(op))
+    if (instanceof <IntegerNode *>(op.get()))
     {
-        IntegerNode *pd = dynamic_cast<IntegerNode *>(op);
+        IntegerNode *pd = dynamic_cast<IntegerNode *>(op.get());
         register_result = "";
-        return stoi(pd->num);
+        int a = stoi(pd->num);
+        // delete pd;
+        return a;
     }
-    if (instanceof <CharNode *>(op))
+    if (instanceof <CharNode *>(op.get()))
     {
-        CharNode *pd = dynamic_cast<CharNode *>(op);
+        CharNode *pd = dynamic_cast<CharNode *>(op.get());
         register_result = "";
-        return (int)stoi(pd->character);
+        int a = (int)stoi(pd->character);
+        // delete pd;
+        return a;
     }
-    if (instanceof <FloatNode *>(op))
+    if (instanceof <FloatNode *>(op.get()))
     {
-        FloatNode *pd = dynamic_cast<FloatNode *>(op);
+        FloatNode *pd = dynamic_cast<FloatNode *>(op.get());
         register_result = "";
-        return (int)stoi(pd->num) / OFFSET;
+        int a = (int)stoi(pd->num) / OFFSET;
+        // delete pd;
+        return a;
     }
-    if (instanceof <VaraibleReference *>(op))
+    if (instanceof <VaraibleReference *>(op.get()))
     {
-        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op);
-        Varaible *var = get_varaible(pd, scope_monitor.scope);
+        VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op.get());
+        Varaible *var = get_varaible(pd, (scope_monitor.scope));
         if (var == nullptr)
         {
             cerr << pd->varaible.buffer + " doesnt exist as a var" << endl;
+            // delete pd;
             exit(0);
             return -1;
         }
@@ -793,12 +803,13 @@ int gen_integer_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
             register_result = scope_monitor.rg.allocate_register(1);
             global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($fp) #float \n";
         }
+        // delete pd;
 
         return 0;
     }
-    if (instanceof <OperatorNode *>(op))
+    if (instanceof <OperatorNode *>(op.get()))
     {
-        OperatorNode *pd = dynamic_cast<OperatorNode *>(op);
+        OperatorNode *pd = dynamic_cast<OperatorNode *>(op.get());
         map<type, string> operations;
         operations[type::ADDITION] = "add ";
         operations[type::SUBTRACT] = "sub ";
@@ -813,17 +824,17 @@ int gen_integer_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
         string registers = "";
         string registers2 = "";
         int a, b;
-        if (instanceof <funcCallNode *>(op->right) && (instanceof <VaraibleReference *>(op->left)))
-        {
-            b = gen_integer_op(op->right, scope_monitor, global_string, registers2);
-            a = gen_integer_op(op->left, scope_monitor, global_string, registers);
-            cout << "left" << endl;
-        }
-        else
-        {
-            a = gen_integer_op(op->left, scope_monitor, global_string, registers);
-            b = gen_integer_op(op->right, scope_monitor, global_string, registers2);
-        }
+        // if (instanceof <funcCallNode *>(op->right) && (instanceof <VaraibleReference *>(op->left)))
+        // {
+        //     b = gen_integer_op(op->right, scope_monitor, global_string, registers2);
+        //     a = gen_integer_op(op->left, scope_monitor, global_string, registers);
+        //     cout << "left" << endl;
+        // }
+        // else
+        // {
+        a = gen_integer_op(move(op->left), scope_monitor, global_string, registers);
+        b = gen_integer_op(move(op->right), scope_monitor, global_string, registers2);
+        // }
 
         if (registers2 == "" && registers == "")
         {
@@ -927,7 +938,7 @@ int gen_integer_op(Node *op, Scope_Monitor &scope_monitor, string &global_string
     }
     return 0;
 }
-void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector<Node *> params, Scope_Monitor &scope_monitor, string &global_string)
+void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string)
 {
 
     for (int i = 0; i < function_params.size(); i++)
@@ -935,7 +946,7 @@ void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector
         if (function_params[i]->typeOfVar.id == type::INT)
         {
             string reg = "";
-            int c = gen_integer_op(params[i], scope_monitor, global_string, reg);
+            int c = gen_integer_op(move(params[i]), scope_monitor, global_string, reg);
             if (reg == "")
             {
                 reg = allocateReg();
@@ -947,7 +958,7 @@ void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector
         else if (function_params[i]->typeOfVar.id == type::FLOAT)
         {
             string reg = "";
-            int c = gen_float_op(params[i], scope_monitor, global_string, reg);
+            int c = gen_float_op(move(params[i]), scope_monitor, global_string, reg);
             if (reg == "")
             {
                 reg = allocateReg();
@@ -958,7 +969,7 @@ void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector
         }
         else if (function_params[i]->typeOfVar.id == type::CHAR)
         {
-            string reg = gen_char_op(params[i], scope_monitor, global_string);
+            string reg = gen_char_op(move(params[i]), scope_monitor, global_string);
             global_string += "move " + allocate_argumentRegister() + "," + reg + "#f \n";
             scope_monitor.rg.downgrade_register(reg);
         }
@@ -966,11 +977,11 @@ void handle_function_calls(vector<VaraibleDeclaration *> function_params, vector
     reset_arg_register();
 }
 
-void update_var_values(Tokens type, Node *expression, string &global_string, string &reg, Scope_Monitor &scope_monitor)
+void update_var_values(Tokens type, unique_ptr<Node> expression, string &global_string, string &reg, Scope_Monitor &scope_monitor)
 {
     if (type.id == type::FLOAT)
     {
-        int b = gen_float_op(expression, scope_monitor, global_string, reg);
+        int b = gen_float_op(move(expression), scope_monitor, global_string, reg);
         if (reg == "")
         {
             reg = allocateReg();
@@ -979,7 +990,7 @@ void update_var_values(Tokens type, Node *expression, string &global_string, str
     }
     else if (type.id == type::INT)
     {
-        int b = gen_integer_op(expression, scope_monitor, global_string, reg);
+        int b = gen_integer_op(move(expression), scope_monitor, global_string, reg);
         // cout << "here" << endl;
         if (reg == "")
         {
@@ -990,11 +1001,11 @@ void update_var_values(Tokens type, Node *expression, string &global_string, str
     }
     else if (type.id == type::BOOL)
     {
-        reg = handle_boolean(expression, scope_monitor, global_string);
+        reg = handle_boolean(move(expression), scope_monitor, global_string);
     }
     else if (type.id == type::CHAR)
     {
-        reg = gen_char_op(expression, scope_monitor, global_string);
+        reg = gen_char_op(move(expression), scope_monitor, global_string);
     }
     scope_monitor.rg.reset_registers();
 }
