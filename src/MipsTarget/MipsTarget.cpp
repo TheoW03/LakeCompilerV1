@@ -395,7 +395,7 @@ void gen_mips_target(vector<unique_ptr<FunctionNode>> op, string filename)
         vector<shared_ptr<VaraibleDeclaration>> params = (pd->params);
         if (pd->nameOfFunction.buffer != "main")
         {
-            cout << params.size() << endl;
+            // cout << params.size() << endl;
 
             for (size_t i = 0; i < params.size(); i++)
             {

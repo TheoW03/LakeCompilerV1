@@ -381,7 +381,7 @@ unique_ptr<FunctionNode> handleFunctions(vector<Tokens> &tokens)
         vars.push_back(move(v));
     }
     f->params = (vars);
-    cout << f->params.size() << endl;
+    // cout << f->params.size() << endl;
     return f;
 }
 
