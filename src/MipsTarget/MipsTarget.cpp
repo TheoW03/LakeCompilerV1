@@ -54,6 +54,10 @@ void gen_function(vector<shared_ptr<Node>> state, int &stackNum)
         {
             IfSatementNode *pd = dynamic_cast<IfSatementNode *>(state[i].get());
             gen_function((pd->statements), stackNum);
+            if (pd->Else != nullptr)
+            {
+                gen_function((pd->Else->statements), stackNum);
+            }
         }
         else if (instanceof <LoopNode *>(state[i].get()))
         {
@@ -160,8 +164,8 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
                 exit(EXIT_FAILURE);
                 return;
             }
-            vector<unique_ptr<VaraibleDeclaration>> param = move(scope_monitor.f[pd->funcCall.buffer]->params);
-            string a = scope_monitor.f[pd->funcCall.buffer]->nameOfFunction.buffer;
+            vector<shared_ptr<VaraibleDeclaration>> param = (scope_monitor.f[pd->funcCall.buffer]->params);
+            string a = scope_monitor.f[pd->funcCall.buffer]->hashed_functionName;
             global_string = "";
 
             handle_function_calls(move(param), move(para), scope_monitor, global_string);
@@ -362,7 +366,7 @@ void gen_mips_target(vector<unique_ptr<FunctionNode>> op, string filename)
 
         shared_ptr<FunctionNode> pd = move(op[i]);
 
-        cout << pd->statements.size() << endl;
+        // cout << pd->statements.size() << endl;
         vector<shared_ptr<Node>> state = (pd->statements);
 
         // map<string, Varaible *> map;
@@ -384,19 +388,19 @@ void gen_mips_target(vector<unique_ptr<FunctionNode>> op, string filename)
         }
         else
         {
-            string function_name = pd->nameOfFunction.buffer + ": \n";
+            string function_name = pd->hashed_functionName + ": \n";
             wf(outfile, function_name);
         }
 
-        vector<unique_ptr<VaraibleDeclaration>> params = move(pd->params);
+        vector<shared_ptr<VaraibleDeclaration>> params = (pd->params);
         if (pd->nameOfFunction.buffer != "main")
         {
+            cout << params.size() << endl;
 
             for (size_t i = 0; i < params.size(); i++)
             {
                 max_size += 4;
             }
-            cout << "pamara: " << params.size() << endl;
         }
 
         gen_function((state), max_size);
@@ -445,7 +449,7 @@ void gen_mips_target(vector<unique_ptr<FunctionNode>> op, string filename)
         // monitor->rg = rg;
 
         shared_ptr<FunctionNode> sharedpd = move(pd);
-        cout << state.size() << endl;
+        // cout << state.size() << endl;
         for (size_t i = 0; i < state.size(); i++)
         {
             statementsGen((state[i]), sharedpd, monitor, outfile);

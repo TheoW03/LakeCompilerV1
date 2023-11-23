@@ -146,10 +146,9 @@ struct MacroNode : public Node
 struct FunctionNode : public Node
 {
     Tokens nameOfFunction;
-    vector<unique_ptr<VaraibleDeclaration>> params;
+    vector<shared_ptr<VaraibleDeclaration>> params;
     vector<shared_ptr<Node>> statements;
     string hashed_functionName; // the name that is asm
-
     optional<Tokens> returnType;
 };
 #pragma endregion
@@ -365,10 +364,10 @@ unique_ptr<FunctionNode> handleFunctions(vector<Tokens> &tokens)
     optional<Tokens> name = matchAndRemove(tokens, type::WORD);
     f->nameOfFunction = name.value();
     string function_nameHashed = name.value().buffer;
-    // f->hashed_functioName = function_nameHashed + "_lacus";
+    f->hashed_functionName = function_nameHashed + "_lacus";
     matchAndRemove(tokens, type::OP_PARENTHISIS);
 
-    vector<unique_ptr<VaraibleDeclaration>> vars;
+    vector<shared_ptr<VaraibleDeclaration>> vars;
 
     while (!matchAndRemove(tokens, type::CL_PARENTHISIS).has_value())
     {
@@ -381,8 +380,9 @@ unique_ptr<FunctionNode> handleFunctions(vector<Tokens> &tokens)
         v->varaible = word.value();
         vars.push_back(move(v));
     }
-    f->params = move(vars);
-    return move(f);
+    f->params = (vars);
+    cout << f->params.size() << endl;
+    return f;
 }
 
 unique_ptr<Node> parserVarRef(vector<Tokens> &tokens, Tokens name)
@@ -538,7 +538,7 @@ unique_ptr<Node> handleIfStatements(vector<Tokens> &tokens)
             {
                 RemoveEOLS(tokens);
                 states.push_back(handleSatements(tokens));
-                cout << "test" << endl;
+                // cout << "test" << endl;
                 RemoveEOLS(tokens);
             }
         }

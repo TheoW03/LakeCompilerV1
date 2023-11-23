@@ -18,5 +18,5 @@ void increase_numofbranch();
 int getnOfBranch();
 #pragma once
 string handle_boolean(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &global_string, int isLoop = 0);
-void handle_function_calls(vector<unique_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string);
+void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string);
 void update_var_values(Tokens type, unique_ptr<Node> expression, string &global_string, string &reg, Scope_Monitor &scope_monitor);

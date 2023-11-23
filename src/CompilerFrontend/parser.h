@@ -157,7 +157,7 @@ struct ReturnStatment : public Node
 struct FunctionNode : public Node
 {
     Tokens nameOfFunction;
-    vector<unique_ptr<VaraibleDeclaration>> params;
+    vector<shared_ptr<VaraibleDeclaration>> params;
     vector<shared_ptr<Node>> statements;
     string hashed_functionName; // the name that is asm
     optional<Tokens> returnType;

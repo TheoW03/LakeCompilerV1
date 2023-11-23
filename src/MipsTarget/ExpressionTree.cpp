@@ -19,7 +19,7 @@ int getnOfBranch()
 {
     return nOfBranch;
 }
-void handle_function_calls(vector<unique_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string);
+void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string);
 
 string gen_string(unique_ptr<Node> op, vector<string> &tabs, vector<Scope_dimension *> &scope, string &global_string)
 {
@@ -75,14 +75,14 @@ string handle_boolean(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string 
         }
 
         FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
-        vector<unique_ptr<VaraibleDeclaration>> called_params = move(function->params);
+        vector<shared_ptr<VaraibleDeclaration>> called_params = (function->params);
         // vector<unique_ptr<Node>> a = pd->params;
 
-        handle_function_calls(move(called_params), move(pd->params), scope_monitor, global_string);
+        handle_function_calls((called_params), move(pd->params), scope_monitor, global_string);
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + function->nameOfFunction.buffer + "\n";
+        global_string += "jal " + function->hashed_functionName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         scope_monitor.rg.return_save(global_string);
@@ -427,7 +427,7 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         }
         FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
 
-        vector<unique_ptr<VaraibleDeclaration>> called_params = move(function->params);
+        vector<shared_ptr<VaraibleDeclaration>> called_params = move(function->params);
         vector<unique_ptr<Node>> a;
         for (int i = 0; i < pd->params.size(); i++)
         {
@@ -437,7 +437,7 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + function->nameOfFunction.buffer + "\n";
+        global_string += "jal " + function->hashed_functionName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         global_string += "move $fp, $sp \n";
@@ -621,12 +621,12 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         }
         FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
 
-        vector<unique_ptr<VaraibleDeclaration>> param = move(function->params);
+        vector<shared_ptr<VaraibleDeclaration>> param = move(function->params);
         // handle_function_calls(param, called_params_raw, scope_monitor, global_string);
         handle_function_calls(move(param), move(pd->params), scope_monitor, global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + function->nameOfFunction.buffer + "\n";
+        global_string += "jal " + function->hashed_functionName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         global_string += "move $fp, $sp \n";
@@ -720,7 +720,7 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
 
         if (scope_monitor.f.find(pd->funcCall.buffer) == scope_monitor.f.end())
         {
-            cerr << pd->funcCall.buffer + " is not a function" << endl;
+            cerr << pd->funcCall.buffer + " is not aaa function" << endl;
             exit(EXIT_FAILURE);
             return 0;
         }
@@ -731,13 +731,13 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
             exit(EXIT_FAILURE);
             return 0;
         }
-        vector<unique_ptr<VaraibleDeclaration>> param = move(f1->params);
+        vector<shared_ptr<VaraibleDeclaration>> param = (f1->params);
         Tokens returnTypes = f1->returnType.value();
-        handle_function_calls(move(param), move(pd->params), scope_monitor, global_string);
+        handle_function_calls((param), move(pd->params), scope_monitor, global_string);
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
-        global_string += "jal " + f1->nameOfFunction.buffer + "\n";
+        global_string += "jal " + f1->hashed_functionName + "\n";
 
         global_string += "lw $ra,4($sp) \n";
         global_string += "move $fp, $sp \n";
@@ -938,7 +938,7 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     }
     return 0;
 }
-void handle_function_calls(vector<unique_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string)
+void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string)
 {
 
     for (int i = 0; i < function_params.size(); i++)

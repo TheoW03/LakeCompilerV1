@@ -140,7 +140,6 @@ Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension> &scope, i
             return nullptr;
         }
     }
-    cout << "null" << endl;
 
     scope[scope.size() - 1].vars[var->varaible.buffer] = a;
     return a;
