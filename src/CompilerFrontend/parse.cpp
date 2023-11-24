@@ -22,9 +22,6 @@ using namespace std;
 struct Node
 {
     virtual ~Node();
-    // Node *left;
-    // Node *right;
-
     unique_ptr<Node> right;
     unique_ptr<Node> left;
 };
@@ -101,11 +98,6 @@ struct OperatorNode : public Node
     Tokens token;
 };
 
-struct StatementNode : public Node
-{
-    struct Node *expression;
-    struct Tokens nameOfVar;
-};
 struct ArrayDeclaration : public Node
 {
     unique_ptr<Node> size;

@@ -136,14 +136,7 @@ struct OperatorNode : public Node
     struct Tokens token;
 };
 #endif
-#ifndef STATE_NODE_H
-#define STATE_NODE_H
-struct StatementNode : public Node
-{
-    struct Node *expression;
-    Tokens nameOfVar;
-};
-#endif
+
 #ifndef RETURN_STATEMENT_H
 #define RETURN_STATEMENT_H
 struct ReturnStatment : public Node
