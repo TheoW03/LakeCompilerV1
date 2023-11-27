@@ -6,6 +6,15 @@
 #include <sstream>
 #include <memory>
 
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/IRBuilder.h"
+
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Type.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/Support/raw_ostream.h"
 #include <optional>
 
 #define OFFSET 65536
@@ -21,9 +30,10 @@ using namespace std;
 
 struct Node
 {
-    virtual ~Node();
     unique_ptr<Node> right;
     unique_ptr<Node> left;
+    virtual ~Node();
+    virtual llvm::Value *Codegen();
 };
 
 struct VaraibleDeclaration : public Node
@@ -35,6 +45,10 @@ struct VaraibleDeclaration : public Node
     int constant;
 };
 
+struct CastNode : public Node
+{
+    Tokens type;
+};
 struct FloatNode : public Node
 {
     string num;
@@ -42,6 +56,7 @@ struct FloatNode : public Node
 struct IntegerNode : public Node
 {
     string num;
+    virtual llvm::Value *Codegen();
 };
 struct StringNode : public Node
 {
@@ -96,6 +111,7 @@ struct ForLoopNode : public Node
 struct OperatorNode : public Node
 {
     Tokens token;
+    virtual llvm::Value *Codegen();
 };
 
 struct ArrayDeclaration : public Node

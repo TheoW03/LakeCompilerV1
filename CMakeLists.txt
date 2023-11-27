@@ -35,6 +35,7 @@ add_executable(${EXECUTABLE_NAME} main.cpp
     src/MipsTarget/VaraibleScope.cpp
 
     src/LLVMBackend/LLVMTarget.cpp
+    src/LLVMBackend/CodeGen.cpp
 )
 
 # Find the libraries that correspond to the LLVM components

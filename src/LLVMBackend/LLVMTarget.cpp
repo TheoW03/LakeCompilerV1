@@ -1,23 +1,24 @@
 #include <iostream>
 #include <string>
 #include <vector>
-// #include "llvm/IR/LLVMContext.h"
-// #include "llvm/IR/Module.h"
-// #include "llvm/IR/IRBuilder.h"
-
-// #include "llvm/IR/Function.h"
-// #include "llvm/IR/Type.h"
-// #include "llvm/Support/TargetSelect.h"
-// #include "llvm/IR/Constants.h"
-// #include "llvm/Support/raw_ostream.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/IRBuilder.h"
+#include <memory>
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Type.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/Support/raw_ostream.h"
 #include "../../src/CompilerFrontend/parser.h"
 #include "../../src/MipsTarget/UtilFunctions.h"
 #include "../../src/CompilerFrontend/Lexxer.h"
 
 using namespace std;
 
-void gen_LLVM(vector<FunctionNode *> op, string filename)
+void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
 {
+
     // // basic hello world in LLVM
     // llvm::LLVMContext context;
     // std::unique_ptr<llvm::Module> module = make_unique<llvm::Module>("MyModule", context);

@@ -3,7 +3,15 @@
 #include <vector>
 #include <optional>
 #include <memory>
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/IRBuilder.h"
 
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Type.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/Support/raw_ostream.h"
 #include "../../src/CompilerFrontend/Lexxer.h"
 using namespace std;
 
@@ -16,6 +24,7 @@ struct Node
 {
     unique_ptr<Node> right;
     unique_ptr<Node> left; // int s;
+    virtual llvm::Value *Codegen();
 
     virtual ~Node();
 };
@@ -118,6 +127,7 @@ struct FloatNode : public Node
 struct IntegerNode : public Node
 {
     string num;
+    virtual llvm::Value *Codegen();
 };
 #endif
 
@@ -134,6 +144,7 @@ struct StringNode : public Node
 struct OperatorNode : public Node
 {
     struct Tokens token;
+    virtual llvm::Value *Codegen();
 };
 #endif
 

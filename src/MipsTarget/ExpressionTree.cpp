@@ -19,6 +19,12 @@ int getnOfBranch()
 {
     return nOfBranch;
 }
+struct Type_Value
+{
+    type typeInfo;
+    int value;
+    int cast;
+};
 void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string);
 
 string gen_string(unique_ptr<Node> op, vector<string> &tabs, vector<Scope_dimension *> &scope, string &global_string)
@@ -938,6 +944,12 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     }
     return 0;
 }
+
+optional<Type_Value> gen_integer_op_Typed(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &global_string, string &register_result)
+{
+    return nullopt;
+}
+
 void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string)
 {
 
