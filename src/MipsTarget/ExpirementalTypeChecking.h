@@ -19,7 +19,7 @@ struct type_of
 };
 #endif
 
-type_of traverse_tree_integer(unique_ptr<Node> op);
+int traverse_tree_integer(unique_ptr<Node> op);
 
 
 

@@ -35,7 +35,6 @@ add_executable(${EXECUTABLE_NAME} main.cpp
     src/MipsTarget/MipsTarget.cpp
     src/MipsTarget/UtilFunctions.cpp
     src/MipsTarget/VaraibleScope.cpp
-    src/MipsTarget/ExpirementalTypeChecking.cpp	
 
     src/LLVMBackend/LLVMTarget.cpp
     src/LLVMBackend/CodeGen.cpp

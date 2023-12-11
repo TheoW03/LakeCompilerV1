@@ -10,6 +10,7 @@ but isnt a functional langauge.
 
 think of Rust when you think neo-functional programming langauge, Rust uses alot of functional langauge aesthetic. but isnt a functional programming lang. its multi paradigm. 
 
+
 # Langauge definition
 
 
@@ -48,6 +49,7 @@ fn main(args: string) returns int { //this is how you call the main method (this
 }
 fn f(x: int) : int -> x + 1; //new feature i been thinking of. for a while >:3
 ```
+
 
 # CLI commands
 

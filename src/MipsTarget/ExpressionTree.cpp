@@ -478,6 +478,36 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         int num = stoi(pd->num) * OFFSET;
         return num;
     }
+    if (instanceof <CastNode *>(op.get()))
+    {
+	  
+        CastNode *c = dynamic_cast<CastNode *>(op.get());
+	if(c->type.id == type::INT || c->type.id == type::CHAR){	
+		string resultReg = "";
+		int a = gen_float_op(move(c->expression),scope_monitor, global_string,resultReg);
+
+		if(resultReg != ""){
+			register_result = resultReg;
+
+            		global_string += "div " + register_result + "," + register_result + ", " + to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
+			      	string reg2 = scope_monitor.rg.allocate_register(0);
+				global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
+
+            			global_string += "mult " + register_result + "," + reg2 + " \n";
+            			global_string += "mflo " + register_result + " \n"; // scaling													    // 
+			return 0;
+		}
+		return (a/OFFSET)*OFFSET;
+	}else if(c->type.id == type::FLOAT){	
+		string resultReg = "";
+		int a = gen_float_op(move(c->expression),scope_monitor, global_string,resultReg);
+		if(resultReg != ""){
+			register_result = resultReg;
+			return 0;
+		}
+		return a;
+	}
+    }
     if (instanceof <FloatNode *>(op.get()))
     {
         FloatNode *pd = dynamic_cast<FloatNode *>(op.get());
@@ -489,6 +519,7 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         CharNode *pd = dynamic_cast<CharNode *>(op.get());
         int ch = stoi(pd->character);
         int num = (int)ch * OFFSET;
+
         register_result = "";
         return num;
     }
@@ -502,7 +533,7 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
             exit(0);
             return -1;
         }
-        if (var->varType.id == type::INT)
+        if (var->varType.id == type::INT || var->varType.id == type::CHAR)
         {
             register_result = scope_monitor.rg.allocate_register(1);
             string reg = scope_monitor.rg.allocate_register(0);
@@ -639,7 +670,7 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         global_string += "lw $ra,4($sp) \n";
         global_string += "move $fp, $sp \n";
         Tokens returnType = function->returnType.value();
-        if (returnType.id == type::FLOAT)
+        if (returnType.id == type::FLOAT || returnType.id == type::INT)
         {
             cout << "error: float isnt accepted here" << endl;
             exit(0);
@@ -649,9 +680,29 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         // delete pd;
         return register_result;
     }
+    if (instanceof <CastNode *>(op.get()))
+    {
+	      CastNode *c = dynamic_cast<CastNode *>(op.get());
+	      if(c->type.id == type::CHAR || c->type.id == type::INT){
+ 			string reg = "";
+		        int a = gen_float_op(move(c->expression),scope_monitor,global_string, reg);
+			if(reg != ""){
+				global_string += "div " + reg + "," + reg + ", " + to_string(OFFSET) + " #is not float \n"; 
+			}else{
+ 				reg =  scope_monitor.rg.allocate_register(1);
+				global_string += "li " + reg + "," + to_string(a/OFFSET) + " #test\n";
+			}
+			return reg;
+	      	
+	      }
+	cout << "cast mismatch" << endl;
+	exit(EXIT_FAILURE);
+
+    }
     if (instanceof <BooleanLiteralNode *>(op.get()))
     {
-        cout << "boolean literal not accepted in integer, use 1 or 0" << endl;
+      
+	cout << "type  mismatch" << endl;
         exit(EXIT_FAILURE);
     }
     if (instanceof <CharNode *>(op.get()))
@@ -664,17 +715,20 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     }
     if (instanceof <IntegerNode *>(op.get()))
     {
-        IntegerNode *pd = dynamic_cast<IntegerNode *>(op.get());
-        string reg = scope_monitor.rg.allocate_register(0);
-        if (stoi(pd->num) > 255)
-        {
-            cerr << "char only accepts an 8 bit number" << endl;
-            exit(0);
-            return "";
-        }
-        global_string += "li " + reg + "," + pd->num + "\n";
-        // delete pd;
-        return reg;
+       // IntegerNode *pd = dynamic_cast<IntegerNode *>(op.get());
+       // string reg = scope_monitor.rg.allocate_register(0);
+       // if (stoi(pd->num) > 255)
+       // {
+       //     cerr << "char only accepts an 8 bit number" << endl;
+       //     exit(0);
+       //     return "";
+       // }
+       // global_string += "li " + reg + "," + pd->num + "\n";
+        // delete pd(a/OFFSET);
+	cout << "type  mismatch" << endl;
+	exit(0);
+        //return reg;
+
     }
     if (instanceof <FloatNode *>(op.get()))
     {
@@ -695,14 +749,13 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
             exit(0);
             return "";
         }
-        if (var->varType.id == type::FLOAT)
+        if (var->varType.id == type::FLOAT || var->varType.id == type::INT)
         {
-            cerr << pd->varaible.buffer + " must be an integer" << endl;
+            cerr << pd->varaible.buffer + " type mismatch" << endl;
             exit(0);
             return "";
         }
         global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
-        delete pd;
         return reg;
     }
     return "";
@@ -721,6 +774,7 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         cout << "boolean literal not accepted in integer, use 1 or 0" << endl;
         exit(EXIT_FAILURE);
     }
+    
     if (instanceof <funcCallNode *>(op.get()))
     {
         funcCallNode *pd = dynamic_cast<funcCallNode *>(op.get());
@@ -754,11 +808,31 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         // bring_saveBack(global_string, a);
         register_result = scope_monitor.rg.allocate_register(1);
         global_string += "move " + register_result + ", $v0 \n";
-        if (returnTypes.id == type::FLOAT)
+        if (returnTypes.id == type::FLOAT||returnTypes.id == type::CHAR )
         {
-            global_string += "div " + register_result + "," + register_result + ", " + to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
+          	cout << "type mismatch" << endl;
+		exit(EXIT_FAILURE);
         }
         return 0;
+    }
+    if (instanceof <CastNode *>(op.get()))
+    {
+	  
+        CastNode *c = dynamic_cast<CastNode *>(op.get());
+	if(c->type.id == type::INT || c->type.id == type::CHAR){	
+		string resultReg = "";
+		int a = gen_float_op(move(c->expression),scope_monitor, global_string,resultReg);
+
+		if(resultReg != ""){
+			register_result = resultReg;
+
+            		global_string += "div " + register_result + "," + register_result + ", " + to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
+			return 0;
+		}
+		return a/OFFSET;
+	}else{
+		cout << "type mismatch" << endl;
+	}
     }
     if (instanceof <IntegerNode *>(op.get()))
     {
@@ -770,19 +844,23 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     }
     if (instanceof <CharNode *>(op.get()))
     {
-        CharNode *pd = dynamic_cast<CharNode *>(op.get());
-        register_result = "";
-        int a = (int)stoi(pd->character);
-        // delete pd;
-        return a;
+    //    CharNode *pd = dynamic_cast<CharNode *>(op.get());
+    //    register_result = "";
+    //    int a = (int)stoi(pd->character);
+    //    // delete pd;
+    //    return a;
+	cout << "type mis match" << endl;
+	exit(EXIT_FAILURE);
     }
     if (instanceof <FloatNode *>(op.get()))
     {
-        FloatNode *pd = dynamic_cast<FloatNode *>(op.get());
-        register_result = "";
-        int a = (int)stoi(pd->num) / OFFSET;
-        // delete pd;
-        return a;
+      //  FloatNode *pd = dynamic_cast<FloatNode *>(op.get());
+      //  register_result = "";
+      //  int a = (int)stoi(pd->num) / OFFSET;
+      //  return a;
+      	cout << "type mis match" << endl;
+	exit(EXIT_FAILURE);
+
     }
     if (instanceof <VaraibleReference *>(op.get()))
     {
@@ -791,26 +869,29 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         if (var == nullptr)
         {
             cerr << pd->varaible.buffer + " doesnt exist as a var" << endl;
-            // delete pd;
             exit(0);
             return -1;
         }
+	if(var->varType.id == type::FLOAT || var->varType.id == type::CHAR){
+		cout << "type mismatch" << endl;
+		exit(EXIT_FAILURE);
+	}
 
-        if (var->varType.id == type::FLOAT)
-        {
+   //     if (var->varType.id == type::FLOAT)
+   //     {
 
-            // string reg = allocateReg();
-            string reg = scope_monitor.rg.allocate_register(0);
-            register_result = scope_monitor.rg.allocate_register(1);
-            global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
-            global_string += "div " + register_result + "," + reg + ", " + to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
-            freeReg();
-        }
-        else
-        {
+   //         // string reg = allocateReg();
+   //         string reg = scope_monitor.rg.allocate_register(0);
+   //         register_result = scope_monitor.rg.allocate_register(1);
+   //         global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
+   //         global_string += "div " + register_result + "," + reg + ", " + to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
+   //         freeReg();
+   //     }
+        
+      //  {
             register_result = scope_monitor.rg.allocate_register(1);
             global_string += "lw " + register_result + "," + to_string(var->stackNum) + "($fp) #float \n";
-        }
+        //}
         // delete pd;
 
         return 0;
@@ -832,17 +913,8 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         string registers = "";
         string registers2 = "";
         int a, b;
-        // if (instanceof <funcCallNode *>(op->right) && (instanceof <VaraibleReference *>(op->left)))
-        // {
-        //     b = gen_integer_op(op->right, scope_monitor, global_string, registers2);
-        //     a = gen_integer_op(op->left, scope_monitor, global_string, registers);
-        //     cout << "left" << endl;
-        // }
-        // else
-        // {
         a = gen_integer_op(move(op->left), scope_monitor, global_string, registers);
         b = gen_integer_op(move(op->right), scope_monitor, global_string, registers2);
-        // }
 
         if (registers2 == "" && registers == "")
         {
@@ -998,7 +1070,7 @@ void update_var_values(Tokens type, unique_ptr<Node> expression, string &global_
         int b = gen_float_op(move(expression), scope_monitor, global_string, reg);
         if (reg == "")
         {
-            reg = allocateReg();
+            reg = scope_monitor.rg.allocate_register(0);
             global_string += "li" + reg + ", " + to_string(b) + " \n";
         }
     }
