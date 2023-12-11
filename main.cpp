@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     // int pi = 3.1415;
     cout << l << endl;
     // testExpressionParse(a);
-    // handle_cli(argv, argc);
+     handle_cli(argv, argc);
     // float a = (float)1.5 + (int)1.5;
     // cout << a << endl;
     return 0;
