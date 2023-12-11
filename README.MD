@@ -67,14 +67,18 @@ fn f(x: int) : int -> x + 1; //new feature i been thinking of. for a while >:3
 
 if you have linux as your primary OS
 
-use the ./setUpCMake.sh script
+use the ``./setUpCMake.sh`` script to setup the CMake code. 
 
-and from then on./build.sh or ./clean.sh
+and from then on 
+
+``./build.sh`` to build your code. the exe name should be called "output" 
+
+``./clean.sh`` to clean all the objs and exe.   
 
 
 else just create a build dir and do 
 
-cmake ..
+``cmake ..``
 
 
 # run transpiled code
