@@ -1,14 +1,15 @@
 # Lacus
 
-a neo functional paradigm compiled programming language. 
+a strongly typed, procedual, compiled programming language. 
 right now MIPS 32 Assembly, soon LLVM
 
-lacus is latin for lake, and I chose lake to honor my favorite enby-coded character in Animation
+syntax was strongly inspired by rust, Ada and C
 
-neo-functional-paradigm: a term I coined to describe a langauge that carries the aesthetic of a functional langauge
-but isnt a functional langauge. 
+why i choose the name,
+lacus is latin for lake, and I chose lake to honor my favorite enby-coded character in Animation. I cant name it lake
+because lean4 has a build system with the name of lake. a
 
-think of Rust when you think neo-functional programming langauge, Rust uses alot of functional langauge aesthetic. but isnt a functional programming lang. its multi paradigm. 
+
 
 
 # Langauge definition

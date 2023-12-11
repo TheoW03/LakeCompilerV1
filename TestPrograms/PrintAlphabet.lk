@@ -1,3 +1,4 @@
+
 //output: abcdefhijklmnopqrstuvwxyz
 fn main(args: string) returns int{
     char starting_character = 'a'; // if you change it to A you can get the uppercase alphabet
@@ -6,7 +7,8 @@ fn main(args: string) returns int{
 
 fn print_alpha(character: char) returns int{
     for(int i = 0; i < 26; step i, 1){
-        int a = character + i; //automatically casts
+        char a = (char)(character + i);
         print("%c", a);
     }
+    return 1;
 }

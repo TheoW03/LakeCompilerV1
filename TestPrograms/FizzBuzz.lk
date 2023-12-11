@@ -15,7 +15,7 @@ fn main(args: string) returns int{
         print("%c",'Z');
         print("%c",'Z');
       }
-      print("%c"m ' ');
+      print("%c", ' ');
       print("%d", i);
       step i, 1;
       

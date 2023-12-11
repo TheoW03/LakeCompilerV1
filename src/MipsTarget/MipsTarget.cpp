@@ -283,7 +283,7 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
         wf(outfile, global_string);
         global_string = "";
 
-        // handle_boolean(pd->condition, scope_monitor, global_string, 1);
+         handle_boolean(move(pd->condition), scope_monitor, global_string, 1);
         string condition = global_string;
         increase_numofbranch();
         global_string = "";
