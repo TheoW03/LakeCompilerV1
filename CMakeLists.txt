@@ -17,6 +17,8 @@ add_definitions(${LLVM_DEFINITIONS_LIST})
 # Now build our tools
 # Specify the output directory for the executable
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/..)
+message("Include paths of YourDependency: ${YourDependency_INCLUDE_DIRS}")
+
 
 # Name of your output executable
 set(EXECUTABLE_NAME output)
@@ -33,6 +35,7 @@ add_executable(${EXECUTABLE_NAME} main.cpp
     src/MipsTarget/MipsTarget.cpp
     src/MipsTarget/UtilFunctions.cpp
     src/MipsTarget/VaraibleScope.cpp
+    src/MipsTarget/ExpirementalTypeChecking.cpp	
 
     src/LLVMBackend/LLVMTarget.cpp
     src/LLVMBackend/CodeGen.cpp

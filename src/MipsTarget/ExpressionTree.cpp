@@ -25,7 +25,9 @@ struct Type_Value
     int value;
     int cast;
 };
-void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_params, vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, string &global_string);
+void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_params, 
+		vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, 
+		string &global_string);
 
 string gen_string(unique_ptr<Node> op, vector<string> &tabs, vector<Scope_dimension *> &scope, string &global_string)
 {

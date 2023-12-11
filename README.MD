@@ -69,9 +69,11 @@ use the ./setUpCMake.sh script
 
 and from then on./build.sh or ./clean.sh
 
+
 else just create a build dir and do 
 
 cmake ..
+
 
 # run transpiled code
 

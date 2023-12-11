@@ -5,7 +5,6 @@
 #include "../../src/CompilerFrontend/parser.h"
 #include "../../src/CompilerFrontend/Lexxer.h"
 #include "../../src/MipsTarget/UtilFunctions.h"
-// #include "../../src/CompilerFrontend/optimizations.h"
 #include "../../src/MipsTarget/MipsTarget.h"
 #include "../../src/MipsTarget/VaraibleScope.h"
 

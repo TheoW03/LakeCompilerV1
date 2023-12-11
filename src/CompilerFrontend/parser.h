@@ -197,6 +197,15 @@ struct ArrayRef : public Node
     unique_ptr<Node> value;
 };
 #endif
+
+#ifndef CAST_NODE_H
+#define CAST_NODE_H
+struct CastNode : public Node
+{
+    Tokens type;
+    unique_ptr<Node> expression;
+};
+#endif
 vector<unique_ptr<FunctionNode>> parse(vector<Tokens> &tokens);
 
 Node *term(vector<Tokens> &tokens);
@@ -214,5 +223,5 @@ vector<unique_ptr<FunctionNode>> functionParse(vector<Tokens> &tokens);
 Node *parseVar(vector<Tokens> &tokens, Tokens *name);
 Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct);
 Node *handleSatements(vector<Tokens> &tokens);
-Node *testExpressionParse(vector<Tokens> &tokens);
+unique_ptr<Node> testExpressionParse(vector<Tokens> &tokens);
 // unique_ptr<Node> safe_parse(vector<Tokens> &tokens);

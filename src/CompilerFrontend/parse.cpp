@@ -48,6 +48,7 @@ struct VaraibleDeclaration : public Node
 struct CastNode : public Node
 {
     Tokens type;
+    unique_ptr<Node> expression;
 };
 struct FloatNode : public Node
 {
@@ -167,6 +168,7 @@ unique_ptr<Node> expression(vector<Tokens> &tokens);
 
 optional<Tokens> current;
 unique_ptr<Node> handleSatements(vector<Tokens> &tokens);
+optional<Tokens> getTypes(vector<Tokens> &tokens);
 unique_ptr<Node> handleCalls(vector<Tokens> &tokens, Tokens checkIfFunct);
 
 /**
@@ -224,6 +226,14 @@ unique_ptr<Node> factor(vector<Tokens> &tokens)
     }
     else if (matchAndRemove(tokens, type::OP_PARENTHISIS).has_value())
     {
+        if (getTypes(tokens).has_value())
+        {
+            unique_ptr<CastNode> cast = make_unique<CastNode>();
+            cast->type = current.value();
+            matchAndRemove(tokens, type::CL_PARENTHISIS);
+            cast->expression = factor(tokens);
+            return cast;
+        }
         unique_ptr<Node> exp = expression(tokens);
         matchAndRemove(tokens, type::CL_PARENTHISIS);
         return exp;
