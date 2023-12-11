@@ -13,15 +13,15 @@
 #include "../../src/CompilerFrontend/parser.h"
 #include "../../src/MipsTarget/UtilFunctions.h"
 #include "../../src/CompilerFrontend/Lexxer.h"
-
+#include <filesystem>
 using namespace std;
-
+namespace fs = std::filesystem;
 void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
 {
 
     // basic hello world in LLVM
- //   llvm::LLVMContext context;
-  //  std::unique_ptr<llvm::Module> module = make_unique<llvm::Module>("MyModule", context);
+    llvm::LLVMContext context;
+    std::unique_ptr<llvm::Module> module = make_unique<llvm::Module>("MyModule", context);
 
   //  for (int i = 0; i < op.size(); i++)
   //  {
@@ -59,17 +59,18 @@ void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
 
     // module->print(llvm::outs(), nullptr);
 
-    //string irString;
-  //  llvm::raw_string_ostream stringStream(irString);
-
-    // Print the LLVM module to the output stream.
-    //module->print(stringStream, nullptr);
-
+    string irString = "";
+    llvm::raw_string_ostream stringStream(irString);
+    string dirname = "out/";
+    fs::create_directories(dirname);
+    // Print the if (filename == "")
+    filename = "out.ll";
+    ofstream outfile(dirname + filename);
     // Get the LLVM IR as a string.
-  //  string irCode = stringStream.str();
+    string irCode = stringStream.str();
 
     // Output the LLVM IR string.
 
-   // cout << irCode << endl;
+    cout << irString << endl;
 
 }
