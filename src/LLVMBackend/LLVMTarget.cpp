@@ -19,56 +19,57 @@ using namespace std;
 void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
 {
 
-    // // basic hello world in LLVM
-    // llvm::LLVMContext context;
-    // std::unique_ptr<llvm::Module> module = make_unique<llvm::Module>("MyModule", context);
+    // basic hello world in LLVM
+ //   llvm::LLVMContext context;
+  //  std::unique_ptr<llvm::Module> module = make_unique<llvm::Module>("MyModule", context);
 
-    // for (int i = 0; i < op.size(); i++)
-    // {
-    //     // llvm::FunctionType *funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context), false);
-    //     llvm::FunctionType *funcType;
-    //     if (op[i]->returnType != nullptr)
-    //     {
-    //         switch (op[i]->returnType->id)
-    //         {
-    //         case type::INT:
-    //             funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context), false);
-    //             break;
-    //         case type::FLOAT:
-    //             funcType = llvm::FunctionType::get(llvm::Type::getFloatTy(context), false);
-    //             break;
-    //         case type::CHAR:
-    //             funcType = llvm::FunctionType::get(llvm::Type::getInt8Ty(context), false);
-    //             break;
-    //         case type::BOOL:
-    //             funcType = llvm::FunctionType::get(llvm::Type::getInt1Ty(context), false);
-    //             break;
-    //         }
-    //     }
-    //     else
-    //     {
-    //         funcType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
-    //     }
-    //     llvm::Function *mainFunction = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, op[i]->nameOfFunction->buffer, module.get());
-    //     llvm::BasicBlock *entryBlock = llvm::BasicBlock::Create(context, "entry", mainFunction);
-    //     llvm::IRBuilder<> builder(entryBlock);
-    // }
+  //  for (int i = 0; i < op.size(); i++)
+  //  {
+  //       llvm::FunctionType *funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context), false);
+  //      llvm::FunctionType *funcType;
+  //      if (op[i]->returnType != nullptr)
+  //      {
+  //          switch (op[i]->returnType->id)
+  //          {
+  //          case type::INT:
+  //              funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context), false);
+  //              break;
+  //          case type::FLOAT:
+  //              funcType = llvm::FunctionType::get(llvm::Type::getFloatTy(context), false);
+  //              break;
+  //          case type::CHAR:
+  //              funcType = llvm::FunctionType::get(llvm::Type::getInt8Ty(context), false);
+  //              break;
+  //          case type::BOOL:
+  //              funcType = llvm::FunctionType::get(llvm::Type::getInt1Ty(context), false);
+  //              break;
+  //          }
+  //      }
+  //      else
+  //      {
+  //          funcType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
+  //      }
+  //      llvm::Function *mainFunction = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, op[i]->nameOfFunction->buffer, module.get());
+  //      llvm::BasicBlock *entryBlock = llvm::BasicBlock::Create(context, "entry", mainFunction);
+  //      llvm::IRBuilder<> builder(entryBlock);
+  //  }
 
-    // // llvm::Value *constant = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0);
-    // // builder.CreateRet(constant);
+    // llvm::Value *constant = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0);
+    // builder.CreateRet(constant);
 
-    // // module->print(llvm::outs(), nullptr);
+    // module->print(llvm::outs(), nullptr);
 
-    // string irString;
-    // llvm::raw_string_ostream stringStream(irString);
+    //string irString;
+  //  llvm::raw_string_ostream stringStream(irString);
 
-    // // Print the LLVM module to the output stream.
-    // module->print(stringStream, nullptr);
+    // Print the LLVM module to the output stream.
+    //module->print(stringStream, nullptr);
 
-    // // Get the LLVM IR as a string.
-    // string irCode = stringStream.str();
+    // Get the LLVM IR as a string.
+  //  string irCode = stringStream.str();
 
-    // // Output the LLVM IR string.
+    // Output the LLVM IR string.
 
-    // std::cout << irCode << endl;
+   // cout << irCode << endl;
+
 }

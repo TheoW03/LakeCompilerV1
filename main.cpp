@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     type_of c = traverse_tree_integer(move(b));
     cout << (c.value) << endl;
     // cout << c << endl;
-    int l = ((int)(1.5 + 3.5));
+    int l = (((int)1.5 + 3.5));
     // int pi = 3.1415;
     cout << l << endl;
     // testExpressionParse(a);
