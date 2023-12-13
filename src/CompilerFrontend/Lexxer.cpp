@@ -86,9 +86,9 @@ string Tokens::to_string()
 // {
 //     return dictionary[id] + "(" + buffer + ")";
 // }
-bool isNumber(const std::string &str)
+bool isNumber(const string &str)
 {
-    std::istringstream ss(str);
+    istringstream ss(str);
     double num;
     ss >> num;
     // Check if the entire string was successfully converted to a number

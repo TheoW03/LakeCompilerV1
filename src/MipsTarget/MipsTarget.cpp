@@ -11,12 +11,13 @@
 #include "../../src/MipsTarget/UtilFunctions.h"
 
 #include "../../src/CompilerFrontend/parser.h"
-// #include "../../src/CompilerFrontend/optimizations.h"
 #include "../../src/MipsTarget/builtInFunction.h"
 #include "../../src/MipsTarget/VaraibleScope.h"
 #include "../../src/MipsTarget/ExpressionTree.h"
 #include "../../src/MipsTarget/Register.h"
+
 namespace fs = std::filesystem;
+
 using namespace std;
 
 #define OFFSET_HEXA 0x10000
@@ -71,14 +72,17 @@ void gen_function(vector<shared_ptr<Node>> state, int &stackNum)
             stackNum += 4;
             gen_function((pd->statements), stackNum);
         }
-        else if (instanceof <VaraibleDeclaration *>(state[i].get()) || instanceof <ArrayDeclaration *>(state[i].get()))
+        else if (instanceof <VaraibleDeclaration *>(state[i].get()) 
+			|| instanceof <ArrayDeclaration *>(state[i].get()))
         {
             stackNum += 4;
         }
     }
 }
 
-void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function, Scope_Monitor &scope_monitor, ofstream &outfile)
+void statementsGen(shared_ptr<Node> statement, 
+		shared_ptr<FunctionNode> function, Scope_Monitor &scope_monitor, 
+		ofstream &outfile)
 {
     map<type, builtInFunction *> functions;
 
@@ -96,9 +100,11 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
             // delete pd;
             return;
         }
+	
         global_string = "";
         string reg = "";
-        update_var_values(type1->varType, move(pd->expression), global_string, reg, scope_monitor);
+        update_var_values(type1->varType, move(pd->expression),
+			global_string, reg, scope_monitor);
 
         global_string += "sw " + reg + "," + to_string(type1->stackNum) + "($fp) \n";
         wf(outfile, global_string);
@@ -120,20 +126,19 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
         if (type1 == nullptr)
         {
             cerr << pd->varaible.buffer + " doesnt exist as a var" << endl;
-            delete pd;
             exit(1);
             return;
         }
         if (type1->constant == 1)
         {
             cout << pd->varaible.buffer << " is constant" << endl;
-            // delete pd;
             exit(1);
             return;
         }
         global_string = "";
         string reg = "";
-        update_var_values(type1->varType, move(pd->expression), global_string, reg, scope_monitor);
+        update_var_values(type1->varType, move(pd->expression), 
+			global_string, reg, scope_monitor);
         global_string += "sw " + reg + "," + to_string(type1->stackNum) + "($fp) \n";
         wf(outfile, global_string);
         global_string = "";
@@ -164,11 +169,15 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
                 exit(EXIT_FAILURE);
                 return;
             }
-            vector<shared_ptr<VaraibleDeclaration>> param = (scope_monitor.f[pd->funcCall.buffer]->params);
+            vector<shared_ptr<VaraibleDeclaration>> param = 
+		    (scope_monitor.f[pd->funcCall.buffer]->params);
             string a = scope_monitor.f[pd->funcCall.buffer]->hashed_functionName;
             global_string = "";
 
-            handle_function_calls(move(param), move(para), scope_monitor, global_string);
+            handle_function_calls(move(param), 
+			    move(para), 
+			    scope_monitor, 
+			    global_string);
             global_string += "sw $ra,4($sp) \n";
             global_string += "jal " + a + "\n";
             global_string += "lw $ra,4($sp) \n";
@@ -199,7 +208,10 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
         for (size_t i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen((pd->statements[i]), move(function), scope_monitor, outfile); // write a new function for this T~T
+            statementsGen((pd->statements[i]), 
+			    move(function), 
+			    scope_monitor, 
+			    outfile); // write a new function for this T~T
         }
         increase_numofbranch();
         int elseBranch = getnOfBranch();
@@ -219,10 +231,13 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
         if (pd->Else != nullptr)
         {
 
-            vector<shared_ptr<Node>> statementsElse = (pd->Else->statements);
+            vector<shared_ptr<Node>> statementsElse = pd->Else->statements;
             for (size_t i = 0; i < statementsElse.size(); i++)
             {
-                statementsGen(move(statementsElse[i]), move(function), scope_monitor, outfile);
+                statementsGen(move(statementsElse[i]), 
+				move(function), 
+				scope_monitor, 
+				outfile);
             }
             // go through statements
             global_string = "L" + to_string(elseBranch) + ": \n";
@@ -245,8 +260,9 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
         increase_numofbranch();
         int b = getnOfBranch();
         global_string += "b L" + to_string(b) + "\n";
-        increase_numofbranch();
-        global_string += "L" + to_string(getnOfBranch()) + ": \n # loop"; // condition
+        increase_numofbranch();    
+        global_string += "L" + to_string(getnOfBranch()) +
+			": \n # loop"; // condition
         wf(outfile, global_string);
         global_string = "";
 
@@ -259,7 +275,10 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
         allocate_Scope((scope_monitor.scope));
         for (size_t i = 0; i < pd->statements.size(); i++)
         {
-            statementsGen((pd->statements[i]), move(function), scope_monitor, outfile);
+            statementsGen((pd->statements[i]), 
+			    move(function), 
+			    scope_monitor, 
+			    outfile);
         }
         deallocate_Scope((scope_monitor.scope));
         global_string += "L" + to_string(b) + ": \n # condition";
@@ -273,7 +292,11 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
         global_string = "";
         ForLoopNode *pd = dynamic_cast<ForLoopNode *>(statement.get());
         allocate_Scope((scope_monitor.scope));
-        statementsGen(move(pd->incrimentorVar), move(function), scope_monitor, outfile); // write a new function for this T~T
+        statementsGen(move(pd->incrimentorVar), 
+			move(function), 
+			scope_monitor, 
+			outfile); // write a new function for this T~T
+
         allocate_Scope((scope_monitor.scope));
         increase_numofbranch();
         int b = getnOfBranch();
@@ -290,7 +313,10 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
         for (size_t i = 0; i < pd->statements.size(); i++)
         {
 
-            statementsGen((pd->statements[i]), move(function), scope_monitor, outfile); // write a new function for this T~T
+            statementsGen((pd->statements[i]), 
+			    move(function), 
+			    scope_monitor, 
+			    outfile); // write a new function for this T~T
         }
 
         global_string += "L" + to_string(b) + ": \n # condition";
@@ -315,9 +341,14 @@ void statementsGen(shared_ptr<Node> statement, shared_ptr<FunctionNode> function
         global_string = "";
         string reg = "";
 
-        update_var_values(function->returnType.value(), move(pd->expression), global_string, reg, scope_monitor);
+        update_var_values(function->returnType.value(),
+			move(pd->expression), 
+			global_string, reg, 
+			scope_monitor);
         global_string += "move $v0 ," + reg + "\n";
-        global_string += "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
+        global_string += "addi $sp, $sp," + to_string(max_size) + 
+		" # Move the stack pointer up by " + to_string(max_size) + 
+		" bytes\n  jr $ra \n";
         wf(outfile, global_string);
         global_string = "";
 
@@ -409,11 +440,15 @@ void gen_mips_target(vector<unique_ptr<FunctionNode>> op, string filename)
         string setupstack = "";
         if (max_size != 0)
         {
-            setupstack = "addi $sp, $sp,-" + to_string(max_size) + " \n  # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
+            setupstack = "addi $sp, $sp,-" + to_string(max_size) + 
+		    " \n  # Move the stack pointer down by " + 
+		    to_string(max_size) + " bytes\n";
         }
         else
         {
-            setupstack = "addi $sp, $sp, " + to_string(max_size) + " # Move the stack pointer down by " + to_string(max_size) + " bytes\n";
+            setupstack = "addi $sp, $sp, " + to_string(max_size) + 
+		    " # Move the stack pointer down by " + to_string(max_size) + 
+		    " bytes\n";
         }
         setupstack += "move $fp, $sp\n";
         wf(outfile, setupstack);
@@ -431,7 +466,8 @@ void gen_mips_target(vector<unique_ptr<FunctionNode>> op, string filename)
 
             for (size_t i = 0; i < params.size(); i++)
             {
-                add += "sw " + allocate_argumentRegister() + "," + to_string(var[i]->stackNum) + "($fp) \n";
+                add += "sw " + allocate_argumentRegister() + 
+			"," + to_string(var[i]->stackNum) + "($fp) \n";
             }
             reset_arg_register();
             wf(outfile, add);

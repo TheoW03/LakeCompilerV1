@@ -1,8 +1,8 @@
 
 //output: abcdefhijklmnopqrstuvwxyz
 fn main(args: string) returns int{
-    char starting_character = 'a'; // if you change it to A you can get the uppercase alphabet
-    print_alpha(starting_character); //change it to uppercase for uppercase alphabet
+    char starting_character = 'a'; 
+    print_alpha(starting_character); 
 }
 
 fn print_alpha(character: char) returns int{

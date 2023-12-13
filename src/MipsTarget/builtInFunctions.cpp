@@ -16,7 +16,9 @@ using namespace std;
 void builtInFunction::execute_code_integer(string &gen_string, RegisterAllocation register_context, string registers)
 {
 }
-void builtInFunction::execute_code_float(string &gen_string, RegisterAllocation register_context, string registers)
+void builtInFunction::execute_code_float(string &gen_string, 
+		RegisterAllocation register_context, 
+		string registers)
 {
 }
 void builtInFunction::execute_code_char(string &gen_string, RegisterAllocation register_context, string registers)
@@ -34,7 +36,8 @@ Print::Print()
     // gen_llvm();
 }
 
-void Print::setup_params(vector<unique_ptr<Node>> params, string &gen_string, Scope_Monitor &scope_monitor)
+void Print::setup_params(vector<unique_ptr<Node>> params, 
+		string &gen_string, Scope_Monitor &scope_monitor)
 {
     if (instanceof <StringNode *>(params[0].get()))
     {
@@ -83,7 +86,8 @@ void Print::execute_code_integer(string &gen_string, RegisterAllocation register
     gen_string += "li  $v0, 1 \n move $a0, " + registers + "\n syscall \n";
     gen_string += "li $a0, 10 \n li $v0, 11 \n syscall \n"; // new line
 }
-void Print::execute_code_float(string &gen_string, RegisterAllocation register_context, string registers = "")
+void Print::execute_code_float(string &gen_string, 
+		RegisterAllocation register_context, string registers = "")
 {
 
     string wholeNumReg = register_context.allocate_register(0);
@@ -124,7 +128,8 @@ Exit::Exit()
 {
 }
 
-void Exit::setup_params(vector<unique_ptr<Node>> params, string &gen_string, Scope_Monitor &scope_monitor)
+void Exit::setup_params(vector<unique_ptr<Node>> params, 
+		string &gen_string, Scope_Monitor &scope_monitor)
 {
     if (params.size() == 0)
     {

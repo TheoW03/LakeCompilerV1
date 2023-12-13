@@ -41,4 +41,6 @@ void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_para
 		vector<unique_ptr<Node>> params, 
 		Scope_Monitor &scope_monitor, 
 		string &global_string);
-void update_var_values(Tokens type, unique_ptr<Node> expression, string &global_string, string &reg, Scope_Monitor &scope_monitor);
+void update_var_values(Tokens type, 
+		unique_ptr<Node> expression, 
+		string &global_string, string &reg, Scope_Monitor &scope_monitor);

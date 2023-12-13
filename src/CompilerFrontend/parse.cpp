@@ -412,7 +412,8 @@ unique_ptr<Node> parserVarRef(vector<Tokens> &tokens, Tokens name)
     return var;
 }
 
-unique_ptr<VaraibleDeclaration> parseVar(vector<Tokens> &tokens, Tokens type, int constant = 0)
+unique_ptr<VaraibleDeclaration> parseVar(vector<Tokens> &tokens, 
+		Tokens type, int constant = 0)
 {
 
     Tokens name = matchAndRemove(tokens, type::WORD).value();
@@ -443,8 +444,8 @@ unique_ptr<BoolExpressionNode> handleBooleanExpression(vector<Tokens> &tokens)
                           : (matchAndRemove(tokens, type::GTE).has_value())    ? current
                           : (matchAndRemove(tokens, type::GT).has_value())     ? current
                           : (matchAndRemove(tokens, type::LT).has_value())     ? current
-                          : (matchAndRemove(tokens, type::NOT_EQ).has_value()) ? current
-                                                                               : nullopt;
+                          : (matchAndRemove(tokens, type::NOT_EQ).has_value()) ?current                                                   
+			  : nullopt;
     unique_ptr<Node> left = expression(tokens);
     unique_ptr<BoolExpressionNode> a = make_unique<BoolExpressionNode>();
     a->right = move(right);
@@ -508,7 +509,8 @@ unique_ptr<Node> handleIfStatements(vector<Tokens> &tokens)
     unique_ptr<IfSatementNode> ifStatement = make_unique<IfSatementNode>();
     unique_ptr<BoolExpressionNode> a = move(handleBooleanExpression(tokens));
     ifStatement->condition = move(a);
-    if (!matchAndRemove(tokens, type::CL_PARENTHISIS).has_value() && !matchAndRemove(tokens, type::THEN).has_value())
+    if (!matchAndRemove(tokens, type::CL_PARENTHISIS).has_value() && 
+		    !matchAndRemove(tokens, type::THEN).has_value())
     {
         cout << "error" << endl;
         exit(EXIT_FAILURE);

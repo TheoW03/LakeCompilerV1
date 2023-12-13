@@ -28,7 +28,7 @@ fn main(args: string) returns int { //this is how you call the main method (this
     const float pi = 3.1415; // floats
     int random_var = 100; //integer
     bool turringComplete = true; //i think lol 
-    random_var = pi + random_var * ((pi + random_var) % 2)/10; 
+    random_var = (int)(pi + random_var * ((pi + random_var) % 2)/10); 
     //if statemnets
     if(random_var == 100){
         print("%d", random_var);
