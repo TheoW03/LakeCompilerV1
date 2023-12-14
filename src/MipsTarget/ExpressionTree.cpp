@@ -157,7 +157,7 @@ string handle_boolean(unique_ptr<Node> op,
         }
         // global_string += "li " + reg + "," + pd->num + "\n";
         return reg;
-    }
+    } 
     // varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
     if (instanceof <VaraibleReference *>(op.get()))
     {

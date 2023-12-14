@@ -224,4 +224,7 @@ Node *parseVar(vector<Tokens> &tokens, Tokens *name);
 Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct);
 Node *handleSatements(vector<Tokens> &tokens);
 unique_ptr<Node> testExpressionParse(vector<Tokens> &tokens);
-// unique_ptr<Node> safe_parse(vector<Tokens> &tokens);
+// unique_ptr<Node> sunique_ptr<Node> test(vector<Tokens> &tokens){afe_parse(vector<Tokens> &tokens);
+
+
+unique_ptr<Node> test(vector<Tokens> &tokens);

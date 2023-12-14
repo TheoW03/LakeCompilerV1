@@ -79,7 +79,7 @@ struct ReturnStatment : public Node
 struct BoolExpressionNode : public Node
 {
 
-    optional<Tokens> op;
+   Tokens op;
 };
 struct ElseNode : public Node
 {
@@ -312,6 +312,8 @@ unique_ptr<Node> term(vector<Tokens> &tokens)
         auto n = make_unique<OperatorNode>();
         n->left = move(opNode);
         n->right = factor(tokens);
+	n->token = op.value();
+	
         opNode = move(n);
         op = (matchAndRemove(tokens, type::MULTIPLY).has_value())   ? current
              : (matchAndRemove(tokens, type::DIVISION).has_value()) ? current
@@ -343,6 +345,8 @@ unique_ptr<Node> expression(vector<Tokens> &tokens)
         auto n = make_unique<OperatorNode>();
         n->left = move(opNode);
         n->right = term(tokens);
+	n->token = op.value();
+
         opNode = move(n);
         op = (matchAndRemove(tokens, type::ADDITION).has_value())   ? current
              : (matchAndRemove(tokens, type::SUBTRACT).has_value()) ? current
@@ -450,8 +454,66 @@ unique_ptr<BoolExpressionNode> handleBooleanExpression(vector<Tokens> &tokens)
     unique_ptr<BoolExpressionNode> a = make_unique<BoolExpressionNode>();
     a->right = move(right);
     a->left = move(left);
-    a->op = op;
+    a->op = op.value();
     return a;
+}
+unique_ptr<Node> BoolExpr(vector<Tokens> &tokens);
+unique_ptr<Node> BoolFactor(vector<Tokens> &tokens){
+	unique_ptr<Node> c = factor(tokens);
+	if(c != nullptr){
+		return c;	
+	}
+	if(matchAndRemove(tokens, type::OP_PARENTHISIS).has_value()){
+		unique_ptr<Node> b = BoolExpr(tokens);
+		matchAndRemove(tokens, type::CL_PARENTHISIS);
+		return b;
+	}
+	return nullptr;
+
+}
+unique_ptr<Node> BoolExpr(vector<Tokens> &tokens){
+	unique_ptr<Node> left = BoolFactor(tokens);
+ 	optional<Tokens> op = (matchAndRemove(tokens, type::BOOL_EQ).has_value())  ? current
+                          : (matchAndRemove(tokens, type::LTE).has_value())    ? current
+                          : (matchAndRemove(tokens, type::GTE).has_value())    ? current
+                          : (matchAndRemove(tokens, type::GT).has_value())     ? current
+                          : (matchAndRemove(tokens, type::LT).has_value())     ? current
+ 			  :  (matchAndRemove(tokens, type::AND).has_value())     ? current
+			  :   (matchAndRemove(tokens, type::OR).has_value())     ? current
+                          : (matchAndRemove(tokens, type::NOT_EQ).has_value()) ? current
+			  : nullopt;
+
+	while(op.has_value()){
+		
+	    	unique_ptr<BoolExpressionNode> n = make_unique<BoolExpressionNode>();
+		n->op = op.value();	
+		if(op.value().id == type::AND || op.value().id == type::OR){
+			n->right = BoolExpr(tokens);	
+
+		}else{
+			n->right = BoolFactor(tokens);	
+		}	
+		op = (matchAndRemove(tokens, type::BOOL_EQ).has_value())  ? current
+                          : (matchAndRemove(tokens, type::LTE).has_value())    ? current
+                          : (matchAndRemove(tokens, type::GTE).has_value())    ? current
+                          : (matchAndRemove(tokens, type::GT).has_value())     ? current
+                          : (matchAndRemove(tokens, type::LT).has_value())     ? current
+ 			  :  (matchAndRemove(tokens, type::AND).has_value())     ? current
+			  :   (matchAndRemove(tokens, type::OR).has_value())     ? current
+                          : (matchAndRemove(tokens, type::NOT_EQ).has_value()) ? current
+			  : nullopt;
+		n->left = move(left);
+	        left = move(n);
+
+	}
+	return left;
+
+
+
+}
+
+unique_ptr<Node> test(vector<Tokens> &tokens){
+	return BoolExpr(tokens);
 }
 
 unique_ptr<Node> handleCalls(vector<Tokens> &tokens, Tokens checkIfFunct)
