@@ -79,8 +79,12 @@ struct ReturnStatment : public Node
 struct BoolExpressionNode : public Node
 {
 
-   Tokens op;
+
+    optional<Tokens> op;
+   int next_is_or; 
 };
+
+
 struct ElseNode : public Node
 {
 
@@ -309,7 +313,8 @@ unique_ptr<Node> term(vector<Tokens> &tokens)
 
     while (op.has_value())
     {
-        auto n = make_unique<OperatorNode>();
+      
+	auto n = make_unique<OperatorNode>();
         n->left = move(opNode);
         n->right = factor(tokens);
 	n->token = op.value();
@@ -323,6 +328,8 @@ unique_ptr<Node> term(vector<Tokens> &tokens)
              : (matchAndRemove(tokens, type::B_AND).has_value())    ? current
              : (matchAndRemove(tokens, type::B_OR).has_value())     ? current
                                                                     : nullopt;
+	
+	
     }
     return opNode;
 }
@@ -381,7 +388,6 @@ optional<Tokens> getTypes(vector<Tokens> &tokens)
 // will parse functions
 unique_ptr<FunctionNode> handleFunctions(vector<Tokens> &tokens)
 {
-    // FunctionNode *f = new FunctionNode;
     unique_ptr<FunctionNode> f = make_unique<FunctionNode>();
     optional<Tokens> name = matchAndRemove(tokens, type::WORD);
     f->nameOfFunction = name.value();
@@ -403,7 +409,6 @@ unique_ptr<FunctionNode> handleFunctions(vector<Tokens> &tokens)
         vars.push_back(move(v));
     }
     f->params = (vars);
-    // cout << f->params.size() << endl;
     return f;
 }
 
@@ -486,13 +491,18 @@ unique_ptr<Node> BoolExpr(vector<Tokens> &tokens){
 	while(op.has_value()){
 		
 	    	unique_ptr<BoolExpressionNode> n = make_unique<BoolExpressionNode>();
+		
 		n->op = op.value();	
 		if(op.value().id == type::AND || op.value().id == type::OR){
 			n->right = BoolExpr(tokens);	
-
+			
 		}else{
 			n->right = BoolFactor(tokens);	
-		}	
+		}
+		
+	
+		n->left = move(left);
+		left = move(n);
 		op = (matchAndRemove(tokens, type::BOOL_EQ).has_value())  ? current
                           : (matchAndRemove(tokens, type::LTE).has_value())    ? current
                           : (matchAndRemove(tokens, type::GTE).has_value())    ? current
@@ -502,8 +512,6 @@ unique_ptr<Node> BoolExpr(vector<Tokens> &tokens){
 			  :   (matchAndRemove(tokens, type::OR).has_value())     ? current
                           : (matchAndRemove(tokens, type::NOT_EQ).has_value()) ? current
 			  : nullopt;
-		n->left = move(left);
-	        left = move(n);
 
 	}
 	return left;
@@ -778,6 +786,7 @@ unique_ptr<Node> handle_array_declaration(vector<Tokens> &tokens)
 }
 unique_ptr<Node> handleSatements(vector<Tokens> &tokens)
 {
+	  
 #pragma region functionstate
     //     if (matchAndRemove(tokens, type::MACRO).has_value())
     //     {
@@ -848,9 +857,11 @@ unique_ptr<Node> handleSatements(vector<Tokens> &tokens)
 vector<unique_ptr<FunctionNode>> functionParse(vector<Tokens> &tokens)
 {
 
+
     vector<unique_ptr<FunctionNode>> functionNodes;
     while (matchAndRemove(tokens, type::FUNCTION).has_value())
     {
+	    	
 
         vector<shared_ptr<Node>> states;
         unique_ptr<FunctionNode> pd = handleFunctions(tokens);

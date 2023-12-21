@@ -720,6 +720,7 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     return 0;
 }
 
+int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &global_string, string &register_result);
 string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &global_string)
 {
     if (op == nullptr)
@@ -763,22 +764,24 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     if (instanceof <CastNode *>(op.get()))
     {
 	      CastNode *c = dynamic_cast<CastNode *>(op.get());
-	      if(c->type.id == type::CHAR || c->type.id == type::INT){
- 			string reg = "";
-		        int a = gen_float_op(move(c->expression),
-					scope_monitor,global_string, reg);
-			if(reg != ""){
-				global_string += "div " + 
-					reg + "," + reg + ", " + 
-					to_string(OFFSET) + " #is not float \n"; 
+	      if(c->type.id == type::CHAR){
+	      		string reg = "";
+  			int a = gen_integer_op(move(c->expression),scope_monitor,global_string, reg);
+			if(reg == ""){
+ 		  		reg =  scope_monitor.rg.allocate_register(1);
+	        		global_string += "li " + reg + "," + to_string(a % 255) + " \n";
 			}else{
- 				reg =  scope_monitor.rg.allocate_register(1);
-				global_string += "li " + reg + "," + 
-					to_string(a/OFFSET) + " #test\n";
+				string r1 = scope_monitor.rg.allocate_register(0);
+				global_string += "li "+r1+", 255 \n";
+				global_string += "div "+reg+","+reg+","+r1+"\n";
+				global_string += "mfhi "+reg+"\n";
+				
 			}
 			return reg;
-	      	
-	      }
+
+
+	      }  
+	      
 	cout << "cast mismatch" << endl;
 	exit(EXIT_FAILURE);
 
@@ -908,10 +911,9 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     {
 	  
         CastNode *c = dynamic_cast<CastNode *>(op.get());
-	if(c->type.id == type::INT || c->type.id == type::CHAR){	
+	if(c->type.id == type::INT){
 		string resultReg = "";
 		int a = gen_float_op(move(c->expression),scope_monitor, global_string,resultReg);
-
 		if(resultReg != ""){
 			register_result = resultReg;
 
@@ -921,9 +923,22 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
 				to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
 			return 0;
 		}
-		return a/OFFSET;
+		return a/OFFSET;	
+	}else if(c->type.id == type::CHAR){
+		string resultReg = "";
+		int a = gen_integer_op(move(c->expression),scope_monitor, global_string,resultReg);
+		if(resultReg != ""){
+			register_result = resultReg;
+			string r1 = scope_monitor.rg.allocate_register(0);
+			global_string += "li "+r1+", 255 \n";
+			global_string += "div "+register_result+","+register_result+","+r1+"\n";
+			global_string += "mfhi "+register_result+"\n";
+			return 0;
+		}
+		return a % 255;
 	}else{
-		cout << "type mismatch" << endl;
+		cout << "type mismatch"<<endl;
+		exit(EXIT_FAILURE);
 	}
     }
     if (instanceof <IntegerNode *>(op.get()))

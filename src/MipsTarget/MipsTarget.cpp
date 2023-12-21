@@ -298,9 +298,12 @@ void statementsGen(shared_ptr<Node> statement,
 			outfile); // write a new function for this T~T
 
         allocate_Scope((scope_monitor.scope));
-        increase_numofbranch();
-        int b = getnOfBranch();
-        global_string += "b L" + to_string(b) + "\n";
+        
+	increase_numofbranch();
+        
+	int b = getnOfBranch();
+        
+	global_string += "b L" + to_string(b) + "\n";
         increase_numofbranch();
         global_string += "L" + to_string(getnOfBranch()) + ": \n # loop"; // condition
         wf(outfile, global_string);
@@ -426,7 +429,6 @@ void gen_mips_target(vector<unique_ptr<FunctionNode>> op, string filename)
         vector<shared_ptr<VaraibleDeclaration>> params = (pd->params);
         if (pd->nameOfFunction.buffer != "main")
         {
-            // cout << params.size() << endl;
 
             for (size_t i = 0; i < params.size(); i++)
             {
@@ -493,7 +495,10 @@ void gen_mips_target(vector<unique_ptr<FunctionNode>> op, string filename)
         if (!sharedpd->returnType.has_value())
         {
             // cout << "null ptr" << endl;
-            string exitStack = "addi $sp, $sp," + to_string(max_size) + " # Move the stack pointer up by " + to_string(max_size) + " bytes\n  jr $ra \n";
+            string exitStack = "addi $sp, $sp," + to_string(max_size) + 
+		    " # Move the stack pointer up by " + 
+		    to_string(max_size) + 
+		    " bytes\n  jr $ra \n";
             wf(outfile, exitStack);
         }
 

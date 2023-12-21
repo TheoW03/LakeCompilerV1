@@ -55,8 +55,10 @@ struct VaraibleDeclaration : public Node
 #define BOOL_EXPR_NODE_H
 struct BoolExpressionNode : public Node
 {
+  
 
     optional<Tokens> op;
+     int next_is_or; 
 };
 #endif
 

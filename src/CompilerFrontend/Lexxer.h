@@ -55,7 +55,6 @@ enum class type
     SEMI_COLON,
     ELSE,
     FOR_LOOP,
-
     CHAR,
     CHAR_LITERAL,
     STEP,
