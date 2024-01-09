@@ -67,7 +67,8 @@ enum class type
     B_OR,
     THEN,
     DO,
-    NOT_EQ
+    NOT_EQ,
+    SIZE_OF
 
 };
 struct Tokens
@@ -181,7 +182,7 @@ void groupings(vector<Tokens> &token_list, string &buffer)
     op["<<"] = type::SRR;
     op["|"] = type::B_OR;
     op["&"] = type::B_AND;
-
+    op["sizeof"] = type::SIZE_OF;
     if (op.find(buffer) != op.end())
     {
         Tokens token;
