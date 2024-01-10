@@ -14,7 +14,6 @@
 #include "llvm/Support/raw_ostream.h"
 #include "../../src/CompilerFrontend/Lexxer.h"
 using namespace std;
-
 #define OFFSET 65536
 
 #ifndef NODE_H
@@ -24,7 +23,7 @@ struct Node
 {
     unique_ptr<Node> right;
     unique_ptr<Node> left; // int s;
-    virtual llvm::Value *Codegen();
+    virtual llvm::Value *Codegen(llvm::IRBuilder<> &builder);
 
     virtual ~Node();
 };
@@ -55,10 +54,9 @@ struct VaraibleDeclaration : public Node
 #define BOOL_EXPR_NODE_H
 struct BoolExpressionNode : public Node
 {
-  
 
     optional<Tokens> op;
-     int next_is_or; 
+    int next_is_or;
 };
 #endif
 
@@ -129,7 +127,7 @@ struct FloatNode : public Node
 struct IntegerNode : public Node
 {
     string num;
-    virtual llvm::Value *Codegen();
+    virtual llvm::Value *Codegen(llvm::IRBuilder<> &builder);
 };
 #endif
 
@@ -146,7 +144,7 @@ struct StringNode : public Node
 struct OperatorNode : public Node
 {
     struct Tokens token;
-    virtual llvm::Value *Codegen();
+    virtual llvm::Value *Codegen(llvm::IRBuilder<> &builder);
 };
 #endif
 
@@ -227,6 +225,5 @@ Node *handleCalls(vector<Tokens> &tokens, Tokens *checkIfFunct);
 Node *handleSatements(vector<Tokens> &tokens);
 unique_ptr<Node> testExpressionParse(vector<Tokens> &tokens);
 // unique_ptr<Node> sunique_ptr<Node> test(vector<Tokens> &tokens){afe_parse(vector<Tokens> &tokens);
-
 
 unique_ptr<Node> test(vector<Tokens> &tokens);

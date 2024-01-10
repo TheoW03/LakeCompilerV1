@@ -33,7 +33,7 @@ struct Node
     unique_ptr<Node> right;
     unique_ptr<Node> left;
     virtual ~Node();
-    virtual llvm::Value *Codegen();
+    virtual llvm::Value *Codegen(llvm::IRBuilder<> &builder);
 };
 
 struct VaraibleDeclaration : public Node
@@ -57,7 +57,7 @@ struct FloatNode : public Node
 struct IntegerNode : public Node
 {
     string num;
-    virtual llvm::Value *Codegen();
+    virtual llvm::Value *Codegen(llvm::IRBuilder<> &builder);
 };
 struct StringNode : public Node
 {
@@ -113,7 +113,7 @@ struct ForLoopNode : public Node
 struct OperatorNode : public Node
 {
     Tokens token;
-    virtual llvm::Value *Codegen();
+    virtual llvm::Value *Codegen(llvm::IRBuilder<> &builder);
 };
 
 struct ArrayDeclaration : public Node

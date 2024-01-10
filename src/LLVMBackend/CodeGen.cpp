@@ -13,13 +13,15 @@
 #include <iostream>
 
 using namespace std;
-llvm::Value *Node::Codegen()
+using namespace llvm;
+llvm::Value *Node::Codegen(IRBuilder<> &builder)
 {
 }
 
-llvm::Value *IntegerNode::Codegen()
+llvm::Value *IntegerNode::Codegen(IRBuilder<> &builder)
 {
+    return builder.getInt32(stoi(num));
 }
-llvm::Value *OperatorNode::Codegen()
+llvm::Value *OperatorNode::Codegen(IRBuilder<> &builder)
 {
 }

@@ -12,65 +12,56 @@
 #include "llvm/Support/raw_ostream.h"
 #include "../../src/CompilerFrontend/parser.h"
 #include "../../src/MipsTarget/UtilFunctions.h"
+#include "llvm/Support/raw_ostream.h"
+
 #include "../../src/CompilerFrontend/Lexxer.h"
 #include <filesystem>
 using namespace std;
 namespace fs = std::filesystem;
+using namespace llvm;
+Value *traverse_tree(unique_ptr<Node> op, IRBuilder<> &builder)
+{
+  if (op == nullptr)
+  {
+    return builder.getInt32(0);
+  }
+  if (instanceof <IntegerNode *>(op.get()))
+  {
+    IntegerNode *pd = dynamic_cast<IntegerNode *>(op.get());
+    return pd->Codegen(builder);
+  }
+  if (instanceof <OperatorNode *>(op.get()))
+  {
+    OperatorNode *pd = dynamic_cast<OperatorNode *>(op.get());
+    if (pd->token.id == type::ADDITION)
+    {
+      return builder.CreateAdd(traverse_tree(move(op->right), builder), traverse_tree(move(op->left), builder), "addtmp");
+    }
+  }
+}
 void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
 {
 
-    // basic hello world in LLVM
-    llvm::LLVMContext context;
-    std::unique_ptr<llvm::Module> module = make_unique<llvm::Module>("MyModule", context);
+  llvm::LLVMContext context;
+  llvm::Module module("example", context);
+  FunctionType *funcType = FunctionType::get(Type::getInt32Ty(context), false);
+  Function *mainFunc = Function::Create(funcType, Function::ExternalLinkage, "main", module);
+  BasicBlock *entryBlock = BasicBlock::Create(context, "entry", mainFunc);
+  IRBuilder<> builder(entryBlock);
 
-  //  for (int i = 0; i < op.size(); i++)
-  //  {
-  //       llvm::FunctionType *funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context), false);
-  //      llvm::FunctionType *funcType;
-  //      if (op[i]->returnType != nullptr)
-  //      {
-  //          switch (op[i]->returnType->id)
-  //          {
-  //          case type::INT:
-  //              funcType = llvm::FunctionType::get(llvm::Type::getInt32Ty(context), false);
-  //              break;
-  //          case type::FLOAT:
-  //              funcType = llvm::FunctionType::get(llvm::Type::getFloatTy(context), false);
-  //              break;
-  //          case type::CHAR:
-  //              funcType = llvm::FunctionType::get(llvm::Type::getInt8Ty(context), false);
-  //              break;
-  //          case type::BOOL:
-  //              funcType = llvm::FunctionType::get(llvm::Type::getInt1Ty(context), false);
-  //              break;
-  //          }
-  //      }
-  //      else
-  //      {
-  //          funcType = llvm::FunctionType::get(llvm::Type::getVoidTy(context), false);
-  //      }
-  //      llvm::Function *mainFunction = llvm::Function::Create(funcType, llvm::Function::ExternalLinkage, op[i]->nameOfFunction->buffer, module.get());
-  //      llvm::BasicBlock *entryBlock = llvm::BasicBlock::Create(context, "entry", mainFunction);
-  //      llvm::IRBuilder<> builder(entryBlock);
-  //  }
+  Value *constantValue = builder.getInt32(42);
 
-    // llvm::Value *constant = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0);
-    // builder.CreateRet(constant);
+  // Return the constant value from the function
+  builder.CreateRet(constantValue);
 
-    // module->print(llvm::outs(), nullptr);
-
-    string irString = "";
-    llvm::raw_string_ostream stringStream(irString);
-    string dirname = "out/";
-    fs::create_directories(dirname);
-    // Print the if (filename == "")
+  string irString;
+  llvm::raw_string_ostream llvmStringStream(irString);
+  if (filename == "")
+  {
     filename = "out.ll";
-    ofstream outfile(dirname + filename);
-    // Get the LLVM IR as a string.
-    string irCode = stringStream.str();
-
-    // Output the LLVM IR string.
-
-    cout << irString << endl;
-
+  }
+  ofstream outfile("out/out.ll");
+  module.print(llvmStringStream, nullptr);
+  outfile << irString << endl;
+  cout << "compiled successfully: output located at out/out.ll" << endl;
 }

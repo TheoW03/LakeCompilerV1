@@ -13,8 +13,15 @@ struct Varaible
     Tokens varType;
     int stackNum;
     int constant;
+    virtual ~Varaible();
 };
-
+struct Array : Varaible
+{
+    Tokens varType;
+};
+Varaible::~Varaible()
+{
+}
 struct Scope_dimension
 {
     map<string, Varaible *> vars;
@@ -119,9 +126,9 @@ Varaible *get_varaible(VaraibleReference *var, vector<Scope_dimension> &scope)
     }
     return nullptr;
 }
-Varaible *add_to_var(VaraibleDeclaration *var, 
-		vector<Scope_dimension> &scope, 
-		int stack_number)
+Varaible *add_to_var(VaraibleDeclaration *var,
+                     vector<Scope_dimension> &scope,
+                     int stack_number)
 {
     Varaible *a = new Varaible;
 
