@@ -10,3 +10,4 @@ SyntaxUpdate.lk
 /build/
 output
 /out/
+compileLLVM.sh

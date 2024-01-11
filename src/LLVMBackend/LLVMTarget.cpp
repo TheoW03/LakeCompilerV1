@@ -44,22 +44,34 @@ void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
 
   llvm::LLVMContext context;
   llvm::Module module("example", context);
-  FunctionType *funcType = FunctionType::get(Type::getInt32Ty(context), false);
-  Function *mainFunc = Function::Create(funcType, Function::ExternalLinkage, "main", module);
-  BasicBlock *entryBlock = BasicBlock::Create(context, "entry", mainFunc);
-  IRBuilder<> builder(entryBlock);
+  IRBuilder<> builder(context);
 
-  Value *constantValue = builder.getInt32(42);
-
-  // Return the constant value from the function
-  builder.CreateRet(constantValue);
-
+  for (size_t i = 0; i < op.size(); i++)
+  {
+    FunctionType *funcType;
+    shared_ptr<FunctionNode> function = move(op[i]);
+    if (function->returnType.has_value())
+    {
+      switch (function->returnType.value().id)
+      {
+      case type::INT:
+      {
+        funcType = FunctionType::get(builder.getInt32Ty(), false);
+      }
+      }
+    }
+    else
+    {
+      funcType = FunctionType::get(builder.getVoidTy(), false);
+    }
+    Function *funcRef = Function::Create(funcType, Function::ExternalLinkage, function->nameOfFunction.buffer, module);
+    BasicBlock *entryBlock = BasicBlock::Create(context, "entry", funcRef);
+    builder.SetInsertPoint(entryBlock);
+  }
   string irString;
   llvm::raw_string_ostream llvmStringStream(irString);
   if (filename == "")
-  {
     filename = "out.ll";
-  }
   ofstream outfile("out/out.ll");
   module.print(llvmStringStream, nullptr);
   outfile << irString << endl;
