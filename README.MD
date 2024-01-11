@@ -1,15 +1,13 @@
 # Lacus
 
 a strongly typed, procedual, compiled programming language. 
-right now MIPS 32 Assembly, soon LLVM
+right now MIPS 32 Assembly and LLVM
 
 syntax was strongly inspired by rust, Ada and C
 
 why i choose the name,
 lacus is latin for lake, and I chose lake to honor my favorite enby-coded character in Animation. I cant name it lake
-because lean4 has a build system with the name of lake. a
-
-
+because lean4 has a build system with the name of lake. 
 
 
 # Langauge definition
@@ -62,7 +60,11 @@ fn f(x: int) : int -> x + 1; //new feature i been thinking of. for a while >:3
 
 -o ``file``:  output file if none specified its going to be MipsTarget/MipsTargetASM/out.s
 
--v : version
+-m: specify MIPS 32 target
+
+-l: specify LLVM target (coming soon)
+
+-v : version (coming soon)
 
 # Build Instructions
 
@@ -82,9 +84,9 @@ else just create a build dir and do
 ``cmake ..``
 
 
-# run transpiled code
+# Run Compilation
 
-<b>MIPS target</b>
+<b>MIPS</b>
 
 if you dont have a MIPS CPU on hand just do this
 
@@ -106,6 +108,27 @@ https://spimsimulator.sourceforge.net/
 <br>
 
 
+<b>LLVM</b>
+
+WARNING: this is in the very early stages of development so there is a huge version discrepancy between MIPS32 target and the LLVM target
+
+LLVM IR version is 14.0.0 (the best OS to run this on is Ubuntu linux)
+
+and the LLVM IR files are located in out/out.ll
+
+how to run LLVM IR code
+
+```Sh
+llc out/out.ll
+clang out.s
+./a.out
+
+```
+
+
+# Test Programs
+
+Try some test programs. using the MIPS32 target
+
 <a href=https://github.com/TheoW03/Lake/tree/master/TestPrograms>Test programs</a>
 
-Try some test programs.
