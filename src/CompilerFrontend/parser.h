@@ -165,6 +165,7 @@ struct FunctionNode : public Node
     vector<shared_ptr<Node>> statements;
     string hashed_functionName; // the name that is asm
     optional<Tokens> returnType;
+    virtual llvm::Value *Codegen(llvm::IRBuilder<> &builder);
 };
 #endif
 #ifndef FOR_LOOP_NODE_H

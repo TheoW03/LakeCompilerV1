@@ -25,3 +25,23 @@ llvm::Value *IntegerNode::Codegen(IRBuilder<> &builder)
 llvm::Value *OperatorNode::Codegen(IRBuilder<> &builder)
 {
 }
+llvm::Value *FunctionNode::Codegen(IRBuilder<> &builder)
+{
+    // FunctionType *funcType;
+    // if (returnType.has_value())
+    // {
+    //     switch (returnType.value().id)
+    //     {
+    //     case type::INT:
+    //     {
+    //         funcType = FunctionType::get(builder.getInt32Ty(), false);
+    //     }
+    //     }
+    // }
+    // else
+    // {
+    //     funcType = FunctionType::get(builder.getVoidTy(), false);
+    // }
+    // Function *funcRef = Function::Create(funcType, Function::ExternalLinkage, nameOfFunction.buffer, module);
+    // return funcRef();
+}

@@ -6,6 +6,7 @@
 #include <regex>
 #include <map>
 #include <sstream>
+#include <unordered_set>
 
 using namespace std;
 
@@ -256,17 +257,17 @@ void number(int &state, string str, vector<Tokens> &token_list, string &buffer)
             return;
         }
     }
-    map<string, type> seperator;
-    seperator["{"] = type::ADDITION;
-    seperator["}"] = type::SUBTRACT;
-    seperator[":"] = type::MULTIPLY;
-    seperator[";"] = type::MOD;
-    seperator["["] = type::DIVISION;
-    seperator["]"] = type::OP_PARENTHISIS;
-    seperator[")"] = type::CL_PARENTHISIS;
-    seperator["("] = type::FUNCTION;
-    seperator[","] = type::FUNCTION;
-
+    unordered_set<string> seperator{
+        {"{"},
+        {"}"},
+        {":"},
+        {";"},
+        {"["},
+        {"]"},
+        {"("},
+        {")"},
+        {","},
+    };
     if (seperator.find(str) != seperator.end())
     {
         if (buffer != "")
@@ -288,7 +289,7 @@ void number(int &state, string str, vector<Tokens> &token_list, string &buffer)
         buffer += str;
         return;
     }
-    if (str == "+" || str == "*" || str == "/" || str == "-")
+    if (str == "+" || str == "*" || str == "/" || str == "-" || str == "%")
     {
         if (str == "/")
         {
@@ -319,10 +320,7 @@ vector<Tokens> lex(vector<string> lines)
         string line = lines[line_loc];
         for (int next_char = 0; next_char < line.length(); next_char++)
         {
-            if (isComment == 1)
-            {
-                continue;
-            }
+
             string str(1, line.at(next_char));
 
             if (str == "\"")
@@ -392,8 +390,7 @@ vector<Tokens> lex(vector<string> lines)
             {
                 if (str == "/" && line.at(next_char + 1) == '/')
                 {
-                    isComment = 1;
-                    continue;
+                    break; //comment
                 }
                 if (str == "." && line.at(next_char + 1) == '.')
                 {
@@ -426,7 +423,7 @@ vector<Tokens> lex(vector<string> lines)
                 state = 1;
             }
         }
-        isComment = 0;
+        // isComment = 0;
     }
     if (buffer != "")
     {

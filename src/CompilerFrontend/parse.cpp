@@ -160,6 +160,7 @@ struct FunctionNode : public Node
     vector<shared_ptr<Node>> statements;
     string hashed_functionName; // the name that is asm
     optional<Tokens> returnType;
+    virtual llvm::Value *Codegen(llvm::IRBuilder<> &builder);
 };
 #pragma endregion
 unique_ptr<Node> expression(vector<Tokens> &tokens);

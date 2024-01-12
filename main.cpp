@@ -53,6 +53,7 @@ void handle_cli(char *argv[], int argc)
 void llvmtest()
 {
 	vector<Tokens> a = lex(readFile("test.lk"));
+	// printList(a);
 	vector<unique_ptr<FunctionNode>> c = move(parse(a));
 	gen_LLVM(move(c), "");
 }

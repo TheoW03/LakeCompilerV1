@@ -19,6 +19,7 @@
 using namespace std;
 namespace fs = std::filesystem;
 using namespace llvm;
+
 Value *traverse_tree(unique_ptr<Node> op, IRBuilder<> &builder)
 {
   if (op == nullptr)
@@ -33,12 +34,34 @@ Value *traverse_tree(unique_ptr<Node> op, IRBuilder<> &builder)
   if (instanceof <OperatorNode *>(op.get()))
   {
     OperatorNode *pd = dynamic_cast<OperatorNode *>(op.get());
-    if (pd->token.id == type::ADDITION)
+    switch (pd->token.id)
     {
-      return builder.CreateAdd(traverse_tree(move(op->right), builder), traverse_tree(move(op->left), builder), "addtmp");
+    case type::ADDITION:
+      return builder.CreateAdd(traverse_tree(move(op->left), builder), traverse_tree(move(op->right), builder), "addtmp");
+    case type::SUBTRACT:
+      return builder.CreateSub(traverse_tree(move(op->left), builder), traverse_tree(move(op->right), builder), "subtmp");
+    case type::MULTIPLY:
+      return builder.CreateMul(traverse_tree(move(op->left), builder), traverse_tree(move(op->right), builder), "multmp");
+    case type::MOD:
+      return builder.CreateSRem(traverse_tree(move(op->left), builder), traverse_tree(move(op->right), builder), "modtmp");
+    case type::DIVISION:
+      return builder.CreateSDiv(traverse_tree(move(op->left), builder), traverse_tree(move(op->right), builder), "divtmp");
     }
   }
 }
+void statement_gen(shared_ptr<Node> statement, IRBuilder<> &builder)
+{
+  if (instanceof <VaraibleDeclaration *>(statement.get()))
+  {
+    VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(statement.get());
+  }
+  else if (instanceof <ReturnStatment *>(statement.get()))
+  {
+    ReturnStatment *pd = dynamic_cast<ReturnStatment *>(statement.get());
+    builder.CreateRet(traverse_tree(move(pd->expression), builder));
+  }
+}
+
 void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
 {
 
@@ -67,6 +90,10 @@ void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
     Function *funcRef = Function::Create(funcType, Function::ExternalLinkage, function->nameOfFunction.buffer, module);
     BasicBlock *entryBlock = BasicBlock::Create(context, "entry", funcRef);
     builder.SetInsertPoint(entryBlock);
+    for (int i = 0; i < function->statements.size(); i++)
+    {
+      statement_gen(function->statements[i], builder);
+    }
   }
   string irString;
   llvm::raw_string_ostream llvmStringStream(irString);
