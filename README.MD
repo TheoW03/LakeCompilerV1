@@ -114,13 +114,13 @@ WARNING: this is in the very early stages of development so there is a huge vers
 
 LLVM IR version is 14.0.0 (the best OS to run this on is Ubuntu linux)
 
-and the LLVM IR files are located in out/out.ll
+and the generated LLVM IR files are located in out/out.ll
 
 how to run LLVM IR code
 
 ```Sh
 llc out/out.ll
-clang out.s
+clang out/out.s
 ./a.out
 
 ```
