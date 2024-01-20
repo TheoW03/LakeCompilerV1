@@ -13,8 +13,8 @@
 #include "../../src/CompilerFrontend/parser.h"
 #include "../../src/MipsTarget/UtilFunctions.h"
 #include "llvm/Support/raw_ostream.h"
-
 #include "../../src/CompilerFrontend/Lexxer.h"
+
 #include <filesystem>
 using namespace std;
 namespace fs = std::filesystem;
@@ -48,6 +48,7 @@ Value *traverse_tree(unique_ptr<Node> op, IRBuilder<> &builder)
       return builder.CreateSDiv(traverse_tree(move(op->left), builder), traverse_tree(move(op->right), builder), "divtmp");
     }
   }
+  return builder.getInt32(0);
 }
 void statement_gen(shared_ptr<Node> statement, IRBuilder<> &builder)
 {
@@ -61,10 +62,13 @@ void statement_gen(shared_ptr<Node> statement, IRBuilder<> &builder)
     builder.CreateRet(traverse_tree(move(pd->expression), builder));
   }
 }
-
+void llvmTestFunction()
+{
+}
 void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
 {
-
+  // llvmTestFunction();
+  // exit(EXIT_SUCCESS);
   llvm::LLVMContext context;
   llvm::Module module("example", context);
   IRBuilder<> builder(context);
@@ -73,15 +77,29 @@ void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
   {
     FunctionType *funcType;
     shared_ptr<FunctionNode> function = move(op[i]);
+    map<type, llvm::Type *> type_map;
+    type_map[type::INT] = builder.getInt32Ty();
+    type_map[type::STRING] = PointerType::getUnqual(builder.getInt8Ty());
+    map<string, Value *> varaible;
+    // map[type::FLOAT] = builder.getFloat
+    vector<shared_ptr<VaraibleDeclaration>> params = function->params;
+
+    // llvm::Type *arr_of_paramtypes[params.size()];
+    vector<llvm::Type *> arr_of_paramtypes;
+    if (function->params.size() != 0)
+    {
+      for (size_t i2 = 0; i2 < params.size(); i2++)
+      {
+        // arr_of_paramtypes[i2] = type_map[params[i2]->typeOfVar.id];
+        arr_of_paramtypes.push_back(type_map[params[i2]->typeOfVar.id]);
+      }
+    }
+
     if (function->returnType.has_value())
     {
-      switch (function->returnType.value().id)
-      {
-      case type::INT:
-      {
-        funcType = FunctionType::get(builder.getInt32Ty(), false);
-      }
-      }
+
+      funcType = FunctionType::get(type_map[function->returnType.value().id],
+                                   arr_of_paramtypes, false);
     }
     else
     {
@@ -90,6 +108,16 @@ void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
     Function *funcRef = Function::Create(funcType, Function::ExternalLinkage, function->nameOfFunction.buffer, module);
     BasicBlock *entryBlock = BasicBlock::Create(context, "entry", funcRef);
     builder.SetInsertPoint(entryBlock);
+    llvm::Function::arg_iterator args = funcRef->arg_begin();
+    for (size_t i2 = 0; i2 < params.size(); i2++)
+    {
+      (args)->setName(params[i2]->varaible.buffer);
+      varaible[params[i2]->varaible.buffer] = args;
+      args++;
+    }
+
+    // llvm::LLVMGetParam(funcRef, 1)->setName("b");
+    // funcRef.GetParam(0);
     for (int i = 0; i < function->statements.size(); i++)
     {
       statement_gen(function->statements[i], builder);

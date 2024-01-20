@@ -136,8 +136,9 @@ string traverse(unique_ptr<Node> op, string &global_string, int isLoop = 0)
 
 int main(int argc, char *argv[])
 {
-	// llvmtest();
-	handle_cli(argv, argc);
+	llvmtest();
+	// handle_cli(argv, argc);
+	
 	//  vector<Tokens> a = lex(readFile("test.lk"));
 	// 	unique_ptr<Node> b = test(a);
 	//	string global_string = ".data \n .text \n main: \n";
