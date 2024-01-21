@@ -20,7 +20,7 @@ using namespace std;
 namespace fs = std::filesystem;
 using namespace llvm;
 
-Value *traverse_tree(unique_ptr<Node> op, IRBuilder<> &builder)
+Value *traverse_tree(unique_ptr<Node> op, map<string, Value *> &varaible, IRBuilder<> &builder)
 {
   if (op == nullptr)
   {
@@ -31,21 +31,32 @@ Value *traverse_tree(unique_ptr<Node> op, IRBuilder<> &builder)
     IntegerNode *pd = dynamic_cast<IntegerNode *>(op.get());
     return pd->Codegen(builder);
   }
+  if (instanceof <VaraibleReference *>(op.get()))
+  {
+    VaraibleReference *pd = dynamic_cast<VaraibleReference *>(op.get());
+    if (varaible.find(pd->varaible.buffer) == varaible.end())
+    {
+      cout << "varaible mis match error" << endl;
+      exit(EXIT_FAILURE);
+    }
+    return builder.CreateLoad(builder.getInt32Ty(), varaible[pd->varaible.buffer], "var_ref");
+    // return varaible[pd->varaible.buffer];
+  }
   if (instanceof <OperatorNode *>(op.get()))
   {
     OperatorNode *pd = dynamic_cast<OperatorNode *>(op.get());
     switch (pd->token.id)
     {
     case type::ADDITION:
-      return builder.CreateAdd(traverse_tree(move(op->left), builder), traverse_tree(move(op->right), builder), "addtmp");
+      return builder.CreateAdd(traverse_tree(move(op->left), varaible, builder), traverse_tree(move(op->right), varaible, builder), "addtmp");
     case type::SUBTRACT:
-      return builder.CreateSub(traverse_tree(move(op->left), builder), traverse_tree(move(op->right), builder), "subtmp");
+      return builder.CreateSub(traverse_tree(move(op->left), varaible, builder), traverse_tree(move(op->right), varaible, builder), "subtmp");
     case type::MULTIPLY:
-      return builder.CreateMul(traverse_tree(move(op->left), builder), traverse_tree(move(op->right), builder), "multmp");
+      return builder.CreateMul(traverse_tree(move(op->left), varaible, builder), traverse_tree(move(op->right), varaible, builder), "multmp");
     case type::MOD:
-      return builder.CreateSRem(traverse_tree(move(op->left), builder), traverse_tree(move(op->right), builder), "modtmp");
+      return builder.CreateSRem(traverse_tree(move(op->left), varaible, builder), traverse_tree(move(op->right), varaible, builder), "modtmp");
     case type::DIVISION:
-      return builder.CreateSDiv(traverse_tree(move(op->left), builder), traverse_tree(move(op->right), builder), "divtmp");
+      return builder.CreateSDiv(traverse_tree(move(op->left), varaible, builder), traverse_tree(move(op->right), varaible, builder), "divtmp");
     }
   }
   return builder.getInt32(0);
@@ -59,18 +70,26 @@ void statement_gen(shared_ptr<Node> statement, map<string, Value *> &varaible, I
   {
     VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(statement.get());
     Value *v = builder.CreateAlloca(type_map[pd->typeOfVar.id], nullptr, pd->varaible.buffer);
-    builder.CreateStore(traverse_tree(move(pd->expression), builder), v);
+    builder.CreateStore(traverse_tree(move(pd->expression), varaible, builder), v);
     varaible[pd->varaible.buffer] = v;
   }
-  else if (instanceof <VaraibleReference *>(op.get()))
+  else if (instanceof <VaraibleReference *>(statement.get()))
   {
     VaraibleReference *pd = dynamic_cast<VaraibleReference *>(statement.get());
-    
+    if (varaible.find(pd->varaible.buffer) == varaible.end())
+    {
+      cout << "varaible mis match error" << endl;
+      exit(EXIT_FAILURE);
+    }
+    else
+    {
+      builder.CreateStore(traverse_tree(move(pd->expression), varaible, builder), varaible[pd->varaible.buffer]);
+    }
   }
   else if (instanceof <ReturnStatment *>(statement.get()))
   {
     ReturnStatment *pd = dynamic_cast<ReturnStatment *>(statement.get());
-    builder.CreateRet(traverse_tree(move(pd->expression), builder));
+    builder.CreateRet(traverse_tree(move(pd->expression), varaible, builder));
   }
 }
 void llvmTestFunction()
@@ -87,6 +106,7 @@ void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
   map<type, llvm::Type *> type_map;
   type_map[type::INT] = builder.getInt32Ty();
   type_map[type::STRING] = PointerType::getUnqual(builder.getInt8Ty());
+
   for (size_t i = 0; i < op.size(); i++)
   {
     FunctionType *funcType;
