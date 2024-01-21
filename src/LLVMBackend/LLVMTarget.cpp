@@ -50,11 +50,22 @@ Value *traverse_tree(unique_ptr<Node> op, IRBuilder<> &builder)
   }
   return builder.getInt32(0);
 }
-void statement_gen(shared_ptr<Node> statement, IRBuilder<> &builder)
+void statement_gen(shared_ptr<Node> statement, map<string, Value *> &varaible, IRBuilder<> &builder)
 {
+  map<type, llvm::Type *> type_map;
+  type_map[type::INT] = builder.getInt32Ty();
+  type_map[type::STRING] = PointerType::getUnqual(builder.getInt8Ty());
   if (instanceof <VaraibleDeclaration *>(statement.get()))
   {
     VaraibleDeclaration *pd = dynamic_cast<VaraibleDeclaration *>(statement.get());
+    Value *v = builder.CreateAlloca(type_map[pd->typeOfVar.id], nullptr, pd->varaible.buffer);
+    builder.CreateStore(traverse_tree(move(pd->expression), builder), v);
+    varaible[pd->varaible.buffer] = v;
+  }
+  else if (instanceof <VaraibleReference *>(op.get()))
+  {
+    VaraibleReference *pd = dynamic_cast<VaraibleReference *>(statement.get());
+    
   }
   else if (instanceof <ReturnStatment *>(statement.get()))
   {
@@ -71,15 +82,16 @@ void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
   // exit(EXIT_SUCCESS);
   llvm::LLVMContext context;
   llvm::Module module("example", context);
-  IRBuilder<> builder(context);
 
+  IRBuilder<> builder(context);
+  map<type, llvm::Type *> type_map;
+  type_map[type::INT] = builder.getInt32Ty();
+  type_map[type::STRING] = PointerType::getUnqual(builder.getInt8Ty());
   for (size_t i = 0; i < op.size(); i++)
   {
     FunctionType *funcType;
     shared_ptr<FunctionNode> function = move(op[i]);
-    map<type, llvm::Type *> type_map;
-    type_map[type::INT] = builder.getInt32Ty();
-    type_map[type::STRING] = PointerType::getUnqual(builder.getInt8Ty());
+
     map<string, Value *> varaible;
     // map[type::FLOAT] = builder.getFloat
     vector<shared_ptr<VaraibleDeclaration>> params = function->params;
@@ -120,7 +132,7 @@ void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
     // funcRef.GetParam(0);
     for (int i = 0; i < function->statements.size(); i++)
     {
-      statement_gen(function->statements[i], builder);
+      statement_gen(function->statements[i], varaible, builder);
     }
   }
   string irString;
