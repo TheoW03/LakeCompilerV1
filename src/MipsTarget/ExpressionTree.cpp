@@ -25,13 +25,13 @@ struct Type_Value
     int value;
     int cast;
 };
-void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_params, 
-		vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor, 
-		string &global_string);
+void handle_function_calls(vector<shared_ptr<VaraibleDeclaration>> function_params,
+                           vector<unique_ptr<Node>> params, Scope_Monitor &scope_monitor,
+                           string &global_string);
 
-string gen_string(unique_ptr<Node> op, vector<string> &tabs, 
-		vector<Scope_dimension *> &scope, 
-		string &global_string)
+string gen_string(unique_ptr<Node> op, vector<string> &tabs,
+                  vector<Scope_dimension *> &scope,
+                  string &global_string)
 {
     if (op == nullptr)
     {
@@ -66,10 +66,10 @@ string gen_string(unique_ptr<Node> op, vector<string> &tabs,
     return "";
 }
 
-string handle_boolean(unique_ptr<Node> op, 
-		Scope_Monitor &scope_monitor, 
-		string &global_string, 
-		int isLoop = 0)
+string handle_boolean(unique_ptr<Node> op,
+                      Scope_Monitor &scope_monitor,
+                      string &global_string,
+                      int isLoop = 0)
 {
     if (op == nullptr)
     {
@@ -91,10 +91,10 @@ string handle_boolean(unique_ptr<Node> op,
         vector<shared_ptr<VaraibleDeclaration>> called_params = function->params;
         // vector<unique_ptr<Node>> a = pd->params;
 
-        handle_function_calls(called_params, 
-			move(pd->params), 
-			scope_monitor, 
-			global_string);
+        handle_function_calls(called_params,
+                              move(pd->params),
+                              scope_monitor,
+                              global_string);
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
@@ -157,7 +157,7 @@ string handle_boolean(unique_ptr<Node> op,
         }
         // global_string += "li " + reg + "," + pd->num + "\n";
         return reg;
-    } 
+    }
     // varaibleNode *pd1 = dynamic_cast<varaibleNode *>(op);
     if (instanceof <VaraibleReference *>(op.get()))
     {
@@ -191,8 +191,8 @@ string handle_boolean(unique_ptr<Node> op,
         else
         {
             string reg = scope_monitor.rg.allocate_register(1);
-            global_string += "lw " + reg + "," + to_string(var->stackNum) + 
-		    "($fp) \n";
+            global_string += "lw " + reg + "," + to_string(var->stackNum) +
+                             "($fp) \n";
             return reg;
         }
         string reg = scope_monitor.rg.allocate_register(1);
@@ -216,32 +216,31 @@ string handle_boolean(unique_ptr<Node> op,
         Tokens op = pd->op.value();
         if (op.id != type::BOOL_EQ)
         {
-            if (instanceof <BooleanLiteralNode *>(pd->left.get()) 
-			    || instanceof <BooleanLiteralNode *>(pd->right.get()))
+            if (instanceof <BooleanLiteralNode *>(pd->left.get()) || instanceof <BooleanLiteralNode *>(pd->right.get()))
             {
                 return "";
             }
         }
         if (isLoop == 1)
         {
-            register1 = handle_boolean(move(pd->right), 
-			    scope_monitor, 
-			    global_string, 
-			    isLoop);
+            register1 = handle_boolean(move(pd->right),
+                                       scope_monitor,
+                                       global_string,
+                                       isLoop);
 
-            register2 = handle_boolean(move(pd->left), 
-			    scope_monitor, 
-			    global_string, 
-			    isLoop);
+            register2 = handle_boolean(move(pd->left),
+                                       scope_monitor,
+                                       global_string,
+                                       isLoop);
         }
         else
         {
-            register1 = handle_boolean(move(pd->right), 
-			    scope_monitor, 
-			    global_string);
-            register2 = handle_boolean(move(pd->left), 
-			    scope_monitor, 
-			    global_string);
+            register1 = handle_boolean(move(pd->right),
+                                       scope_monitor,
+                                       global_string);
+            register2 = handle_boolean(move(pd->left),
+                                       scope_monitor,
+                                       global_string);
         }
 
         string resultReg = scope_monitor.rg.allocate_register(0);
@@ -250,48 +249,48 @@ string handle_boolean(unique_ptr<Node> op,
             switch (op.id)
             {
             case type::BOOL_EQ:
-                global_string += "beq " + register1 + " ," + 
-			register2 + " , L" + to_string(nOfBranch) + "\n";
+                global_string += "beq " + register1 + " ," +
+                                 register2 + " , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
                 break;
             case type::GT:
-                global_string += "slt " + resultReg + "," + 
-			register1 + " ," + register2 + "\n";
-                
-		global_string += "beq " + resultReg + " ,$zero , L" + 
-			to_string(nOfBranch) + "\n";
-                
-		global_string += "nop \n";
+                global_string += "slt " + resultReg + "," +
+                                 register1 + " ," + register2 + "\n";
+
+                global_string += "beq " + resultReg + " ,$zero , L" +
+                                 to_string(nOfBranch) + "\n";
+
+                global_string += "nop \n";
                 break;
             case type::LT:
-                global_string += "slt " + 
-			resultReg + "," + register1 + " ," + register2 + "\n";
-                
-		global_string += "bne " + 
-			resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                
-		global_string += "nop \n";
+                global_string += "slt " +
+                                 resultReg + "," + register1 + " ," + register2 + "\n";
+
+                global_string += "bne " +
+                                 resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+
+                global_string += "nop \n";
                 break;
             case type::LTE:
-                global_string += "slt " + 
-			resultReg + "," + register2 + " ," + register1 + "\n";
+                global_string += "slt " +
+                                 resultReg + "," + register2 + " ," + register1 + "\n";
 
-                global_string += "beq " + 
-			resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "beq " +
+                                 resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 break;
             case type::GTE:
-                global_string += "slt " + 
-			resultReg + "," + register1 + " ," + register2 + "\n";
+                global_string += "slt " +
+                                 resultReg + "," + register1 + " ," + register2 + "\n";
 
-                global_string += "beq " + 
-			resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "beq " +
+                                 resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
                 break;
             case type::NOT_EQ:
-                global_string += "bne " + register1 + " ," + 
-			register2 + " , L" + to_string(nOfBranch) + "\n";
-                
-		global_string += "nop \n";
+                global_string += "bne " + register1 + " ," +
+                                 register2 + " , L" + to_string(nOfBranch) + "\n";
+
+                global_string += "nop \n";
                 break;
             default:
                 break;
@@ -302,49 +301,49 @@ string handle_boolean(unique_ptr<Node> op,
             switch (op.id)
             {
             case type::BOOL_EQ:
-                global_string += "bne " + 
-			register1 + " ," + register2 + " , L" + 
-			to_string(nOfBranch) + "\n";
+                global_string += "bne " +
+                                 register1 + " ," + register2 + " , L" +
+                                 to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
                 break;
             case type::GT:
-                global_string += "slt " + 
-			resultReg + "," + register1 + " ," + register2 + "\n";
-                global_string += "bne " + 
-			resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "slt " +
+                                 resultReg + "," + register1 + " ," + register2 + "\n";
+                global_string += "bne " +
+                                 resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
                 break;
             case type::LT:
-                global_string += "slt " + 
-			resultReg + "," + register1 + " ," + register2 + "\n";
-                
-		global_string += "beq " + 
-			resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+                global_string += "slt " +
+                                 resultReg + "," + register1 + " ," + register2 + "\n";
+
+                global_string += "beq " +
+                                 resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
                 global_string += "nop \n";
                 break;
             case type::LTE:
-                global_string += "slt " + resultReg + "," + 
-			register2 + " ," + register1 + "\n";
-                
-		global_string += "bne " + resultReg + " ,$zero , L" + 
-			to_string(nOfBranch) + "\n";
-                
-		global_string += "nop \n";
+                global_string += "slt " + resultReg + "," +
+                                 register2 + " ," + register1 + "\n";
+
+                global_string += "bne " + resultReg + " ,$zero , L" +
+                                 to_string(nOfBranch) + "\n";
+
+                global_string += "nop \n";
                 break;
             case type::GTE:
-                global_string += "slt " + 
-			resultReg + "," + register1 + " ," + register2 + "\n";
-                
-		global_string += "bne " + 
-			resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
-                
-		global_string += "nop \n";
+                global_string += "slt " +
+                                 resultReg + "," + register1 + " ," + register2 + "\n";
+
+                global_string += "bne " +
+                                 resultReg + " ,$zero , L" + to_string(nOfBranch) + "\n";
+
+                global_string += "nop \n";
                 break;
             case type::NOT_EQ:
-                global_string += "beq " + register1 + " ," + 
-			register2 + " , L" + to_string(nOfBranch) + "\n";
-               
-		global_string += "nop \n";
+                global_string += "beq " + register1 + " ," +
+                                 register2 + " , L" + to_string(nOfBranch) + "\n";
+
+                global_string += "nop \n";
                 break;
             default:
                 break;
@@ -490,20 +489,20 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         }
         FunctionNode *function = (scope_monitor.f[pd->funcCall.buffer]);
 
-        vector<shared_ptr<VaraibleDeclaration>> called_params = 
-		move(function->params);
-        
-	vector<unique_ptr<Node>> a;
+        vector<shared_ptr<VaraibleDeclaration>> called_params =
+            move(function->params);
+
+        vector<unique_ptr<Node>> a;
         for (int i = 0; i < pd->params.size(); i++)
         {
             a.push_back(move(pd->params[i]));
         }
-        handle_function_calls(move(called_params), 
-			move(a), 
-			scope_monitor, 
-			global_string);
-        
-	scope_monitor.rg.send_save(global_string);
+        handle_function_calls(move(called_params),
+                              move(a),
+                              scope_monitor,
+                              global_string);
+
+        scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
 
         global_string += "jal " + function->hashed_functionName + "\n";
@@ -541,44 +540,49 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     }
     if (instanceof <CastNode *>(op.get()))
     {
-	  
+
         CastNode *c = dynamic_cast<CastNode *>(op.get());
-	if(c->type.id == type::INT || c->type.id == type::CHAR){	
-		string resultReg = "";
-		int a = gen_float_op(move(c->expression),
-				scope_monitor, global_string,resultReg);
+        if (c->type.id == type::INT || c->type.id == type::CHAR)
+        {
+            string resultReg = "";
+            int a = gen_float_op(move(c->expression),
+                                 scope_monitor, global_string, resultReg);
 
-		if(resultReg != ""){
-			        register_result = resultReg;
+            if (resultReg != "")
+            {
+                register_result = resultReg;
 
-            		global_string += "div " + 
-				register_result + "," + 
-				register_result + ", " + 
-				to_string(OFFSET) + " #is not float \n"; 
-		
-			string reg2 = scope_monitor.rg.allocate_register(0);
-			
-			global_string += "li " + reg2 + "," + 
-				to_string(OFFSET) + "\n";
+                global_string += "div " +
+                                 register_result + "," +
+                                 register_result + ", " +
+                                 to_string(OFFSET) + " #is not float \n";
 
-            		global_string += "mult " + 
-				register_result + "," + reg2 + " \n";
+                string reg2 = scope_monitor.rg.allocate_register(0);
 
-            		global_string += "mflo " + 
-				register_result + " \n"; // scaling												
-			return 0;
-		}
-		return (a/OFFSET)*OFFSET;
-	}else if(c->type.id == type::FLOAT){	
-		string resultReg = "";
-		int a = gen_float_op(move(c->expression),
-				scope_monitor, global_string,resultReg);
-		if(resultReg != ""){
-			register_result = resultReg;
-			return 0;
-		}
-		return a;
-	}
+                global_string += "li " + reg2 + "," +
+                                 to_string(OFFSET) + "\n";
+
+                global_string += "mult " +
+                                 register_result + "," + reg2 + " \n";
+
+                global_string += "mflo " +
+                                 register_result + " \n"; // scaling
+                return 0;
+            }
+            return (a / OFFSET) * OFFSET;
+        }
+        else if (c->type.id == type::FLOAT)
+        {
+            string resultReg = "";
+            int a = gen_float_op(move(c->expression),
+                                 scope_monitor, global_string, resultReg);
+            if (resultReg != "")
+            {
+                register_result = resultReg;
+                return 0;
+            }
+            return a;
+        }
     }
     if (instanceof <FloatNode *>(op.get()))
     {
@@ -605,14 +609,13 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
             exit(0);
             return -1;
         }
-        if (var->varType.id == type::INT 
-			|| var->varType.id == type::CHAR)
+        if (var->varType.id == type::INT || var->varType.id == type::CHAR)
         {
             register_result = scope_monitor.rg.allocate_register(1);
             string reg = scope_monitor.rg.allocate_register(0);
             string reg2 = scope_monitor.rg.allocate_register(0);
-            global_string += "lw " + reg + "," + 
-		    to_string(var->stackNum) + "($fp) \n";
+            global_string += "lw " + reg + "," +
+                             to_string(var->stackNum) + "($fp) \n";
 
             global_string += "li " + reg2 + "," + to_string(OFFSET) + "\n";
 
@@ -622,8 +625,8 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         else
         {
             register_result = scope_monitor.rg.allocate_register(1);
-            global_string += "lw " + 
-		    register_result + "," + to_string(var->stackNum) + "($fp) \n";
+            global_string += "lw " +
+                             register_result + "," + to_string(var->stackNum) + "($fp) \n";
         }
 
         return 0;
@@ -696,16 +699,16 @@ float gen_float_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
                 register_result = scope_monitor.rg.allocate_register(1);
                 if (pd->token.id == type::MULTIPLY)
                 {
-                    global_string += operations[pd->token.id] + " " + 
-			    registers + ", " + registers2 + "\n";
-                    
-		    global_string += "mflo " + register_result + "\n";
+                    global_string += operations[pd->token.id] + " " +
+                                     registers + ", " + registers2 + "\n";
+
+                    global_string += "mflo " + register_result + "\n";
                 }
                 else
                 {
-                    global_string += operations[pd->token.id] + " " + 
-			    register_result + ", " + registers + ", " + 
-			    registers2 + "\n";
+                    global_string += operations[pd->token.id] + " " +
+                                     register_result + ", " + registers + ", " +
+                                     registers2 + "\n";
                     if (pd->token.id == type::MOD)
                     {
                         global_string += "mfhi " + register_result + "\n";
@@ -742,8 +745,8 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
 
         vector<shared_ptr<VaraibleDeclaration>> param = move(function->params);
         // handle_function_calls(param, called_params_raw, scope_monitor, global_string);
-        handle_function_calls(move(param), 
-			move(pd->params), scope_monitor, global_string);
+        handle_function_calls(move(param),
+                              move(pd->params), scope_monitor, global_string);
         global_string += "sw $ra,4($sp) \n";
 
         global_string += "jal " + function->hashed_functionName + "\n";
@@ -763,33 +766,33 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     }
     if (instanceof <CastNode *>(op.get()))
     {
-	      CastNode *c = dynamic_cast<CastNode *>(op.get());
-	      if(c->type.id == type::CHAR){
-	      		string reg = "";
-  			int a = gen_integer_op(move(c->expression),scope_monitor,global_string, reg);
-			if(reg == ""){
- 		  		reg =  scope_monitor.rg.allocate_register(1);
-	        		global_string += "li " + reg + "," + to_string(a % 255) + " \n";
-			}else{
-				string r1 = scope_monitor.rg.allocate_register(0);
-				global_string += "li "+r1+", 255 \n";
-				global_string += "div "+reg+","+reg+","+r1+"\n";
-				global_string += "mfhi "+reg+"\n";
-				
-			}
-			return reg;
+        CastNode *c = dynamic_cast<CastNode *>(op.get());
+        if (c->type.id == type::CHAR)
+        {
+            string reg = "";
+            int a = gen_integer_op(move(c->expression), scope_monitor, global_string, reg);
+            if (reg == "")
+            {
+                reg = scope_monitor.rg.allocate_register(1);
+                global_string += "li " + reg + "," + to_string(a % 255) + " \n";
+            }
+            else
+            {
+                string r1 = scope_monitor.rg.allocate_register(0);
+                global_string += "li " + r1 + ", 255 \n";
+                global_string += "div " + reg + "," + reg + "," + r1 + "\n";
+                global_string += "mfhi " + reg + "\n";
+            }
+            return reg;
+        }
 
-
-	      }  
-	      
-	cout << "cast mismatch" << endl;
-	exit(EXIT_FAILURE);
-
+        cout << "cast mismatch" << endl;
+        exit(EXIT_FAILURE);
     }
     if (instanceof <BooleanLiteralNode *>(op.get()))
     {
-      
-	cout << "type  mismatch" << endl;
+
+        cout << "type  mismatch" << endl;
         exit(EXIT_FAILURE);
     }
     if (instanceof <CharNode *>(op.get()))
@@ -802,25 +805,24 @@ string gen_char_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     }
     if (instanceof <IntegerNode *>(op.get()))
     {
-       // IntegerNode *pd = dynamic_cast<IntegerNode *>(op.get());
-       // string reg = scope_monitor.rg.allocate_register(0);
-       // if (stoi(pd->num) > 255)
-       // {
-       //     cerr << "char only accepts an 8 bit number" << endl;
-       //     exit(0);
-       //     return "";
-       // }
-       // global_string += "li " + reg + "," + pd->num + "\n";
+        // IntegerNode *pd = dynamic_cast<IntegerNode *>(op.get());
+        // string reg = scope_monitor.rg.allocate_register(0);
+        // if (stoi(pd->num) > 255)
+        // {
+        //     cerr << "char only accepts an 8 bit number" << endl;
+        //     exit(0);
+        //     return "";
+        // }
+        // global_string += "li " + reg + "," + pd->num + "\n";
         // delete pd(a/OFFSET);
-	cout << "type  mismatch" << endl;
-	exit(0);
-        //return reg;
-
+        cout << "type  mismatch" << endl;
+        exit(0);
+        // return reg;
     }
     if (instanceof <FloatNode *>(op.get()))
     {
-        cerr << "char only accepts an 8 bit unsigned integer or letter not floats" 
-		<< endl;
+        cerr << "char only accepts an 8 bit unsigned integer or letter not floats"
+             << endl;
         exit(1);
         return "";
     }
@@ -862,7 +864,7 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         cout << "boolean literal not accepted in integer, use 1 or 0" << endl;
         exit(EXIT_FAILURE);
     }
-    
+
     if (instanceof <funcCallNode *>(op.get()))
     {
         funcCallNode *pd = dynamic_cast<funcCallNode *>(op.get());
@@ -883,10 +885,10 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         }
         vector<shared_ptr<VaraibleDeclaration>> param = (f1->params);
         Tokens returnTypes = f1->returnType.value();
-        handle_function_calls((param), 
-			move(pd->params), 
-			scope_monitor, 
-			global_string);
+        handle_function_calls((param),
+                              move(pd->params),
+                              scope_monitor,
+                              global_string);
 
         scope_monitor.rg.send_save(global_string);
         global_string += "sw $ra,4($sp) \n";
@@ -900,46 +902,53 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         // bring_saveBack(global_string, a);
         register_result = scope_monitor.rg.allocate_register(1);
         global_string += "move " + register_result + ", $v0 \n";
-        if (returnTypes.id == type::FLOAT||returnTypes.id == type::CHAR )
+        if (returnTypes.id == type::FLOAT || returnTypes.id == type::CHAR)
         {
-          	cout << "type mismatch" << endl;
-		exit(EXIT_FAILURE);
+            cout << "type mismatch" << endl;
+            exit(EXIT_FAILURE);
         }
         return 0;
     }
     if (instanceof <CastNode *>(op.get()))
     {
-	  
-        CastNode *c = dynamic_cast<CastNode *>(op.get());
-	if(c->type.id == type::INT){
-		string resultReg = "";
-		int a = gen_float_op(move(c->expression),scope_monitor, global_string,resultReg);
-		if(resultReg != ""){
-			register_result = resultReg;
 
-            		global_string += "div " + 
-				register_result + "," + 
-				register_result + ", " + 
-				to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
-			return 0;
-		}
-		return a/OFFSET;	
-	}else if(c->type.id == type::CHAR){
-		string resultReg = "";
-		int a = gen_integer_op(move(c->expression),scope_monitor, global_string,resultReg);
-		if(resultReg != ""){
-			register_result = resultReg;
-			string r1 = scope_monitor.rg.allocate_register(0);
-			global_string += "li "+r1+", 255 \n";
-			global_string += "div "+register_result+","+register_result+","+r1+"\n";
-			global_string += "mfhi "+register_result+"\n";
-			return 0;
-		}
-		return a % 255;
-	}else{
-		cout << "type mismatch"<<endl;
-		exit(EXIT_FAILURE);
-	}
+        CastNode *c = dynamic_cast<CastNode *>(op.get());
+        if (c->type.id == type::INT)
+        {
+            string resultReg = "";
+            int a = gen_float_op(move(c->expression), scope_monitor, global_string, resultReg);
+            if (resultReg != "")
+            {
+                register_result = resultReg;
+
+                global_string += "div " +
+                                 register_result + "," +
+                                 register_result + ", " +
+                                 to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
+                return 0;
+            }
+            return a / OFFSET;
+        }
+        else if (c->type.id == type::CHAR)
+        {
+            string resultReg = "";
+            int a = gen_integer_op(move(c->expression), scope_monitor, global_string, resultReg);
+            if (resultReg != "")
+            {
+                register_result = resultReg;
+                string r1 = scope_monitor.rg.allocate_register(0);
+                global_string += "li " + r1 + ", 255 \n";
+                global_string += "div " + register_result + "," + register_result + "," + r1 + "\n";
+                global_string += "mfhi " + register_result + "\n";
+                return 0;
+            }
+            return a % 255;
+        }
+        else
+        {
+            cout << "type mismatch" << endl;
+            exit(EXIT_FAILURE);
+        }
     }
     if (instanceof <IntegerNode *>(op.get()))
     {
@@ -951,23 +960,22 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
     }
     if (instanceof <CharNode *>(op.get()))
     {
-    //    CharNode *pd = dynamic_cast<CharNode *>(op.get());
-    //    register_result = "";
-    //    int a = (int)stoi(pd->character);
-    //    // delete pd;
-    //    return a;
-	cout << "type mis match" << endl;
-	exit(EXIT_FAILURE);
+        //    CharNode *pd = dynamic_cast<CharNode *>(op.get());
+        //    register_result = "";
+        //    int a = (int)stoi(pd->character);
+        //    // delete pd;
+        //    return a;
+        cout << "type mis match" << endl;
+        exit(EXIT_FAILURE);
     }
     if (instanceof <FloatNode *>(op.get()))
     {
-      //  FloatNode *pd = dynamic_cast<FloatNode *>(op.get());
-      //  register_result = "";
-      //  int a = (int)stoi(pd->num) / OFFSET;
-      //  return a;
-      	cout << "type mis match" << endl;
-	exit(EXIT_FAILURE);
-
+        //  FloatNode *pd = dynamic_cast<FloatNode *>(op.get());
+        //  register_result = "";
+        //  int a = (int)stoi(pd->num) / OFFSET;
+        //  return a;
+        cout << "type mis match" << endl;
+        exit(EXIT_FAILURE);
     }
     if (instanceof <VaraibleReference *>(op.get()))
     {
@@ -979,26 +987,27 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
             exit(0);
             return -1;
         }
-	if(var->varType.id == type::FLOAT || var->varType.id == type::CHAR){
-		cout << "type mismatch" << endl;
-		exit(EXIT_FAILURE);
-	}
+        if (var->varType.id == type::FLOAT || var->varType.id == type::CHAR)
+        {
+            cout << "type mismatch" << endl;
+            exit(EXIT_FAILURE);
+        }
 
-   //     if (var->varType.id == type::FLOAT)
-   //     {
+        //     if (var->varType.id == type::FLOAT)
+        //     {
 
-   //         // string reg = allocateReg();
-   //         string reg = scope_monitor.rg.allocate_register(0);
-   //         register_result = scope_monitor.rg.allocate_register(1);
-   //         global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
-   //         global_string += "div " + register_result + "," + reg + ", " + to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
-   //         freeReg();
-   //     }
-        
-      //  {
-            register_result = scope_monitor.rg.allocate_register(1);
-            global_string += "lw " + register_result + "," + 
-		    to_string(var->stackNum) + "($fp) #float \n";
+        //         // string reg = allocateReg();
+        //         string reg = scope_monitor.rg.allocate_register(0);
+        //         register_result = scope_monitor.rg.allocate_register(1);
+        //         global_string += "lw " + reg + "," + to_string(var->stackNum) + "($fp) \n";
+        //         global_string += "div " + register_result + "," + reg + ", " + to_string(OFFSET) + " #is not float \n"; // scaling. I forgot i worked on this lmao :')
+        //         freeReg();
+        //     }
+
+        //  {
+        register_result = scope_monitor.rg.allocate_register(1);
+        global_string += "lw " + register_result + "," +
+                         to_string(var->stackNum) + "($fp) #float \n";
         //}
         // delete pd;
 
@@ -1022,8 +1031,8 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
         string registers2 = "";
         int a, b;
         a = gen_integer_op(move(op->left), scope_monitor, global_string, registers);
-        b = gen_integer_op(move(op->right), 
-			scope_monitor, global_string, registers2);
+        b = gen_integer_op(move(op->right),
+                           scope_monitor, global_string, registers2);
 
         if (registers2 == "" && registers == "")
         {
@@ -1104,15 +1113,15 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
                 register_result = scope_monitor.rg.allocate_register(1);
                 if (pd->token.id == type::MULTIPLY)
                 {
-                    global_string += operations[pd->token.id] + " " + 
-			    registers + ", " + registers2 + "\n";
+                    global_string += operations[pd->token.id] + " " +
+                                     registers + ", " + registers2 + "\n";
                     global_string += "mflo " + register_result + "\n";
                 }
                 else
                 {
-                    global_string += operations[pd->token.id] + " " + 
-			    register_result + ", " + registers + ", " + 
-			    registers2 + "\n";
+                    global_string += operations[pd->token.id] + " " +
+                                     register_result + ", " + registers + ", " +
+                                     registers2 + "\n";
                     if (pd->token.id == type::MOD)
                     {
                         global_string += "mfhi " + register_result + "\n";
@@ -1137,9 +1146,9 @@ optional<Type_Value> gen_integer_op_Typed(unique_ptr<Node> op, Scope_Monitor &sc
 }
 
 void handle_function_calls(
-		vector<shared_ptr<VaraibleDeclaration>> function_params, 
-		vector<unique_ptr<Node>> params, 
-		Scope_Monitor &scope_monitor, string &global_string)
+    vector<shared_ptr<VaraibleDeclaration>> function_params,
+    vector<unique_ptr<Node>> params,
+    Scope_Monitor &scope_monitor, string &global_string)
 {
 
     for (int i = 0; i < function_params.size(); i++)
@@ -1147,17 +1156,17 @@ void handle_function_calls(
         if (function_params[i]->typeOfVar.id == type::INT)
         {
             string reg = "";
-            int c = gen_integer_op(move(params[i]), 
-			    scope_monitor, 
-			    global_string, 
-			    reg);
+            int c = gen_integer_op(move(params[i]),
+                                   scope_monitor,
+                                   global_string,
+                                   reg);
             if (reg == "")
             {
                 reg = allocateReg();
                 global_string += "li " + reg + ", " + to_string(c) + "\n";
             }
-            global_string += "move " + allocate_argumentRegister() + "," + 
-		    reg + " \n";
+            global_string += "move " + allocate_argumentRegister() + "," +
+                             reg + " \n";
             scope_monitor.rg.downgrade_register(reg);
         }
         else if (function_params[i]->typeOfVar.id == type::FLOAT)
@@ -1169,26 +1178,26 @@ void handle_function_calls(
                 reg = allocateReg();
                 global_string += "li " + reg + ", " + to_string(c) + " \n";
             }
-            global_string += "move " + allocate_argumentRegister() + "," + 
-		    reg + "#f \n";
+            global_string += "move " + allocate_argumentRegister() + "," +
+                             reg + "#f \n";
             scope_monitor.rg.downgrade_register(reg);
         }
         else if (function_params[i]->typeOfVar.id == type::CHAR)
         {
             string reg = gen_char_op(move(params[i]), scope_monitor, global_string);
-            global_string += "move " + 
-		    allocate_argumentRegister() + "," + reg + "#f \n";
+            global_string += "move " +
+                             allocate_argumentRegister() + "," + reg + "#f \n";
             scope_monitor.rg.downgrade_register(reg);
         }
     }
     reset_arg_register();
 }
 
-void update_var_values(Tokens type, 
-		unique_ptr<Node> expression, 
-		string &global_string, 
-		string &reg, 
-		Scope_Monitor &scope_monitor)
+void update_var_values(Tokens type,
+                       unique_ptr<Node> expression,
+                       string &global_string,
+                       string &reg,
+                       Scope_Monitor &scope_monitor)
 {
     if (type.id == type::FLOAT)
     {

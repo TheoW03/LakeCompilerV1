@@ -106,6 +106,7 @@ void gen_LLVM(vector<unique_ptr<FunctionNode>> op, string filename)
   map<type, llvm::Type *> type_map;
   type_map[type::INT] = builder.getInt32Ty();
   type_map[type::STRING] = PointerType::getUnqual(builder.getInt8Ty());
+  // PointerType::getUnqual(PointerType::getUnqual(builder.getInt32()));
 
   for (size_t i = 0; i < op.size(); i++)
   {

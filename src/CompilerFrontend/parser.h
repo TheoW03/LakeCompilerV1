@@ -186,6 +186,7 @@ struct ArrayDeclaration : public Node
     unique_ptr<Node> size;
     Tokens varaible;
     Tokens typeOfVar;
+    int dimensions;
 };
 #endif
 
@@ -196,6 +197,7 @@ struct ArrayRef : public Node
     Tokens name;
     unique_ptr<Node> RefedLocation;
     unique_ptr<Node> value;
+    int referencedDimensions;
 };
 #endif
 

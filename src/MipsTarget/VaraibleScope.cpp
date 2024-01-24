@@ -14,6 +14,7 @@ struct Varaible
     int stackNum;
     int constant;
     virtual ~Varaible();
+    int dimensions; // for arrays'
 };
 struct Array : Varaible
 {
@@ -135,6 +136,7 @@ Varaible *add_to_var(VaraibleDeclaration *var,
     a->constant = var->constant;
     a->stackNum = stack_number;
     a->varType = var->typeOfVar;
+    a->dimensions = 0;
     for (int i = 0; i < scope.size(); i++)
     {
         map<string, Varaible *> b = scope[i].vars;

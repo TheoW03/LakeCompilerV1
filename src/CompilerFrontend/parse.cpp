@@ -28,6 +28,11 @@ using namespace std;
  *
  */
 
+struct Complex_types : Base_types
+{
+    Base_types base_type;
+    Complex_types(Base_types b) : base_type(b) {}
+};
 struct Node
 {
     unique_ptr<Node> right;
@@ -119,14 +124,17 @@ struct OperatorNode : public Node
 struct ArrayDeclaration : public Node
 {
     unique_ptr<Node> size;
+
     Tokens varaible;
     Tokens typeOfVar;
+    int dimensions;
 };
 struct ArrayRef : public Node
 {
     Tokens name;
     unique_ptr<Node> RefedLocation;
     unique_ptr<Node> value;
+    int referencedDimensions;
 };
 
 struct LoopNode : public Node

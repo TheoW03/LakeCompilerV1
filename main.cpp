@@ -136,6 +136,12 @@ string traverse(unique_ptr<Node> op, string &global_string, int isLoop = 0)
 
 int main(int argc, char *argv[])
 {
+	union {
+		float f;
+		char b;
+	};
+	f = 100.1415;
+	cout << f << (int)b << endl;
 	llvmtest();
 	// handle_cli(argv, argc);
 	
