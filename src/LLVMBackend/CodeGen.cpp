@@ -28,7 +28,7 @@ llvm::Value *OperatorNode::Codegen(IRBuilder<> &builder)
 llvm::Value *FunctionNode::Codegen(IRBuilder<> &builder)
 {
     // FunctionType *funcType;
-    uint8_t a = 0;
+    // uint8_t a = 0;
     // if (returnType.has_value())
     // {
     //     switch (returnType.value().id)
