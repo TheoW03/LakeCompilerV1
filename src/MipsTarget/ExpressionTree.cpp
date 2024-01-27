@@ -987,7 +987,7 @@ int gen_integer_op(unique_ptr<Node> op, Scope_Monitor &scope_monitor, string &gl
             exit(0);
             return -1;
         }
-        if (var->varType.id == type::FLOAT || var->varType.id == type::CHAR)
+        if (var->varType.id == type::FLOAT || var->varType.id == type::CHAR || var->varType.id == type::ARRAY)
         {
             cout << "type mismatch" << endl;
             exit(EXIT_FAILURE);

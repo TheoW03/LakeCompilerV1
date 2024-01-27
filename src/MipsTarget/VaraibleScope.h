@@ -15,6 +15,7 @@ struct Varaible
     int stackNum;
     int constant;
     virtual ~Varaible();
+    vector<unique_ptr<Node>> array_dimensions;
 };
 #endif
 
@@ -28,13 +29,13 @@ struct Scope_dimension
 };
 #endif
 
-#ifndef ARRAY
-#define ARRAY
-struct Array : Varaible
-{
-    Tokens varType;
-};
-#endif
+// #ifndef ARRAY
+// #define ARRAY
+// struct Array : Varaible
+// {
+//     Tokens varType;
+// };
+// #endif
 
 #ifndef SCOPE_MONITOR_H
 #define SCOPE_MONITOR_H
@@ -58,3 +59,6 @@ Varaible *add_to_var(VaraibleDeclaration *var, vector<Scope_dimension> &scope,
 void reset_registers();
 int save_registers(string &global_string);
 void bring_saveBack(string &global_string, int nextReg);
+Varaible *add_to_var_arr(ArrayDeclaration *var,
+                         vector<Scope_dimension> &scope,
+                         int stack_number);

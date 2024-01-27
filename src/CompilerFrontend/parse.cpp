@@ -28,11 +28,11 @@ using namespace std;
  *
  */
 
-struct Complex_types : Base_types
-{
-    Base_types base_type;
-    Complex_types(Base_types b) : base_type(b) {}
-};
+// struct Complex_types : Base_types
+// {
+//     Base_types base_type;
+//     Complex_types(Base_types b) : base_type(b) {}
+// };
 struct Node
 {
     unique_ptr<Node> right;
@@ -127,6 +127,7 @@ struct ArrayDeclaration : public Node
 
     Tokens varaible;
     Tokens typeOfVar;
+    vector<unique_ptr<Node>> array_dimensions;
     int dimensions;
 };
 struct ArrayRef : public Node
@@ -262,6 +263,7 @@ unique_ptr<Node> factor(vector<Tokens> &tokens)
             unique_ptr<ArrayRef> arrayRef = make_unique<ArrayRef>();
             arrayRef->name = current.value();
             arrayRef->RefedLocation = expression(tokens);
+            arrayRef->referencedDimensions = 1;
             matchAndRemove(tokens, type::CL_BRACKET);
             return arrayRef;
         }
@@ -757,6 +759,7 @@ unique_ptr<Node> parse_arr_Ref(vector<Tokens> &tokens, Tokens name)
     matchAndRemove(tokens, type::CL_BRACKET);
     matchAndRemove(tokens, type::EQUALS);
     arrayRef->value = expression(tokens);
+    array->referencedDimensions = 1;
     return arrayRef;
 }
 
@@ -797,8 +800,16 @@ unique_ptr<Node> handle_array_declaration(vector<Tokens> &tokens)
     unique_ptr<Node> size = move(expression(tokens));
     matchAndRemove(tokens, type::CL_BRACKET);
     array->size = move(size);
-    array->typeOfVar = type;
+    Tokens t;
+    t.id = type::ARRAY;
+    array->typeOfVar = t;
     array->varaible = matchAndRemove(tokens, type::WORD).value();
+    vector<unique_ptr<Node>> a;
+    unique_ptr<VaraibleDeclaration> v = make_unique<VaraibleDeclaration>();
+    v->typeOfVar = type;
+    a.push_back(move(v));
+    array->array_dimensions = move(a);
+    // array->dimensions = 1;
     //  if(matchAndRemove(tokens, type::EQUALS).had_value){
     //
     //  } //for later :3c

@@ -390,7 +390,7 @@ vector<Tokens> lex(vector<string> lines)
             {
                 if (str == "/" && line.at(next_char + 1) == '/')
                 {
-                    break; //comment
+                    break; // comment
                 }
                 if (str == "." && line.at(next_char + 1) == '.')
                 {

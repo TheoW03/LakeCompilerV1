@@ -14,7 +14,7 @@ struct Varaible
     int stackNum;
     int constant;
     virtual ~Varaible();
-    int dimensions; // for arrays'
+    vector<unique_ptr<Node>> array_dimensions;
 };
 struct Array : Varaible
 {
@@ -136,7 +136,33 @@ Varaible *add_to_var(VaraibleDeclaration *var,
     a->constant = var->constant;
     a->stackNum = stack_number;
     a->varType = var->typeOfVar;
-    a->dimensions = 0;
+    // a->dimensions = 0;
+    for (int i = 0; i < scope.size(); i++)
+    {
+        map<string, Varaible *> b = scope[i].vars;
+        if (b.find(var->varaible.buffer) != b.end())
+        {
+
+            cerr << var->varaible.buffer << " has been declared twice" << endl;
+            exit(1);
+            return nullptr;
+        }
+    }
+
+    scope[scope.size() - 1].vars[var->varaible.buffer] = a;
+    return a;
+}
+Varaible *add_to_var_arr(ArrayDeclaration *var,
+                         vector<Scope_dimension> &scope,
+                         int stack_number)
+{
+    Varaible *a = new Varaible;
+
+    a->constant = 1;
+    a->stackNum = stack_number;
+    a->varType = var->typeOfVar;
+    a->array_dimensions = move(var->array_dimensions);
+    // a->dimensions = 1; // for now :3
     for (int i = 0; i < scope.size(); i++)
     {
         map<string, Varaible *> b = scope[i].vars;

@@ -186,6 +186,7 @@ struct ArrayDeclaration : public Node
     unique_ptr<Node> size;
     Tokens varaible;
     Tokens typeOfVar;
+    vector<unique_ptr<Node>> array_dimensions;
     int dimensions;
 };
 #endif

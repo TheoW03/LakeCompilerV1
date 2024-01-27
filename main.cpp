@@ -136,14 +136,11 @@ string traverse(unique_ptr<Node> op, string &global_string, int isLoop = 0)
 
 int main(int argc, char *argv[])
 {
-	union {
-		float f;
-		char b;
-	};
-	f = 100.1415;
-	cout << f << (int)b << endl;
-	llvmtest();
-	// handle_cli(argv, argc);
+	// llvmtest();
+	// int a[8] = {1,2};
+	// int b[7] = {2,1};
+	// b = a;
+	handle_cli(argv, argc);
 	
 	//  vector<Tokens> a = lex(readFile("test.lk"));
 	// 	unique_ptr<Node> b = test(a);
