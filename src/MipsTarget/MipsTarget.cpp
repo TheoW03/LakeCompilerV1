@@ -126,7 +126,7 @@ void statementsGen(shared_ptr<Node> statement,
         add_to_var_arr(pd, (scope_monitor.scope), stack_number);
         string reg2 = scope_monitor.rg.allocate_register(0);
         global_string += "li" + reg2 + ", " + to_string(4) + " \n";
-        global_string += "mul " + reg2 + "," + reg + " \n";
+        global_string += "mult " + reg2 + "," + reg + " \n";
         string r2 = scope_monitor.rg.allocate_register(0);
         global_string += "mflo " + r2 + "\n";
         string r3 = scope_monitor.rg.allocate_register(0);
@@ -136,9 +136,9 @@ void statementsGen(shared_ptr<Node> statement,
         // update_var_values( move(pd->size), global_string, reg, scope_monitor);
         wf(outfile, global_string);
     }
-    else if (instanceof <ArrayRef>(statement.get()))
+    else if (instanceof <ArrayRef*>(statement.get()))
     {
-        ArrayRef *pd = dynamic_cast<ArrayRef>(statement.get());
+        ArrayRef *pd = dynamic_cast<ArrayRef*>(statement.get());
         
         // Varaible *type1 = get_varaible(pd, (scope_monitor.scope));
 

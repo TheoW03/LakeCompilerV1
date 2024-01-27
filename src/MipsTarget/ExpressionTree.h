@@ -8,7 +8,7 @@
 #include "../../src/MipsTarget/VaraibleScope.h"
 #include "../../src/MipsTarget/UtilFunctions.h"
 
-using namespace std;
+// using namespace std;
 string gen_string(unique_ptr<Node> op, 
 		Scope_Monitor &scope_monitor, 
 		string &global_string);

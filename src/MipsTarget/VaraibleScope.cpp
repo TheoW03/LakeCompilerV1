@@ -178,3 +178,17 @@ Varaible *add_to_var_arr(ArrayDeclaration *var,
     scope[scope.size() - 1].vars[var->varaible.buffer] = a;
     return a;
 }
+Varaible *getArr(ArrayRef *var, vector<Scope_dimension> &scope)
+{
+    for (int i = 0; i < scope.size(); i++)
+    {
+        map<string, Varaible *> b = scope[i].vars;
+
+        if (b.find(var->name.buffer) != b.end())
+        {
+
+            return b[var->name.buffer];
+        }
+    }
+    return nullptr;
+}

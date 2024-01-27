@@ -759,7 +759,7 @@ unique_ptr<Node> parse_arr_Ref(vector<Tokens> &tokens, Tokens name)
     matchAndRemove(tokens, type::CL_BRACKET);
     matchAndRemove(tokens, type::EQUALS);
     arrayRef->value = expression(tokens);
-    array->referencedDimensions = 1;
+    arrayRef->referencedDimensions = 1;
     return arrayRef;
 }
 

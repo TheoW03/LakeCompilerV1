@@ -62,3 +62,5 @@ void bring_saveBack(string &global_string, int nextReg);
 Varaible *add_to_var_arr(ArrayDeclaration *var,
                          vector<Scope_dimension> &scope,
                          int stack_number);
+
+Varaible *getArr(ArrayRef *var, vector<Scope_dimension> &scope);
